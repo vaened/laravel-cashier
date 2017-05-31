@@ -5,7 +5,9 @@
 
 namespace Enea\Cashier;
 
+use Enea\Cashier\Contracts\CountableStaticContract;
 use Enea\Cashier\Contracts\SalableContract;
+use Enea\Exceptions\IrreplaceableAmountException;
 use Illuminate\Database\Eloquent\Model;
 
 class SalableItem extends BaseItem
@@ -25,9 +27,19 @@ class SalableItem extends BaseItem
      */
     public function __construct( SalableContract $salable, int $quantity = null )
     {
+        if ( $salable instanceof  CountableStaticContract ) {
+
+            if (! is_null($quantity)) {
+                throw new IrreplaceableAmountException( $quantity );
+            }
+
+            $quantity = $salable ->getQuantity( );
+        }
+
         $this->salable = $salable;
-        $this->setQuantity( $quantity );
+        parent::setQuantity($quantity);
     }
+
 
     /**
      * Returns the object of the calculator with the requested parameters

@@ -57,20 +57,11 @@ abstract class BaseItem
      * @param int $quantity
      * @return void
      */
-    public function setQuantity( ? int $quantity ): void
+    public function setQuantity( int $quantity ): void
     {
-        $model = $this->model( );
-
-        if ( $model instanceof  CountableStaticContract ) {
-
-            if (! is_null($quantity)) {
-                throw new IrreplaceableAmountException( $quantity );
-            }
-
-            $quantity = $model->getQuantity( );
-        }
-
-        $this->setValidQuantity( $quantity );
+        $this->quantity = $quantity;
+        $this->old_quantity = $this->old_quantity ?: $quantity;
+        $this->recalculate = true;
     }
 
     /**
@@ -96,7 +87,7 @@ abstract class BaseItem
             $model = $this->model( );
 
             if ( $model instanceof  DiscountableContract) {
-                $this->calculator->setDiscountPercentage($model->getDiscountPercentageAttribute());
+                $this->calculator->setDiscountPercentage($model->getDiscountPercentageAttribute( ));
             }
 
             $this->calculator->setImpostPercentage( $this->impostPercentage );
@@ -131,24 +122,10 @@ abstract class BaseItem
      *
      * @return bool
      */
-    public function isTouched(): bool
+    public function isTouched( ): bool
     {
         return $this->old_quantity != $this->getQuantity( );
     }
-
-    /**
-     * Establishes an amount for the item if it is valid
-     *
-     * @param int $quantity
-     * @return void
-     */
-    private function setValidQuantity( int $quantity )
-    {
-        $this->quantity = $quantity;
-        $this->old_quantity = $this->old_quantity ?: $quantity;
-        $this->recalculate = true;
-    }
-
 
     /**
      * Verifies whether it is necessary to recalculate the price
