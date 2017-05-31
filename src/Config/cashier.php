@@ -5,5 +5,13 @@
 
 return [
 
-    'decimals' => 3
+    /**
+     *
+     * */
+    'decimals' => 3,
+
+    /**
+     * Class that is responsible for calculating all values
+     **/
+    'calculator' => \Enea\Cashier\Calculator::class,
 ];

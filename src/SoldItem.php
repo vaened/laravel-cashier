@@ -28,13 +28,13 @@ class SoldItem extends BaseItem
     }
 
     /**
-     * Returns the object of the calculator with the requested parameters
+     * Get base price for item
      *
-     * @return Calculator
+     * @return float
      */
-    protected function calculatorConfiguration( ): Calculator
+    protected function getBasePrice( ): float
     {
-        // TODO: Implement calculatorConfiguration() method.
+        return $this->sold->getBasePriceAttribute( );
     }
 
     /**

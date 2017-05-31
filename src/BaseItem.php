@@ -82,7 +82,8 @@ abstract class BaseItem
     public function getCalculator( ): Calculator
     {
         if ($this->needToRecalculate( )) {
-            $this->calculator = $this->calculatorConfiguration( );
+
+            $this->calculator = $this->calculator( );
 
             $model = $this->model( );
 
@@ -137,12 +138,27 @@ abstract class BaseItem
         return $this->recalculate || empty($this->calculator);
     }
 
+
     /**
-     * Returns the object of the calculator with the requested parameters
+     * Returns an instance of calculator
      *
      * @return Calculator
      */
-    protected abstract function calculatorConfiguration( ): Calculator;
+    private function calculator( ): Calculator
+    {
+        if ( empty($path = config('cashier.calculator'))) {
+            return new Calculator($this->getBasePrice(), $this->getQuantity());
+        }
+
+        return new $path($this->getBasePrice(), $this->getQuantity());
+    }
+
+    /**
+     * Get base price for item
+     *
+     * @return float
+     */
+    protected abstract function getBasePrice( ): float ;
 
     /**
      * Return an instance of the model that represents the product
