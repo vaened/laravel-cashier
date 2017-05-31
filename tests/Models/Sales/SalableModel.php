@@ -13,15 +13,15 @@ use Illuminate\Database\Eloquent\Model;
 class SalableModel extends Model implements SalableContract
 {
 
-    protected $fillable = ['id'];
+    protected $fillable = ['id', 'price'];
     /**
      * Get base price for item
      *
      * @return float
      */
-    public function getBasePriceAttribute(): float
+    public function getBasePrice(): float
     {
-        return CalculatorTest::PRICE;
+        return $this->price;
     }
 
     /**
