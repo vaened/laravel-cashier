@@ -6,6 +6,11 @@
 namespace Enea\Cashier\Contracts;
 
 
+/**
+ * When implementing this interface, it is possible to assign a discount percentage on an item
+ *
+ * @package Enea\Cashier\Contracts
+ */
 interface DiscountableContract
 {
 

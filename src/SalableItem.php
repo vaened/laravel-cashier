@@ -24,8 +24,9 @@ class SalableItem extends BaseItem
      *
      * @param SalableContract $salable
      * @param int $quantity
+     * @param int $impostPercentage
      */
-    public function __construct( SalableContract $salable, int $quantity = null )
+    public function __construct( SalableContract $salable, int $quantity = null, int $impostPercentage = 0 )
     {
         if ( $salable instanceof  CountableStaticContract ) {
 
@@ -38,6 +39,7 @@ class SalableItem extends BaseItem
 
         $this->salable = $salable;
         parent::setQuantity($quantity);
+        parent::setImpostPercentage($impostPercentage);
     }
 
 
@@ -46,9 +48,9 @@ class SalableItem extends BaseItem
      *
      * @return float
      */
-    protected function getBasePrice(): float
+    protected function getBasePrice( ): float
     {
-        return $this->salable->getBasePriceAttribute( );
+        return $this->salable->getBasePrice( );
     }
 
     /**
@@ -61,4 +63,13 @@ class SalableItem extends BaseItem
         return $this->salable;
     }
 
+    /**
+     * Returns identification
+     *
+     * @return int|string
+     * */
+    public function getKey()
+    {
+        return $this->salable->getItemKey();
+    }
 }

@@ -6,6 +6,12 @@
 namespace Enea\Cashier\Contracts;
 
 
+/**
+ * The classes that implement this interface must establish the quantity
+ * for the article, it can not be changed under any circumstances
+ *
+ * @package Enea\Cashier\Contracts
+ */
 interface CountableStaticContract
 {
 

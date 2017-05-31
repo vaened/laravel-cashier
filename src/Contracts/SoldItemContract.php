@@ -23,4 +23,11 @@ interface SoldItemContract
      * */
     public function getQuantity( ): int;
 
+    /**
+     * Get base price for item
+     *
+     * @return float
+     */
+    public function getBasePriceAttribute( ): float;
+
 }

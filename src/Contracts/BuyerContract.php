@@ -6,6 +6,11 @@
 namespace Enea\Cashier\Contracts;
 
 
+/**
+ * Makes the model a potential buyer.
+ *
+ * @package Enea\Cashier\Contracts
+ */
 interface BuyerContract
 {
 

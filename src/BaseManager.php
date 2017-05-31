@@ -6,6 +6,7 @@
 namespace Enea\Cashier;
 
 
+use Enea\Cashier\Contracts\InvoiceContract;
 use Illuminate\Support\Collection;
 
 abstract class BaseManager
@@ -16,7 +17,12 @@ abstract class BaseManager
      *
      * @var  Collection
      * */
-    protected $collection;
+    private $collection;
+
+    /**
+     * @var int
+     */
+    protected $impostPercentage = Calculator::ZERO;
 
 
     public function __construct( )
@@ -97,11 +103,51 @@ abstract class BaseManager
 
 
     /**
+     * Returns the tax percentage
+     *
+     * @return int
+     */
+    public function getImpostPercentage( ): int
+    {
+        return $this->impostPercentage;
+    }
+
+    /**
+     * set the payment document and extract tex percentage
+     *
+     * @param InvoiceContract $invoice
+     *
+     * @return int
+     */
+    public function setPaymentDocument( InvoiceContract $invoice )
+    {
+        $this->impostPercentage = $invoice->getTaxPercentageAttribute( );
+
+        $this->collection()->each(function (BaseItem $item){
+            $item->setImpostPercentage($this->getImpostPercentage( ));
+        });
+    }
+
+
+
+    /**
+     * Add a new item to the collection
+     *
+     * @param $key
+     * @param BaseItem $item
+     * @return void
+     */
+    protected function add( $key, BaseItem $item): void
+    {
+        $this->collection->put( $key, $item);
+    }
+
+    /**
      * Filter items that have not been marked as deleted
      * 
      * @return  Collection
      */
-    protected function collection( ): Collection
+    public function collection( ): Collection
     {
         return $this->collection;
     }

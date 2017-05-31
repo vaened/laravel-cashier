@@ -21,6 +21,6 @@ interface SalableContract
      *
      * @return float
      */
-    public function getBasePriceAttribute( ): float;
+    public function getBasePrice( ): float;
 
 }

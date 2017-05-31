@@ -6,25 +6,31 @@
 namespace Enea\Cashier;
 
 
-use Enea\Cashier\Contracts\{BuyerContract, SalableContract};
+use Enea\Cashier\Contracts\{
+    BuyerContract, InvoiceContract, SalableContract
+};
 
 class ShoppingCard extends BaseManager
 {
 
     /**
      * @var BuyerContract
-     *
      */
     protected $buyer;
 
     /**
      * ShoppingCard constructor.
      * @param BuyerContract $buyer
+     * @param InvoiceContract $invoice
      */
-    public function __construct( BuyerContract $buyer )
+    public function __construct( BuyerContract $buyer, InvoiceContract $invoice = null)
     {
         parent::__construct( );
         $this->buyer = $buyer;
+
+        if ( ! is_null( $invoice ) ) {
+            $this->setPaymentDocument( $invoice );
+        }
     }
 
     /**
@@ -34,17 +40,16 @@ class ShoppingCard extends BaseManager
      * @param int $quantity
      * @return bool
      */
-    public function push( SalableContract $salable, int $quantity): bool
+    public function push( SalableContract $salable, int $quantity = null ): bool
     {
-        $item = new SalableItem( $salable, $quantity );
+        $item = new SalableItem( $salable, $quantity, $this->getImpostPercentage( ) );
 
         if ( $has = ! $this->hasItem( $salable->getItemKey( ) ) ) {
-            $this->collection( )->put( $salable->getItemKey( ), $item);
+            $this->add($salable->getItemKey( ), $item);
         }
 
         return $has;
     }
-
 
     /**
      * Returns a item by identification
@@ -63,7 +68,7 @@ class ShoppingCard extends BaseManager
      * @param $key
      * @return bool
      */
-    public function hasItem($key )
+    public function hasItem( $key )
     {
         return isset($this->collection( )[$key]);
     }
@@ -77,4 +82,6 @@ class ShoppingCard extends BaseManager
     {
         return $this->buyer;
     }
+
+
 }

@@ -6,8 +6,7 @@
 namespace Enea\Cashier;
 
 
-use Enea\Cashier\Contracts\{CountableStaticContract, DiscountableContract};
-use Enea\Exceptions\IrreplaceableAmountException;
+use Enea\Cashier\Contracts\DiscountableContract;
 use Illuminate\Database\Eloquent\Model;
 
 abstract class BaseItem
@@ -105,6 +104,8 @@ abstract class BaseItem
      */
     public function setImpostPercentage( int $percentage): void
     {
+        $this->recalculate = true;
+
         $this->impostPercentage = $percentage;
     }
 
@@ -152,6 +153,13 @@ abstract class BaseItem
 
         return new $path($this->getBasePrice(), $this->getQuantity());
     }
+
+    /**
+     * Returns identification
+     *
+     * @return int|string
+     * */
+    public abstract function getKey();
 
     /**
      * Get base price for item

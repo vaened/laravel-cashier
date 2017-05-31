@@ -48,7 +48,7 @@ class HeaderSold extends BaseManager
      */
     protected function addElementItem(SoldItemContract $element ): void
     {
-        $this->collection()->put($element->getItemKey( ), new SoldItem( $element, $this->getTaxPercentage( ) ));
+        $this->add($element->getItemKey( ), new SoldItem( $element, $this->getTaxPercentage( ) ));
     }
 
 }
