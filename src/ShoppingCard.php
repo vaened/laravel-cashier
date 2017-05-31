@@ -17,7 +17,6 @@ class ShoppingCard extends BaseManager
      */
     protected $buyer;
 
-
     /**
      * ShoppingCard constructor.
      * @param BuyerContract $buyer
@@ -35,17 +34,28 @@ class ShoppingCard extends BaseManager
      * @param int $quantity
      * @return bool
      */
-    public function push( SalableContract $salable, int $quantity = null ): bool
+    public function push( SalableContract $salable, int $quantity): bool
     {
         $item = new SalableItem( $salable, $quantity );
 
-        if ( $has = ! $this->hasItem( $salable->getSalableKey( ) ) ) {
-            $this->collection()->put($salable->getSalableKey( ), $item);
+        if ( $has = ! $this->hasItem( $salable->getItemKey( ) ) ) {
+            $this->collection( )->put( $salable->getItemKey( ), $item);
         }
 
         return $has;
     }
 
+
+    /**
+     * Returns a item by identification
+     *
+     * @param string|int $key
+     * @return SalableItem|null
+     */
+    public function find( $key ): ?SalableItem
+    {
+        return $this->collection()->get( $key );
+    }
 
     /**
      * Determine if an item exists in the collection by key.

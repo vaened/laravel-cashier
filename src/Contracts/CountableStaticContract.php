@@ -14,6 +14,6 @@ interface CountableStaticContract
      *
      * @return int
      * */
-    public function quantityAttribute( ): int;
+    public function getQuantity( ): int;
 
 }

@@ -16,7 +16,7 @@ class Calculator implements Arrayable
      *
      * @var int
      * */
-    protected const ZERO = 0;
+    const ZERO = 0;
 
     /**
      * Absolute value
@@ -60,6 +60,13 @@ class Calculator implements Arrayable
      */
     private $planDiscountPercentage;
 
+
+    /**
+     * Total decimals
+     *
+     * @var int
+     * */
+    private $decimals;
 
     /**
      * Calculator constructor.
@@ -155,11 +162,35 @@ class Calculator implements Arrayable
      * Returns the assigned discount item
      *
      * @param int $percentage
-     * @return self
+     * @return Calculator
      */
-    public function setDiscountPercentage( int $percentage): self
+    public function setDiscountPercentage( int $percentage ): Calculator
     {
         $this->discountPercentage = $percentage;
+        return $this;
+    }
+
+    /**
+     * Set a tax rate for the item
+     *
+    * @param int $percentage
+    * @return Calculator
+    */
+    public function setImpostPercentage( int $percentage ): Calculator
+    {
+        $this->impostPercentage = $percentage;
+        return $this;
+    }
+
+    /**
+     * Set a plan discount for the item
+     *
+    * @param int $percentage
+    * @return Calculator
+    */
+    public function setPlanPercentage( int $percentage ): Calculator
+    {
+        $this->planDiscountPercentage = $percentage;
         return $this;
     }
 
@@ -180,9 +211,8 @@ class Calculator implements Arrayable
      */
     public function getDiscount( ): float
     {
-        return $this->format($this->getSubtotal( ) * $this->getDiscountPercentage());
+        return $this->format($this->getSubtotal( ) * $this->getDiscountPercentage( ));
     }
-
 
     /**
      * Returns plan discount
@@ -243,9 +273,9 @@ class Calculator implements Arrayable
      */
     protected function format(float $total ): float
     {
-        $decimal = $decimal ?? $decimal = config('cashier.decimals', 3);
+        $this->decimals = $this->decimals ?: $this->decimals = config('cashier.decimals', 3);
 
-        return round($total, $decimal);
+        return round($total, $this->decimals);
     }
 
 }

@@ -5,5 +5,5 @@
 
 return [
 
-    'max_decimals' => 3
+    'decimals' => 3
 ];

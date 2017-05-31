@@ -23,7 +23,7 @@ class SalableItem extends BaseItem
      * @param SalableContract $salable
      * @param int $quantity
      */
-    public function __construct(SalableContract $salable, int $quantity = null )
+    public function __construct( SalableContract $salable, int $quantity = null )
     {
         $this->salable = $salable;
         $this->setQuantity( $quantity );

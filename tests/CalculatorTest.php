@@ -73,7 +73,6 @@ class CalculatorTest extends TestCase
         $this->assertSame($this->getCalculator()->getImpostPercentage(), 0.18);
     }
 
-
     /**
      * @test
      */
@@ -81,7 +80,5 @@ class CalculatorTest extends TestCase
     {
         $this->assertSame($this->getCalculator()->getDefinitiveTotal(), 270.684);
     }
-
-
 
 }

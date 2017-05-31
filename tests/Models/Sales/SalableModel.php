@@ -29,7 +29,7 @@ class SalableModel extends Model implements SalableContract
      *
      * @return int|string
      */
-    public function getSalableKey( )
+    public function getItemKey( )
     {
         return $this->getKey( );
     }

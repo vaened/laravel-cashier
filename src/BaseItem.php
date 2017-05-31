@@ -6,8 +6,7 @@
 namespace Enea\Cashier;
 
 
-use Enea\Cashier\Contracts\CountableStaticContract;
-use Enea\Cashier\Contracts\DiscountableContract;
+use Enea\Cashier\Contracts\{CountableStaticContract, DiscountableContract};
 use Enea\Exceptions\IrreplaceableAmountException;
 use Illuminate\Database\Eloquent\Model;
 
@@ -39,6 +38,20 @@ abstract class BaseItem
     protected $recalculate = false;
 
     /**
+     * Tax percentage
+     *
+     * @var int
+     * */
+    protected $impostPercentage = Calculator::ZERO;
+
+    /**
+     * Plan discount percentage
+     *
+     * @var int
+     * */
+    protected $planDiscountPercentage = Calculator::ZERO;
+
+    /**
      * Change quantity for item
      *
      * @param int $quantity
@@ -54,24 +67,10 @@ abstract class BaseItem
                 throw new IrreplaceableAmountException( $quantity );
             }
 
-            $quantity = $model->quantityAttribute( );
+            $quantity = $model->getQuantity( );
         }
 
         $this->setValidQuantity( $quantity );
-
-    }
-
-    /**
-     * Establishes an amount for the item if it is valid
-     *
-     * @param int $quantity
-     * @return void
-     */
-    private function setValidQuantity( int $quantity )
-    {
-        $this->quantity = $quantity;
-        $this->old_quantity = $this->old_quantity ?: $quantity;
-        $this->recalculate = true;
     }
 
     /**
@@ -100,9 +99,31 @@ abstract class BaseItem
                 $this->calculator->setDiscountPercentage($model->getDiscountPercentageAttribute());
             }
 
+            $this->calculator->setImpostPercentage( $this->impostPercentage );
+            $this->calculator->setPlanPercentage( $this->planDiscountPercentage );
         }
 
         return $this->calculator;
+    }
+
+    /**
+     * Set a tax rate for the item
+     *
+     * @param int $percentage
+     */
+    public function setImpostPercentage( int $percentage): void
+    {
+        $this->impostPercentage = $percentage;
+    }
+
+    /**
+     * Set a plan discount for the item
+     *
+     * @param int $percentage
+     */
+    public function setPlanDiscountPercentage( int $percentage): void
+    {
+        $this->planDiscountPercentage = $percentage;
     }
 
     /**
@@ -114,6 +135,20 @@ abstract class BaseItem
     {
         return $this->old_quantity != $this->getQuantity( );
     }
+
+    /**
+     * Establishes an amount for the item if it is valid
+     *
+     * @param int $quantity
+     * @return void
+     */
+    private function setValidQuantity( int $quantity )
+    {
+        $this->quantity = $quantity;
+        $this->old_quantity = $this->old_quantity ?: $quantity;
+        $this->recalculate = true;
+    }
+
 
     /**
      * Verifies whether it is necessary to recalculate the price
@@ -130,13 +165,13 @@ abstract class BaseItem
      *
      * @return Calculator
      */
-    protected abstract function calculatorConfiguration(): Calculator;
+    protected abstract function calculatorConfiguration( ): Calculator;
 
     /**
      * Return an instance of the model that represents the product
      *
      * @return Model
      */
-    protected abstract function model(): Model;
+    protected abstract function model( ): Model;
 
 }

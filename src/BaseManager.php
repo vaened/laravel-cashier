@@ -53,7 +53,7 @@ abstract class BaseManager
      *
      * @return float
      */
-    public function getGeneralSaleTax( ): float
+    public function getImpost( ): float
     {
         return $this->collection->sum(function ( BaseItem $item ){
             return $item->getCalculator( )->getImpost();
@@ -84,6 +84,8 @@ abstract class BaseManager
 
 
     /**
+     * Returns the total discount
+     *
      * @return float
      */
     public function getTotalDiscounts( ): float

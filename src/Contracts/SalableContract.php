@@ -14,7 +14,7 @@ interface SalableContract
      *
      * @return int|string
      */
-    public function getSalableKey( );
+    public function getItemKey( );
 
     /**
      * Get base price for item
