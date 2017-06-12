@@ -7,7 +7,7 @@ namespace Enea\Cashier;
 
 
 use Enea\Cashier\Contracts\{
-    BuyerContract, InvoiceContract, SalableContract
+    BuyerContract, DetailedContract, InvoiceContract, SalableContract
 };
 
 class ShoppingCard extends BaseManager
@@ -31,6 +31,8 @@ class ShoppingCard extends BaseManager
         if ( ! is_null( $invoice ) ) {
             $this->setPaymentDocument( $invoice );
         }
+
+        $this->buildElements( );
     }
 
     /**
@@ -83,5 +85,29 @@ class ShoppingCard extends BaseManager
         return $this->buyer;
     }
 
+    /**
+     * Dump all elements of the database in a collection for later visualization or modification
+     *
+     * @return void
+     */
+    protected function buildElements( ): void
+    {
+        if ($this->buyer instanceof DetailedContract) {
+            $this->buyer->getElements()->each(function ( SalableContract $element ) {
+                $this->addElementItem( $element );
+            });
+        }
+    }
+
+    /**
+     * Adds an item to the collection for later deletion or display
+     *
+     * @param SalableContract $element
+     * @return void
+     */
+    protected function addElementItem(SalableContract $element ): void
+    {
+        $this->add($element->getItemKey( ), new SalableItem( $element, null,$this->getImpostPercentage( ) ));
+    }
 
 }
