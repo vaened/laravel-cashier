@@ -43,4 +43,23 @@ class SaleStaticQuantity extends Model implements SalableContract, CountableStat
         return 10;
     }
 
+    /**
+     * Returns item name
+     *
+     * @return string
+     * */
+    public function getFullName(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * Returns the unit of measure of the item
+     *
+     * @return string
+     * */
+    public function getMeasure(): ?string
+    {
+        return null;
+    }
 }

@@ -42,6 +42,43 @@ class SalableItem extends BaseItem
         parent::setImpostPercentage($impostPercentage);
     }
 
+    /**
+     * Returns item name
+     *
+     * @return string
+     * */
+    public function getFullName(): ?string
+    {
+        return $this->salable->getFullName();
+    }
+
+    /**
+     * Returns the unit of measure of the item
+     *
+     * @return string
+     * */
+    public function getMeasure( ): ?string
+    {
+        return $this->salable->getMeasure( );
+    }
+
+    /**
+     * Returns identification
+     *
+     * @return int|string
+     * */
+    public function getKey()
+    {
+        return $this->salable->getItemKey();
+    }
+
+    public function toArray()
+    {
+        return array_merge(parent::toArray(), [
+            'name' => $this->getFullName(),
+            'measure' => $this->getMeasure(),
+        ]);
+    }
 
     /**
      * Get base price for item
@@ -61,15 +98,5 @@ class SalableItem extends BaseItem
     protected function model( ): Model
     {
         return $this->salable;
-    }
-
-    /**
-     * Returns identification
-     *
-     * @return int|string
-     * */
-    public function getKey()
-    {
-        return $this->salable->getItemKey();
     }
 }

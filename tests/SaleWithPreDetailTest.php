@@ -26,7 +26,6 @@ class SaleWithPreDetailTest extends TestCase
         $this->assertTrue($card->find(5) instanceof SalableItem);
         $this->assertSame($card->collection()->count(), 2);
 
-        dd($card->toJson());
     }
 
     protected function getShoppingCard( InvoiceContract $invoice = null )

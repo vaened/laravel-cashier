@@ -5,7 +5,6 @@
 
 namespace Enea\Cashier\Contracts;
 
-
 interface SalableContract
 {
 
@@ -15,6 +14,20 @@ interface SalableContract
      * @return int|string
      */
     public function getItemKey( );
+
+    /**
+     * Returns item name
+     *
+     * @return string
+     * */
+    public function getFullName( ): ?string;
+
+    /**
+     * Returns the unit of measure of the item
+     *
+     * @return string
+     * */
+    public function getMeasure(): ?string;
 
     /**
      * Get base price for item
