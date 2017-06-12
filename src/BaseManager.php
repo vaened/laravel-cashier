@@ -7,9 +7,11 @@ namespace Enea\Cashier;
 
 
 use Enea\Cashier\Contracts\InvoiceContract;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
 
-abstract class BaseManager
+abstract class BaseManager implements Arrayable, Jsonable
 {
 
     /**
@@ -172,4 +174,35 @@ abstract class BaseManager
     {
         return $this->collection()->count();
     }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'subtotal' => $this->getSubtotal(),
+            'definitive_total' => $this->getDefinitiveTotal(),
+            'impost' => $this->getImpost(),
+            'discount' => $this->getDiscount(),
+            'plan_discount' => $this->getPlanDiscount(),
+            'total_discounts' => $this->getTotalDiscounts(),
+            'impost_percentage' => $this->getImpostPercentage(),
+            'elements' => $this->collection()->toArray(),
+        ];
+    }
+
+    /**
+     * Convert the object to its JSON representation.
+     *
+     * @param  int $options
+     * @return string
+     */
+    public function toJson($options = 0)
+    {
+        return json_encode($this->toArray(), $options);
+    }
+
 }

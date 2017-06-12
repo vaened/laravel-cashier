@@ -110,4 +110,17 @@ class ShoppingCard extends BaseManager
         $this->add($element->getItemKey( ), new SalableItem( $element, null,$this->getImpostPercentage( ) ));
     }
 
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray( )
+    {
+        return array_merge( parent::toArray( ), [
+            'buyer' => $this->buyer( ),
+        ]);
+    }
+
+
 }
