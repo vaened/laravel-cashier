@@ -7,7 +7,7 @@ namespace Enea\Cashier;
 
 use Enea\Cashier\Contracts\CountableStaticContract;
 use Enea\Cashier\Contracts\SalableContract;
-use Enea\Exceptions\IrreplaceableAmountException;
+use Enea\Cashier\Exceptions\IrreplaceableAmountException;
 use Illuminate\Database\Eloquent\Model;
 
 class SalableItem extends BaseItem

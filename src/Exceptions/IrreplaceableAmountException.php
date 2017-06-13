@@ -3,7 +3,7 @@
  * Created by enea dhack - 30/05/2017 03:45 PM
  */
 
-namespace Enea\Exceptions;
+namespace Enea\Cashier\Exceptions;
 
 use InvalidArgumentException;
 use Throwable;
