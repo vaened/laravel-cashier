@@ -190,8 +190,18 @@ abstract class BaseManager implements Arrayable, Jsonable
             'plan_discount' => $this->getPlanDiscount(),
             'total_discounts' => $this->getTotalDiscounts(),
             'impost_percentage' => $this->getImpostPercentage(),
-            'elements' => $this->collection()->toArray(),
+            'elements' => $this->collection( )->toArray(),
         ];
+    }
+
+    /**
+     * Returns only the value of the elements leaving aside the keys
+     *
+     * @return Collection
+     */
+    public function lists( ): Collection
+    {
+        return $this->collection( )->values( );
     }
 
     /**

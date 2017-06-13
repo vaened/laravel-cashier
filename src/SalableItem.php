@@ -72,9 +72,15 @@ class SalableItem extends BaseItem
         return $this->salable->getItemKey();
     }
 
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
     public function toArray()
     {
         return array_merge(parent::toArray(), [
+            'key' => $this->getKey(),
             'name' => $this->getFullName(),
             'measure' => $this->getMeasure(),
         ]);
