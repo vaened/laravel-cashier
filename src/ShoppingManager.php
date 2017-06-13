@@ -49,7 +49,7 @@ class ShoppingManager
         $shopping = new ShoppingCard($buyer, $invoice);
 
         if(! $this->isInitiated( ) ) {
-            $this->session->set($this->key(), collect());
+            $this->session->put($this->key(), collect());
         }
 
         $this->attach( $shopping );
