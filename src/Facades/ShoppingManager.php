@@ -21,6 +21,8 @@ use \Enea\Cashier\ShoppingManager as Manager;
  *
  * @method static ShoppingCard initialize( BuyerContract $buyer, InvoiceContract $invoice = null)
  * @method static ShoppingCard find( string $token )
+ * @method static bool drop( string $token )
+ * @method static void flush( )
  *
  * @see \Enea\Cashier\ShoppingManager
  */
