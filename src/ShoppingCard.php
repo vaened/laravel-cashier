@@ -7,8 +7,9 @@ namespace Enea\Cashier;
 
 
 use Enea\Cashier\Contracts\{
-    BuyerContract, DetailedContract, InvoiceContract, SalableContract
+    BuyerContract, DetailedStaticContract, InvoiceContract, SalableContract
 };
+use Enea\Cashier\Exceptions\IrreplaceableDetailItemException;
 
 class ShoppingCard extends BaseManager
 {
@@ -17,6 +18,11 @@ class ShoppingCard extends BaseManager
      * @var BuyerContract
      */
     protected $buyer;
+
+    /**
+     * @var bool
+     * */
+    protected $isStatic;
 
     /**
      * ShoppingCard constructor.
@@ -44,6 +50,14 @@ class ShoppingCard extends BaseManager
      */
     public function push( SalableContract $salable, int $quantity = null ): bool
     {
+        if( $this->isDetailedStatic( ) ){
+            if (! $this->storage->has( $salable->getItemKey( ) )){
+                throw new IrreplaceableDetailItemException( );
+            }
+
+            $salable = $this->storage->get( $salable->getItemKey( ) );
+        }
+
         $item = new SalableItem( $salable, $quantity, $this->getImpostPercentage( ) );
 
         if ( $has = ! $this->hasItem( $salable->getItemKey( ) ) ) {
@@ -51,6 +65,21 @@ class ShoppingCard extends BaseManager
         }
 
         return $has;
+    }
+
+
+    /**
+     * Dump the storage in the collection of items
+     *
+     * @return ShoppingCard
+     */
+    public function dumpAllStorage( ): ShoppingCard
+    {
+        $this->storage->each(function( SalableContract $salable, $key ) {
+            $this->addElementItem($salable);
+        });
+
+        return $this;
     }
 
     /**
@@ -85,6 +114,7 @@ class ShoppingCard extends BaseManager
         return $this->buyer;
     }
 
+
     /**
      * Dump all elements of the database in a collection for later visualization or modification
      *
@@ -92,9 +122,9 @@ class ShoppingCard extends BaseManager
      */
     protected function buildElements( ): void
     {
-        if ($this->buyer instanceof DetailedContract) {
+        if ($this->isDetailedStatic( )) {
             $this->buyer->getElements()->each(function ( SalableContract $element ) {
-                $this->addElementItem( $element );
+                $this->storage->put($element->getItemKey(), $element);
             });
         }
     }
@@ -108,6 +138,16 @@ class ShoppingCard extends BaseManager
     protected function addElementItem(SalableContract $element ): void
     {
         $this->add($element->getItemKey( ), new SalableItem( $element, null,$this->getImpostPercentage( ) ));
+    }
+
+    /**
+     * Returns true in case the header has a static detail
+     *
+     * @return bool
+     */
+    protected function isDetailedStatic()
+    {
+        return is_null( $this->isStatic ) ? $this->isStatic = $this->buyer instanceof DetailedStaticContract : $this->isStatic;
     }
 
     /**

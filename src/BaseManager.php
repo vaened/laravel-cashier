@@ -28,6 +28,11 @@ abstract class BaseManager implements Arrayable, Jsonable
     private $collection;
 
     /**
+     * @var Collection
+     */
+    protected $storage;
+
+    /**
      * @var int
      */
     protected $impostPercentage = Calculator::ZERO;
@@ -169,7 +174,8 @@ abstract class BaseManager implements Arrayable, Jsonable
      * */
     public function clean( ): void
     {
-        $this->collection = new Collection( );
+        $this->collection = collect();
+        $this->storage = collect();
     }
 
     /**

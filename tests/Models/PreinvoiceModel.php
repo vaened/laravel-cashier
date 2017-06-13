@@ -7,12 +7,12 @@ namespace Enea\Tests\Models;
 
 
 use Enea\Cashier\Contracts\BuyerContract;
-use Enea\Cashier\Contracts\DetailedContract;
+use Enea\Cashier\Contracts\DetailedStaticContract;
 use Enea\Tests\Models\Sales\SaleStaticQuantity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
-class PreinvoiceModel extends Model implements BuyerContract, DetailedContract
+class PreinvoiceModel extends Model implements BuyerContract, DetailedStaticContract
 {
     protected $fillable = ['id', 'full_name'];
 

@@ -8,7 +8,7 @@ namespace Enea\Cashier\Contracts;
 
 use Illuminate\Support\Collection;
 
-interface DetailedContract
+interface DetailedStaticContract
 {
 
     /**
