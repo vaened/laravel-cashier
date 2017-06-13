@@ -5,13 +5,13 @@
 
 return [
 
-    /**
-     *
-     * */
+     // Number of decimal places to be taken into account for the calculator
     'decimals' => 3,
 
-    /**
-     * Class that is responsible for calculating all values
-     **/
-    'calculator' => \Enea\Cashier\Calculator::class,
+    // Session key where all shopping carts will be stored
+    'session_key' => 'LARAVEL_SOPPING_MANAGER_SESSION',
+
+    // Class that is responsible for calculating all values
+    'calculator' => null,  // default  \Enea\Cashier\Calculator::class,
+
 ];
