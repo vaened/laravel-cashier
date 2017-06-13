@@ -47,9 +47,9 @@ class SalableItem extends BaseItem
      *
      * @return string
      * */
-    public function getFullName(): ?string
+    public function getShortDescription(): ?string
     {
-        return $this->salable->getFullName();
+        return $this->salable->getShortDescription();
     }
 
     /**
@@ -81,7 +81,7 @@ class SalableItem extends BaseItem
     {
         return array_merge(parent::toArray(), [
             'key' => $this->getKey(),
-            'name' => $this->getFullName(),
+            'name' => $this->getShortDescription(),
             'measure' => $this->getMeasure(),
         ]);
     }
