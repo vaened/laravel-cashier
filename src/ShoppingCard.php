@@ -158,7 +158,7 @@ class ShoppingCard extends BaseManager
     public function toArray( )
     {
         return array_merge( parent::toArray( ), [
-            'buyer' => $this->buyer( ),
+            'buyer' => $this->buyer( )->toArray( ),
         ]);
     }
 

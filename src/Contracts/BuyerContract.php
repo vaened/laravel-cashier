@@ -21,5 +21,11 @@ interface BuyerContract
      */
     public function getBuyerKey();
 
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray();
 
 }

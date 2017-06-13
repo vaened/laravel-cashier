@@ -104,4 +104,48 @@ class SalesTest extends TestCase
         return new ShoppingCard($buyer, $invoice);
     }
 
+    /**
+     * @test
+     * */
+    function can_be_converted_to_array()
+    {
+        $shopping = $this->getShoppingCard( );
+
+        $_token = $shopping->token();
+        $shopping->push(new SalableModel(['id' => 10, 'price' => 100, 'name' => 'salable test']), 2);
+
+        $this->assertEquals([
+            'token' => $_token,
+            'subtotal' => 200.0,
+            'buyer' => [
+                'id' => self::BUYER
+            ],
+
+            'plan_discount' => 0.0,
+            'discount' => 0.0,
+            'total_discounts' => 0.0,
+
+            'impost' => 0.0,
+            'impost_percentage' => 0,
+
+            'definitive_total' => 200.0,
+            'elements' => [
+                10 => [
+                    'base_price' => 100.0,
+                    'quantity' => 2,
+                    'subtotal' => 200.0,
+                    'plan_discount' => 0.0,
+                    'discount' => 0.0,
+                    'total_discounts' => 0.0,
+                    'general_sale_tax' => 0.0,
+                    'tax_percentage' => 0.0,
+                    'definitive_total' => 200.0,
+                    'key' => 10,
+                    'name' => 'salable test',
+                    'measure' => null,
+                ]
+            ]
+        ], $shopping->toArray());
+
+    }
 }
