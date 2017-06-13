@@ -48,7 +48,7 @@ class SaleStaticQuantity extends Model implements SalableContract, CountableStat
      *
      * @return string
      * */
-    public function getFullName(): ?string
+    public function getShortDescription(): ?string
     {
         return null;
     }

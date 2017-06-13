@@ -39,7 +39,7 @@ class SalableModel extends Model implements SalableContract
      *
      * @return string
      * */
-    public function getFullName(): ?string
+    public function getShortDescription(): ?string
     {
         return null;
     }
