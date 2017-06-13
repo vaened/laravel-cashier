@@ -13,6 +13,12 @@ use Illuminate\Support\Collection;
 
 abstract class BaseManager implements Arrayable, Jsonable
 {
+    /**
+     * Identification
+     *
+     * @var string
+     * */
+    protected $token;
 
     /**
      * Selected items
@@ -25,6 +31,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      * @var int
      */
     protected $impostPercentage = Calculator::ZERO;
+
 
 
     public function __construct( )
@@ -183,6 +190,7 @@ abstract class BaseManager implements Arrayable, Jsonable
     public function toArray()
     {
         return [
+            'token' => $this->token(),
             'subtotal' => $this->getSubtotal(),
             'definitive_total' => $this->getDefinitiveTotal(),
             'impost' => $this->getImpost(),
@@ -213,6 +221,16 @@ abstract class BaseManager implements Arrayable, Jsonable
     public function toJson($options = 0)
     {
         return json_encode($this->toArray(), $options);
+    }
+
+    /**
+     * Generate a more truly "random" alpha-numeric string.
+     *
+     * @return string
+     */
+    public function token( ): string
+    {
+        return $this->token ?: $this->token = str_random(20);
     }
 
 }
