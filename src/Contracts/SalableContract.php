@@ -9,7 +9,7 @@ interface SalableContract
 {
 
     /**
-     * Primary key that uniquely identifies the buyer
+     * Key that identifies the article as unique
      *
      * @return int|string
      */
@@ -20,7 +20,7 @@ interface SalableContract
      *
      * @return string
      * */
-    public function getFullName( ): ?string;
+    public function getShortDescription( ): ?string;
 
     /**
      * Returns the unit of measure of the item
