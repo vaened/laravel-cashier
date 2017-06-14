@@ -28,6 +28,19 @@ class SaleWithPreDetailTest extends TestCase
 
     /**
      * @test
+     * */
+    function can_add_items_to_the_storage()
+    {
+        $card = $this->getShoppingCard( );
+
+        $this->assertTrue($card->pass(6));
+        $this->assertFalse($card->pass(8));
+
+        $this->assertSame($card->count(), 1);
+    }
+
+    /**
+     * @test
      */
     function can_load_the_detail_of_a_header()
     {

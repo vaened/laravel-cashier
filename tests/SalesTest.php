@@ -144,7 +144,8 @@ class SalesTest extends TestCase
                     'name' => 'salable test',
                     'measure' => null,
                 ]
-            ]
+            ],
+            'storage' => []
         ], $shopping->toArray());
 
     }
