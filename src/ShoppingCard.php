@@ -105,6 +105,21 @@ class ShoppingCard extends BaseManager
     }
 
     /**
+     * Removes an item from the collection
+     *
+     * @param string|int $key
+     * @return bool
+     */
+    public function remove( $key ): bool
+    {
+        if($has =  $this->hasItem($key)) {
+            $this->collection()->forget( $key );
+        }
+
+        return $has;
+    }
+
+    /**
      * Determine if an item exists in the collection by key.
      *
      * @param $key
