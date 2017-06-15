@@ -51,6 +51,19 @@ class SalesTest extends TestCase
 
     /**
      * @test
+     * */
+    function can_remove_an_item_from_the_collection()
+    {
+        $shopping = $this->getShoppingCard( );
+        $this->assertTrue($shopping->push(new SalableModel(['id' => 1]), 1));
+        $this->assertSame($shopping->count(), 1);
+
+        $this->assertTrue($shopping->remove( 1 ));
+        $this->assertSame($shopping->count(), 0 );
+    }
+
+    /**
+     * @test
      */
     function can_find_an_item()
     {
