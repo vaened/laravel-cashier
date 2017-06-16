@@ -73,7 +73,9 @@ class ShoppingCard extends BaseManager
     public function pass( String $key ): bool
     {
         if ( $has = $this->storage->has($key)) {
-            $this->add($key, $this->storage->get($key));
+            $salable = $this->storage->get($key);
+            $salable->setImpostPercentage($this->getImpostPercentage());
+            $this->add($key, $salable);
         }
 
         return $has;
@@ -87,6 +89,7 @@ class ShoppingCard extends BaseManager
     public function dumpAllStorage( ): ShoppingCard
     {
         $this->storage->each(function( SalableItem $salable ) {
+            $salable->setImpostPercentage($this->getImpostPercentage());
             $this->add($salable->getKey(), $salable);
         });
 
