@@ -104,9 +104,15 @@ class Calculator implements Arrayable
             'quantity' => $this->getQuantity( ),
             'subtotal' => $this->getSubtotal( ),
 
-            // discounts
+            // plan discounts
             'plan_discount' => $this->getPlanDiscount( ),
+            'plan_discount_percentage' => $this->getPlanDiscountPercentage( ),
+
+            // only discounts
             'discount' => $this->getDiscount( ),
+            'discount_percentage' => $this->getDiscountPercentage( ),
+
+            // total discounts
             'total_discounts' => $this->getTotalDiscounts( ),
 
             // taxes
@@ -117,6 +123,37 @@ class Calculator implements Arrayable
             'definitive_total' => $this->getDefinitiveTotal( ),
         );
     }
+
+    /**
+     * Returns the percentage of formatted igv
+     *
+     * @return float
+     * */
+    protected function getFormatImpostPercentage( ): float
+    {
+        return $this->toPercentage($this->impostPercentage);
+    }
+
+    /**
+     * Returns the formatted discount percentage
+     *
+     * @return float
+     * */
+    protected function getFormatDiscountPercentage( ): float
+    {
+        return $this->toPercentage($this->discountPercentage);
+    }
+
+    /**
+     * Returns insurance discount percentage formatted
+     *
+     * @return float
+     * */
+    protected function getFormatPlanDiscountPercentage( ): float
+    {
+        return $this->toPercentage($this->planDiscountPercentage);
+    }
+
 
     /**
      * Returns the requested quantity for the item
@@ -131,31 +168,31 @@ class Calculator implements Arrayable
     /**
      * Returns the assigned tax
      *
-     * @return float
+     * @return int
      */
-    public function getImpostPercentage( ): float
+    public function getImpostPercentage( ): int
     {
-        return $this->toPercentage($this->impostPercentage);
+        return $this->impostPercentage;
     }
 
     /**
      * Returns the assigned discount item
      *
-     * @return float
+     * @return int
      */
-    public function getDiscountPercentage(): float
+    public function getDiscountPercentage(): int
     {
-        return $this->toPercentage($this->discountPercentage);
+        return $this->discountPercentage;
     }
 
     /**
      * Returns the assigned plan discount item
      *
-     * @return float
+     * @return int
      */
-    public function getPlanDiscountPercentage(): float
+    public function getPlanDiscountPercentage(): int
     {
-        return $this->toPercentage($this->planDiscountPercentage);
+        return $this->planDiscountPercentage;
     }
 
     /**
@@ -211,7 +248,7 @@ class Calculator implements Arrayable
      */
     public function getDiscount( ): float
     {
-        return $this->format($this->getSubtotal( ) * $this->getDiscountPercentage( ));
+        return $this->format($this->getSubtotal( ) * $this->getFormatDiscountPercentage( ));
     }
 
     /**
@@ -221,7 +258,7 @@ class Calculator implements Arrayable
      */
     public function getPlanDiscount( ): float
     {
-        return $this->format($this->getSubtotal( ) * $this->getPlanDiscountPercentage( ));
+        return $this->format($this->getSubtotal( ) * $this->getFormatPlanDiscountPercentage( ));
     }
 
     /**
@@ -241,7 +278,7 @@ class Calculator implements Arrayable
      */
     public function getImpost( ): float
     {
-        return $this->format($this->getSubtotal( ) * $this->getImpostPercentage( ));
+        return $this->format($this->getSubtotal( ) * $this->getFormatImpostPercentage( ) );
     }
 
     /**

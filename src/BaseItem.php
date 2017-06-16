@@ -163,7 +163,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      */
     public function toArray( )
     {
-        return $this->calculator()->toArray();
+        return $this->getCalculator( )->toArray();
     }
 
     /**

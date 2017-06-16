@@ -70,7 +70,7 @@ class CalculatorTest extends TestCase
      */
     function calculation_of_tax_percentage_is_correct()
     {
-        $this->assertSame($this->getCalculator()->getImpostPercentage(), 0.18);
+        $this->assertSame($this->getCalculator()->getImpostPercentage(), 18);
     }
 
     /**

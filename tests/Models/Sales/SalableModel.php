@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 class SalableModel extends Model implements SalableContract
 {
 
-    protected $fillable = ['id', 'price', 'name'];
+    protected $fillable = ['id', 'price', 'name', 'measure'];
     /**
      * Get base price for item
      *
@@ -51,6 +51,6 @@ class SalableModel extends Model implements SalableContract
      * */
     public function getMeasure(): ?string
     {
-        return null;
+        return $this->measure;
     }
 }
