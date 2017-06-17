@@ -126,23 +126,6 @@ abstract class BaseManager implements Arrayable, Jsonable
         return $this->impostPercentage;
     }
 
-    /**
-     * Set the payment document and extract tex percentage
-     *
-     * @param DocumentContract $document
-     *
-     * @return int
-     */
-    public function setPaymentDocument( DocumentContract $document )
-    {
-        $this->impostPercentage = $document->getTaxPercentageAttribute( );
-
-        $this->collection()->each(function (BaseItem $item){
-            $item->setImpostPercentage($this->getImpostPercentage( ));
-        });
-    }
-
-
 
     /**
      * Add a new item to the collection

@@ -24,4 +24,11 @@ interface BuyerContract extends Arrayable
      */
     public function getBuyerKey();
 
+    /**
+     * Returns an array with extra properties
+     *
+     * @return array
+     * */
+    public function getCustomProperties( ): array;
+
 }

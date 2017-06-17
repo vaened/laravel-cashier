@@ -72,8 +72,11 @@ class ShoppingCart extends BaseManager
      */
     public function detach( ): ShoppingCart
     {
-        $this->account = null;
-        $this->clean( );
+        if ($this->isAttachedAccount()) {
+            $this->account = null;
+            $this->clean( );
+        }
+
         return $this;
     }
 
@@ -86,7 +89,7 @@ class ShoppingCart extends BaseManager
      * @param int $quantity
      * @return bool
      */
-    public function push( SalableContract $salable, int $quantity = null ): bool
+    public function push( SalableContract $salable, int $quantity = 1 ): bool
     {
         if( $this->isAttachedAccount( )) {
             throw new IrreplaceableDetailItemException( );
@@ -177,6 +180,16 @@ class ShoppingCart extends BaseManager
     }
 
     /**
+     * Returns the attached account
+     *
+     * @return AccountContract
+     */
+    public function getAccount( ): ? AccountContract
+    {
+        return $this->account;
+    }
+
+    /**
      * Returns storage
      *
      * @return Collection
@@ -184,6 +197,22 @@ class ShoppingCart extends BaseManager
     public function storage( ): Collection
     {
         return $this->storage;
+    }
+
+    /**
+     * Set the payment document and extract tex percentage
+     *
+     * @param DocumentContract $document
+     *
+     * @return int
+     */
+    public function setPaymentDocument( DocumentContract $document )
+    {
+        $this->impostPercentage = $document->getTaxPercentageAttribute( );
+
+        $this->collection()->each(function ( SalableItem $item ){
+            $item->setImpostPercentage($this->getImpostPercentage( ));
+        });
     }
 
     /**
@@ -214,9 +243,22 @@ class ShoppingCart extends BaseManager
      */
     public function toArray( )
     {
+        $account = null;
+
+        if( $this->isAttachedAccount( ) ) {
+            $account = [
+                'key' => $this->getAccount( )->getKeyIdentification( ),
+                'properties' => $this->getAccount( )->getCustomProperties( ),
+            ];
+        }
+
         return array_merge( parent::toArray( ), [
-            'buyer' => $this->buyer( )->toArray( ),
-            'storage' => $this->storage()->toArray( )
+            'buyer' => [
+                'key' => $this->buyer()->getBuyerKey(),
+                'properties' => $this->buyer()->getCustomProperties()
+            ],
+            'storage' => $this->storage()->toArray( ),
+            'account' => $account
         ]);
     }
 

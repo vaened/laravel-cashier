@@ -5,42 +5,14 @@
 
 namespace Enea\Cashier\Contracts;
 
-interface SalableContract
+interface SalableContract extends CartElementContract
 {
 
     /**
-     * Key that identifies the article as unique
+     * Returns true in case of being subject to tax
      *
-     * @return int|string
+     * @return bool
      */
-    public function getItemKey( );
-
-    /**
-     * Returns item name
-     *
-     * @return string
-     * */
-    public function getShortDescription( ): ?string;
-
-    /**
-     * Returns the unit of measure of the item
-     *
-     * @return string
-     * */
-    public function getMeasure(): ?string;
-
-    /**
-     * Get base price for item
-     *
-     * @return float
-     */
-    public function getBasePrice( ): float;
-
-    /**
-     * Returns an array with extra properties
-     *
-     * @return array
-     * */
-    public function getCustomProperties( ): array;
+    public function isTaxable(): bool;
 
 }

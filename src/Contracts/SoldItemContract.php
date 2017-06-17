@@ -6,15 +6,8 @@
 namespace Enea\Cashier\Contracts;
 
 
-interface SoldItemContract
+interface SoldItemContract extends CartElementContract
 {
-
-    /**
-     * Primary key that uniquely identifies the buyer
-     *
-     * @return int|string
-     */
-    public function getItemKey();
 
     /**
      * Get item quantity
@@ -23,11 +16,5 @@ interface SoldItemContract
      * */
     public function getQuantity( ): int;
 
-    /**
-     * Get base price for item
-     *
-     * @return float
-     */
-    public function getBasePriceAttribute( ): float;
 
 }

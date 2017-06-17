@@ -23,27 +23,9 @@ class SoldItem extends BaseItem
      */
     public function __construct( SoldItemContract $sold )
     {
+        parent::__construct($sold);
         $this->setQuantity( $sold->getQuantity( ) );
         $this->sold = $sold;
     }
 
-    /**
-     * Get base price for item
-     *
-     * @return float
-     */
-    protected function getBasePrice( ): float
-    {
-        return $this->sold->getBasePriceAttribute( );
-    }
-
-    /**
-     * Return an instance of the model that represents the product
-     *
-     * @return Model
-     */
-    protected function model(): Model
-    {
-        return $this->sold;
-    }
 }

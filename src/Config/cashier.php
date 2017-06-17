@@ -9,7 +9,7 @@ return [
     'decimals' => 3,
 
     // Session key where all shopping carts will be stored
-    'session_key' => 'LARAVEL_SOPPING_MANAGER_SESSION',
+    'session_key' => 'LARAVEL-SHOPPING-SESSION-KEY-MANAGER',
 
     // Class that is responsible for calculating all values
     'calculator' => null,  // default  \Enea\Cashier\Calculator::class,

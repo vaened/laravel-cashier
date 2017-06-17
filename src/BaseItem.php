@@ -6,6 +6,7 @@
 namespace Enea\Cashier;
 
 
+use Enea\Cashier\Contracts\CartElementContract;
 use Enea\Cashier\Contracts\DiscountableContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
@@ -53,6 +54,20 @@ abstract class BaseItem implements Arrayable, Jsonable
     protected $planDiscountPercentage = Calculator::ZERO;
 
     /**
+     * @var CartElementContract
+     */
+    protected $element;
+
+    /**
+     * BaseItem constructor.
+     * @param CartElementContract $element
+     */
+    public function __construct(CartElementContract $element )
+    {
+        $this->element = $element;
+    }
+
+    /**
      * Change quantity for item
      *
      * @param int $quantity
@@ -76,6 +91,16 @@ abstract class BaseItem implements Arrayable, Jsonable
     }
 
     /**
+     *
+     * @param string $property
+     * @return string|bool|int|array
+     */
+    public function getProperty( string $property )
+    {
+        return $this->getCustomProperties( )[$property] ?? null;
+    }
+
+    /**
      *  Returns the model to calculate prices
      *
      * @return Calculator
@@ -84,31 +109,19 @@ abstract class BaseItem implements Arrayable, Jsonable
     {
         if ($this->needToRecalculate( )) {
 
-            $this->calculator = $this->calculator( );
+            $this->calculator = $this->calculatorInstance( );
 
             $model = $this->model( );
 
             if ( $model instanceof  DiscountableContract) {
-                $this->calculator->setDiscountPercentage($model->getDiscountPercentageAttribute( ));
+                $this->calculator->setDiscountPercentage($model->getDiscountPercentage( ));
             }
 
-            $this->calculator->setImpostPercentage( $this->impostPercentage );
+            $this->calculator->setImpostPercentage( $this->getImpostPercentage( ) );
             $this->calculator->setPlanPercentage( $this->planDiscountPercentage );
         }
 
         return $this->calculator;
-    }
-
-    /**
-     * Set a tax rate for the item
-     *
-     * @param int $percentage
-     */
-    public function setImpostPercentage( int $percentage): void
-    {
-        $this->recalculate = true;
-
-        $this->impostPercentage = $percentage;
     }
 
     /**
@@ -132,6 +145,46 @@ abstract class BaseItem implements Arrayable, Jsonable
     }
 
     /**
+     * Returns item name
+     *
+     * @return string
+     * */
+    public function getShortDescription(): ?string
+    {
+        return $this->element->getShortDescription();
+    }
+
+    /**
+     * Returns an array with extra properties
+     *
+     * @return array
+     * */
+    public function getCustomProperties( ): array
+    {
+        return $this->element->getCustomProperties( );
+    }
+
+    /**
+     * Returns identification
+     *
+     * @return int|string
+     * */
+    public function getKey()
+    {
+        return $this->element->getItemKey();
+    }
+
+    /**
+     * Get base price for item
+     *
+     * @return float
+     */
+    protected function getBasePrice( ): float
+    {
+        return $this->element->getBasePrice();
+    }
+
+    /**
      * Verifies whether it is necessary to recalculate the price
      *
      * @return bool
@@ -141,13 +194,32 @@ abstract class BaseItem implements Arrayable, Jsonable
         return $this->recalculate || empty($this->calculator);
     }
 
+    /**
+     * Returns the assigned tax
+     *
+     * @return int
+     */
+    protected function getImpostPercentage(): int
+    {
+        return $this->impostPercentage;
+    }
+
+    /**
+     * Return an instance of the model that represents the product
+     *
+     * @return Model
+     */
+    protected function model( ): Model
+    {
+        return $this->element;
+    }
 
     /**
      * Returns an instance of calculator
      *
      * @return Calculator
      */
-    private function calculator( ): Calculator
+    private function calculatorInstance( ): Calculator
     {
         if ( empty($path = config('cashier.calculator'))) {
             return new Calculator($this->getBasePrice(), $this->getQuantity());
@@ -163,7 +235,11 @@ abstract class BaseItem implements Arrayable, Jsonable
      */
     public function toArray( )
     {
-        return $this->getCalculator( )->toArray();
+        return array_merge($this->getCalculator( )->toArray(), [
+            'key' => $this->getKey(),
+            'name' => $this->getShortDescription(),
+            'properties' => $this->getCustomProperties(),
+        ]);
     }
 
     /**
@@ -177,25 +253,5 @@ abstract class BaseItem implements Arrayable, Jsonable
         return json_encode($this->toArray(), $options);
     }
 
-    /**
-     * Returns identification
-     *
-     * @return int|string
-     * */
-    public abstract function getKey();
-
-    /**
-     * Get base price for item
-     *
-     * @return float
-     */
-    protected abstract function getBasePrice( ): float ;
-
-    /**
-     * Return an instance of the model that represents the product
-     *
-     * @return Model
-     */
-    protected abstract function model( ): Model;
 
 }

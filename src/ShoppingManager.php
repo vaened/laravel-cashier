@@ -7,6 +7,7 @@ namespace Enea\Cashier;
 
 
 use Enea\Cashier\Contracts\BuyerContract;
+use Enea\Cashier\Contracts\DocumentContract;
 use Enea\Cashier\Contracts\InvoiceContract;
 use Illuminate\Session\SessionManager;
 use Illuminate\Support\Collection;
@@ -41,12 +42,12 @@ class ShoppingManager
      * Start a new shopping cart in session and return the session ID
      *
      * @param BuyerContract $buyer
-     * @param InvoiceContract $invoice
+     * @param DocumentContract $document
      * @return ShoppingCart
      */
-    public function initialize( BuyerContract $buyer, InvoiceContract $invoice = null ): ShoppingCart
+    public function initialize( BuyerContract $buyer, DocumentContract $document = null ): ShoppingCart
     {
-        $shopping = new ShoppingCart($buyer, $invoice);
+        $shopping = new ShoppingCart($buyer, $document);
 
         if(! $this->isInitiated( ) ) {
             $this->session->put($this->key(), collect());

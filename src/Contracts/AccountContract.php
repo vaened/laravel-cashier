@@ -30,6 +30,13 @@ interface AccountContract
     public function getKeyIdentification(): string;
 
     /**
+     * Returns an array with extra properties
+     *
+     * @return array
+     * */
+    public function getCustomProperties( ): array;
+
+    /**
      * Returns elements that implement 'SalableContract'
      *
      * @return Collection

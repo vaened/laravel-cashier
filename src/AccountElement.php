@@ -10,57 +10,17 @@ use Enea\Cashier\Contracts\AccountElementContract;
 use Enea\Cashier\Contracts\SalableContract;
 use Illuminate\Database\Eloquent\Model;
 
-class AccountElement extends BaseItem
+class AccountElement extends BaseSalableItem
 {
 
     /**
-     * @var AccountElementContract
+     * AccountElement constructor.
+     * @param AccountElementContract $salable
+     * @param int $impostPercentage
      */
-    private $salable;
-
-    public function __construct( AccountElementContract $salable, int $impostPercentage = 0 )
+    public function __construct(AccountElementContract $salable, int $impostPercentage = 0 )
     {
-        $this->salable = $salable;
-        parent::setQuantity($salable->getQuantity());
-        parent::setImpostPercentage( $impostPercentage );
-    }
-
-    /**
-     * Returns identification
-     *
-     * @return int|string
-     * */
-    public function getKey()
-    {
-        return $this->salable->getItemKey( );
-    }
-
-    /**
-     * @return SalableContract
-     */
-    public function getSalable( ): SalableContract
-    {
-        return $this->salable;
-    }
-
-    /**
-     * Get base price for item
-     *
-     * @return float
-     */
-    protected function getBasePrice(): float
-    {
-        return $this->salable->getBasePrice();
-    }
-
-    /**
-     * Return an instance of the model that represents the product
-     *
-     * @return Model
-     */
-    protected function model(): Model
-    {
-        return $this->salable;
+        parent::__construct($salable, $salable->getQuantity(), $impostPercentage);
     }
 
 }
