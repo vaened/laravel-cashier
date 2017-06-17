@@ -8,7 +8,7 @@ namespace Enea\Cashier\Facades;
 
 use Enea\Cashier\Contracts\BuyerContract;
 use Enea\Cashier\Contracts\InvoiceContract;
-use Enea\Cashier\ShoppingCard;
+use Enea\Cashier\ShoppingCart;
 use Illuminate\Support\Facades\Facade;
 use \Enea\Cashier\ShoppingManager as Manager;
 
@@ -19,8 +19,8 @@ use \Enea\Cashier\ShoppingManager as Manager;
  *
  * Methods
  *
- * @method static ShoppingCard initialize( BuyerContract $buyer, InvoiceContract $invoice = null)
- * @method static ShoppingCard find( string $token )
+ * @method static ShoppingCart initialize( BuyerContract $buyer, InvoiceContract $invoice = null)
+ * @method static ShoppingCart find( string $token )
  * @method static bool drop( string $token )
  * @method static void flush( )
  *

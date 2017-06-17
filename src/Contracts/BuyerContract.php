@@ -5,13 +5,16 @@
 
 namespace Enea\Cashier\Contracts;
 
+use Illuminate\Contracts\Support\Arrayable;
+
 
 /**
- * Makes the model a potential buyer.
- *
+ * Interface BuyerContract
  * @package Enea\Cashier\Contracts
+ *
+ * Represents the buyer
  */
-interface BuyerContract
+interface BuyerContract extends Arrayable
 {
 
     /**
@@ -20,12 +23,5 @@ interface BuyerContract
      * @return int|string
      */
     public function getBuyerKey();
-
-    /**
-     * Get the instance as an array.
-     *
-     * @return array
-     */
-    public function toArray();
 
 }

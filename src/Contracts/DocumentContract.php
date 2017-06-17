@@ -1,14 +1,19 @@
 <?php
 /**
- * Created by enea dhack - 31/05/2017 11:47 AM
+ * Created by enea dhack - 16/06/17 08:59 PM
  */
 
 namespace Enea\Cashier\Contracts;
 
 
-interface InvoiceContract
+/**
+ * Interface DocumentContract
+ * @package Enea\Cashier\Contracts
+ *
+ * Specifies a document type - Examples: ballots or invoices
+ */
+interface DocumentContract
 {
-
     /**
      * Get tax percentage
      *
@@ -22,5 +27,4 @@ interface InvoiceContract
      * @return BusinessOwner
      * */
     public function getBusinessOwner( ): ?BusinessOwner;
-
 }

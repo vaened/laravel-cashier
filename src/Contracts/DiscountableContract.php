@@ -19,6 +19,6 @@ interface DiscountableContract
      *
      * @return int
      */
-    public function getDiscountPercentageAttribute( );
+    public function getDiscountPercentageAttribute( ): int;
 
 }

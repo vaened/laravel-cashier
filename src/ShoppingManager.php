@@ -42,11 +42,11 @@ class ShoppingManager
      *
      * @param BuyerContract $buyer
      * @param InvoiceContract $invoice
-     * @return ShoppingCard
+     * @return ShoppingCart
      */
-    public function initialize( BuyerContract $buyer, InvoiceContract $invoice = null ): ShoppingCard
+    public function initialize( BuyerContract $buyer, InvoiceContract $invoice = null ): ShoppingCart
     {
-        $shopping = new ShoppingCard($buyer, $invoice);
+        $shopping = new ShoppingCart($buyer, $invoice);
 
         if(! $this->isInitiated( ) ) {
             $this->session->put($this->key(), collect());
@@ -61,9 +61,9 @@ class ShoppingManager
      * Return the shopping cart from the session
      *
      * @param string $_token
-     * @return ShoppingCard|null
+     * @return ShoppingCart|null
      */
-    public function find( string $_token ): ?ShoppingCard
+    public function find( string $_token ): ?ShoppingCart
     {
         if( ! $this->isInitiated( ) ) {
             return null;
@@ -106,10 +106,10 @@ class ShoppingManager
     /**
      * Add a new shopping cart to the session
      *
-     * @param ShoppingCard $shopping
+     * @param ShoppingCart $shopping
      * @return void
      */
-    protected function attach( ShoppingCard $shopping ): void
+    protected function attach(ShoppingCart $shopping ): void
     {
         $this->carts()->put($shopping->token(), $shopping);
     }

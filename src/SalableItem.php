@@ -28,15 +28,6 @@ class SalableItem extends BaseItem
      */
     public function __construct( SalableContract $salable, int $quantity = null, int $impostPercentage = 0 )
     {
-        if ( $salable instanceof  CountableStaticContract ) {
-
-            if (! is_null($quantity)) {
-                throw new IrreplaceableAmountException( $quantity );
-            }
-
-            $quantity = $salable ->getQuantity( );
-        }
-
         $this->salable = $salable;
         parent::setQuantity($quantity);
         parent::setImpostPercentage($impostPercentage);
@@ -63,6 +54,16 @@ class SalableItem extends BaseItem
     }
 
     /**
+     * Returns an array with extra properties
+     *
+     * @return array
+     * */
+    public function getCustomProperties( ): array
+    {
+        return $this->salable->getCustomProperties( );
+    }
+
+    /**
      * Returns identification
      *
      * @return int|string
@@ -83,6 +84,7 @@ class SalableItem extends BaseItem
             'key' => $this->getKey(),
             'name' => $this->getShortDescription(),
             'measure' => $this->getMeasure(),
+            'properties' => $this->getCustomProperties(),
         ]);
     }
 

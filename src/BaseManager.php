@@ -6,7 +6,7 @@
 namespace Enea\Cashier;
 
 
-use Enea\Cashier\Contracts\InvoiceContract;
+use Enea\Cashier\Contracts\DocumentContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
@@ -127,15 +127,15 @@ abstract class BaseManager implements Arrayable, Jsonable
     }
 
     /**
-     * set the payment document and extract tex percentage
+     * Set the payment document and extract tex percentage
      *
-     * @param InvoiceContract $invoice
+     * @param DocumentContract $document
      *
      * @return int
      */
-    public function setPaymentDocument( InvoiceContract $invoice )
+    public function setPaymentDocument( DocumentContract $document )
     {
-        $this->impostPercentage = $invoice->getTaxPercentageAttribute( );
+        $this->impostPercentage = $document->getTaxPercentageAttribute( );
 
         $this->collection()->each(function (BaseItem $item){
             $item->setImpostPercentage($this->getImpostPercentage( ));
@@ -236,7 +236,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      */
     public function token( ): string
     {
-        return $this->token ?: $this->token = str_random(20);
+        return $this->token ?: $this->token = str_random(30);
     }
 
 }

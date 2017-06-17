@@ -7,12 +7,13 @@ namespace Enea\Cashier;
 
 
 use Enea\Cashier\Contracts\{
-    BuyerContract, DetailedStaticContract, InvoiceContract, SalableContract
+    AccountContract, AccountElementContract, BuyerContract, DocumentContract, SalableContract
 };
 use Enea\Cashier\Exceptions\IrreplaceableDetailItemException;
+use Enea\Cashier\Exceptions\OneAccountAtTimeException;
 use Illuminate\Support\Collection;
 
-class ShoppingCard extends BaseManager
+class ShoppingCart extends BaseManager
 {
 
     /**
@@ -21,29 +22,65 @@ class ShoppingCard extends BaseManager
     protected $buyer;
 
     /**
-     * @var bool
+     * @var AccountContract
      * */
-    protected $isStatic;
+    protected $account;
 
     /**
-     * ShoppingCard constructor.
+     * ShoppingCart constructor.
      * @param BuyerContract $buyer
-     * @param InvoiceContract $invoice
+     * @param DocumentContract $document
      */
-    public function __construct( BuyerContract $buyer, InvoiceContract $invoice = null)
+    public function __construct( BuyerContract $buyer, DocumentContract $document = null )
     {
         parent::__construct( );
+
         $this->buyer = $buyer;
 
-        if ( ! is_null( $invoice ) ) {
-            $this->setPaymentDocument( $invoice );
+        if ( ! is_null( $document ) ) {
+            $this->setPaymentDocument( $document );
         }
-
-        $this->buildElements( );
     }
 
     /**
-     * Add a new salable item to the collection and return true if it was successful
+     * Attaches an account to pay and limits the elements to the detail of said account
+     *
+     * @param AccountContract $account
+     * @return ShoppingCart
+     * @throws OneAccountAtTimeException
+     */
+    public function attach( AccountContract $account ): ShoppingCart
+    {
+        if( $this->isAttachedAccount( ) ) {
+            throw new OneAccountAtTimeException();
+        }
+
+        $this->account = $account;
+
+        $this->account->getElements( )->each(function ( AccountElementContract $element ) {
+            $this->storage->put( $element->getItemKey( ), new AccountElement( $element, $this->getImpostPercentage( ) ));
+        });
+
+        return $this;
+    }
+
+    /**
+     * Unlink car account and clean all items
+     *
+     * @return ShoppingCart
+     * @throws OneAccountAtTimeException
+     */
+    public function detach( ): ShoppingCart
+    {
+        $this->account = null;
+        $this->clean( );
+        return $this;
+    }
+
+    /**
+     * Add a new item to the collection and return true if successful, if the buyer
+     * has implemented the 'DetailedStaticContract' interface,
+     * you will not be able to use this method
      *
      * @param SalableContract $salable
      * @param int $quantity
@@ -51,7 +88,7 @@ class ShoppingCard extends BaseManager
      */
     public function push( SalableContract $salable, int $quantity = null ): bool
     {
-        if( $this->isDetailedStatic( )) {
+        if( $this->isAttachedAccount( )) {
             throw new IrreplaceableDetailItemException( );
         }
 
@@ -70,30 +107,26 @@ class ShoppingCard extends BaseManager
      * @param string $key
      * @return bool
      */
-    public function pass( String $key ): bool
+    public function pull( String $key ): bool
     {
-        if ( $has = $this->storage->has($key)) {
-            $salable = $this->storage->get($key);
-            $salable->setImpostPercentage($this->getImpostPercentage());
-            $this->add($key, $salable);
+        if ( $has = $this->storage()->has($key)) {
+            $element = $this->getAccountElement( $key );
+            $this->add($element->getKey( ), new SalableItem($element->getSalable( ), $element->getQuantity( ), $this->getImpostPercentage()));
         }
 
         return $has;
     }
 
     /**
-     * Dump the storage in the collection of items
+     * Move all elements from storage to collection for purchase
      *
-     * @return ShoppingCard
+     * @return ShoppingCart
      */
-    public function dumpAllStorage( ): ShoppingCard
+    public function pullAll( ): ShoppingCart
     {
-        $this->storage->each(function( SalableItem $salable ) {
-            $salable->setImpostPercentage($this->getImpostPercentage());
-            $this->add($salable->getKey(), $salable);
+        $this->storage()->each(function ( AccountElement $element ) {
+            $this->pull($element->getKey( ));
         });
-
-        return $this;
     }
 
     /**
@@ -154,27 +187,24 @@ class ShoppingCard extends BaseManager
     }
 
     /**
-     * Dump all elements of the database in a collection for later visualization or modification
-     *
-     * @return void
-     */
-    protected function buildElements( ): void
-    {
-        if ($this->isDetailedStatic( )) {
-            $this->buyer->getElements( )->each(function ( SalableContract $element ) {
-                $this->storage->put( $element->getItemKey(), new SalableItem( $element, null,$this->getImpostPercentage( ) ));
-            });
-        }
-    }
-
-    /**
-     * Returns true in case the header has a static detail
+     * Returns true if you have attached an account
      *
      * @return bool
      */
-    protected function isDetailedStatic()
+    protected function isAttachedAccount( ): bool
     {
-        return is_null( $this->isStatic ) ? $this->isStatic = $this->buyer instanceof DetailedStaticContract : $this->isStatic;
+        return ! is_null( $this->account );
+    }
+
+    /**
+     * Return an item belonging to the attached account
+     *
+     * @param string $key
+     * @return AccountElement|null
+     */
+    protected function getAccountElement(string $key): ? AccountElement
+    {
+        return $this->storage()->get( $key );
     }
 
     /**
@@ -189,6 +219,5 @@ class ShoppingCard extends BaseManager
             'storage' => $this->storage()->toArray( )
         ]);
     }
-
 
 }

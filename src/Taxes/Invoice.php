@@ -7,9 +7,16 @@ namespace Enea\Cashier\Taxes;
 
 
 use Enea\Cashier\Contracts\BusinessOwner;
-use Enea\Cashier\Contracts\InvoiceContract;
+use Enea\Cashier\Contracts\DocumentContract;
 
-class Invoice implements InvoiceContract
+/**
+ * Class Invoice
+ * @package Enea\Cashier\Taxes
+ * @author enea dhack <enea.so@live.com>
+ *
+ * Class representing the general income tax
+ */
+class Invoice implements DocumentContract
 {
     protected const IGV = 18;
 

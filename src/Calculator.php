@@ -5,10 +5,16 @@
 
 namespace Enea\Cashier;
 
+use Enea\Cashier\Contracts\CalculatorContract;
 
-use Illuminate\Contracts\Support\Arrayable;
-
-class Calculator implements Arrayable
+/**
+ * Class Calculator
+ * @package Enea\Cashier
+ * @author enea dhack <enea.so@live.com>
+ *
+ *
+ */
+class Calculator implements CalculatorContract
 {
 
     /**
@@ -100,7 +106,7 @@ class Calculator implements Arrayable
     {
         return array(
             // base
-            'base_price' => $this->basePrice,
+            'base_price' => $this->getBasePrice( ),
             'quantity' => $this->getQuantity( ),
             'subtotal' => $this->getSubtotal( ),
 
@@ -199,9 +205,9 @@ class Calculator implements Arrayable
      * Returns the assigned discount item
      *
      * @param int $percentage
-     * @return Calculator
+     * @return CalculatorContract
      */
-    public function setDiscountPercentage( int $percentage ): Calculator
+    public function setDiscountPercentage( int $percentage ): CalculatorContract
     {
         $this->discountPercentage = $percentage;
         return $this;
@@ -211,9 +217,9 @@ class Calculator implements Arrayable
      * Set a tax rate for the item
      *
     * @param int $percentage
-    * @return Calculator
+    * @return CalculatorContract
     */
-    public function setImpostPercentage( int $percentage ): Calculator
+    public function setImpostPercentage( int $percentage ): CalculatorContract
     {
         $this->impostPercentage = $percentage;
         return $this;
@@ -223,12 +229,22 @@ class Calculator implements Arrayable
      * Set a plan discount for the item
      *
     * @param int $percentage
-    * @return Calculator
+    * @return CalculatorContract
     */
-    public function setPlanPercentage( int $percentage ): Calculator
+    public function setPlanPercentage( int $percentage ): CalculatorContract
     {
         $this->planDiscountPercentage = $percentage;
         return $this;
+    }
+
+    /**
+     * Returns the unit price
+     *
+     * @return float
+     */
+    public function getBasePrice( ): float
+    {
+        return $this->format( $this->basePrice );
     }
 
     /**

@@ -36,4 +36,11 @@ interface SalableContract
      */
     public function getBasePrice( ): float;
 
+    /**
+     * Returns an array with extra properties
+     *
+     * @return array
+     * */
+    public function getCustomProperties( ): array;
+
 }
