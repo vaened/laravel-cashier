@@ -5,8 +5,6 @@
 
 namespace Enea\Cashier\Contracts;
 
-use Illuminate\Contracts\Support\Arrayable;
-
 
 /**
  * Interface BuyerContract
@@ -14,7 +12,7 @@ use Illuminate\Contracts\Support\Arrayable;
  *
  * Represents the buyer
  */
-interface BuyerContract extends Arrayable
+interface BuyerContract
 {
 
     /**

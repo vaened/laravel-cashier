@@ -24,8 +24,15 @@ interface BusinessOwner
     /**
      * Returns the taxpayer's unique identification
      *
-     * @return integer
+     * @return string
      */
-    public function getTaxpayerIdentification( ): int ;
+    public function getTaxpayerIdentification( ): string;
+
+    /**
+     * Returns the social reason
+     *
+     * @return string
+     */
+    public function getDescription( ): string;
 
 }
