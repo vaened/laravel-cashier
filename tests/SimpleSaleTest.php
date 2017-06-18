@@ -60,6 +60,16 @@ class SimpleSaleTest extends TestCase
 
         $this->assertFalse( $shopping->push($this->salable(['id' => $key])));
         $this->assertTrue($shopping->count() === 1 );
+
+        $this->assertTrue( $shopping->push($keyboard, $quantity));
+        $item = $shopping->find( $keyboard->getItemKey( ) );
+        $item->setQuantity(10);
+
+        $item = null;
+
+        $item = $shopping->find( $keyboard->getItemKey( ) );
+        $this->assertTrue($item->getQuantity() === 10);
+
     }
 
 
