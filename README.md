@@ -146,13 +146,12 @@ The package offers a series of interfaces that convert a model to a particular a
         // ..
     }
     ```
-    
 - #### Enea\Cashier\Contract\AccountContract
-Represents an account payable, must be attached to the shopping cart.
-The implementation of this interface allows the elements to choose to include a custom list.
-Example case:
-A pre-invoice to be settled, this has items that have been loaded since the pre-invoice was opened. In this case,
-It is necessary to validate that the articles are paid within the detail of said prefacture.
+    Represents an account payable, must be attached to the shopping cart.
+    The implementation of this interface allows the elements to choose to include a custom list.
+    Example case:
+    A pre-invoice to be settled, this has items that have been loaded since the pre-invoice was opened. In this case,
+    It is necessary to validate that the articles are paid within the detail of said prefacture.
 
     ```php
     public function index(Preinvoice $preinvoice, Request $request )
