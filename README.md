@@ -1,4 +1,6 @@
 # Laravel Cashier Package
+[![Build Status](https://travis-ci.org/eneasdh-fs/laravel-cashier.svg?branch=master)](https://travis-ci.org/eneasdh-fs/laravel-cashier)
+
 This package provides common functionality for session management for the sale of products in general.
 ## How to install
 1. It is recommended to install this package through composer
