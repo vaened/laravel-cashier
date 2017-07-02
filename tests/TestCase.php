@@ -16,7 +16,7 @@ use Enea\Tests\Models\Product;
 class TestCase extends \Orchestra\Testbench\TestCase
 {
 
-    protected function salable(array $attributes = array()): Product
+    protected function salable(array $attributes = array())
     {
         $attributes = array_merge([
             'price' => 123.45,
@@ -27,7 +27,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return new Product($attributes);
     }
 
-    protected function discountableProduct(array $attributes = array()): DiscountableProduct
+    protected function discountableProduct(array $attributes = array())
     {
         $attributes = array_merge([
             'price' => 123.45,
@@ -40,12 +40,12 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return new DiscountableProduct($attributes);
     }
 
-    protected function getManager( ): ShoppingManager
+    protected function getManager( )
     {
         return new ShoppingManager( $this->app['session'] );
     }
 
-    protected function getShoppingCart( ShoppingManager $manager,  $client_id = 10000): ShoppingCart
+    protected function getShoppingCart( ShoppingManager $manager,  $client_id = 10000)
     {
         $client = new Client(['id' => $client_id ]);
 
@@ -54,7 +54,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return  $manager->initialize( $client, $document );
     }
 
-    protected function getPreinvoice( array $attributes = array() ): Preinvoice
+    protected function getPreinvoice( array $attributes = array() )
     {
         $attributes = array_merge([
             'id' => 11234,

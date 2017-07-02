@@ -19,21 +19,21 @@ interface CartElementContract
     /**
      * Returns item name
      *
-     * @return string
+     * @return null|string
      * */
-    public function getShortDescription( ): ?string;
+    public function getShortDescription( );
 
     /**
      * Get base price for item
      *
      * @return float
      */
-    public function getBasePrice( ): float;
+    public function getBasePrice( );
 
     /**
      * Returns an array with extra properties
      *
      * @return array
      * */
-    public function getCustomProperties( ): array;
+    public function getCustomProperties( );
 }

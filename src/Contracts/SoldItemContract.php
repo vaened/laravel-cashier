@@ -14,7 +14,7 @@ interface SoldItemContract extends CartElementContract
      *
      * @return int
      * */
-    public function getQuantity( ): int;
+    public function getQuantity( );
 
 
 }

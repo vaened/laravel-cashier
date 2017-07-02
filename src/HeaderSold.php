@@ -33,7 +33,7 @@ class HeaderSold extends BaseManager
      *
      * @return void
      */
-    protected function buildElements( ): void
+    protected function buildElements( )
     {
         $this->header->elements()->each(function ( SoldItemContract $element ) {
             $this->addElementItem( $element );
@@ -46,7 +46,7 @@ class HeaderSold extends BaseManager
      * @param SoldItemContract $element
      * @return void
      */
-    protected function addElementItem(SoldItemContract $element ): void
+    protected function addElementItem(SoldItemContract $element )
     {
         $this->add($element->getItemKey( ), new SoldItem( $element, $this->getTaxPercentage( ) ));
     }

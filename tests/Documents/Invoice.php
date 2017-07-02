@@ -32,7 +32,7 @@ class Invoice implements DocumentContract
      *
      * @return int
      */
-    public function getTaxPercentageAttribute(): int
+    public function getTaxPercentageAttribute()
     {
         return self::IGV;
     }
@@ -42,7 +42,7 @@ class Invoice implements DocumentContract
      *
      * @return BusinessOwner
      * */
-    public function getBusinessOwner(): ?BusinessOwner
+    public function getBusinessOwner()
     {
         return $this->owner;
     }

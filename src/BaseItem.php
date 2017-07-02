@@ -73,7 +73,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      * @param int $quantity
      * @return void
      */
-    public function setQuantity( int $quantity ): void
+    public function setQuantity( $quantity )
     {
         $this->quantity = $quantity;
         $this->old_quantity = $this->old_quantity ?: $quantity;
@@ -85,7 +85,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return int
      */
-    public function getQuantity( ): int
+    public function getQuantity( )
     {
         return $this->quantity;
     }
@@ -95,9 +95,9 @@ abstract class BaseItem implements Arrayable, Jsonable
      * @param string $property
      * @return string|bool|int|array
      */
-    public function getProperty( string $property )
+    public function getProperty( $property )
     {
-        return $this->getCustomProperties( )[$property] ?? null;
+        return isset($this->getCustomProperties( )[$property]) ? $this->getCustomProperties( )[$property] : null;
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return Calculator
      */
-    public function getCalculator( ): Calculator
+    public function getCalculator( )
     {
         if ($this->needToRecalculate( )) {
 
@@ -129,7 +129,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @param int $percentage
      */
-    public function setPlanDiscountPercentage( int $percentage): void
+    public function setPlanDiscountPercentage( $percentage)
     {
         $this->planDiscountPercentage = $percentage;
     }
@@ -139,7 +139,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return bool
      */
-    public function isTouched( ): bool
+    public function isTouched( )
     {
         return $this->old_quantity != $this->getQuantity( );
     }
@@ -147,9 +147,9 @@ abstract class BaseItem implements Arrayable, Jsonable
     /**
      * Returns item name
      *
-     * @return string
+     * @return null|string
      * */
-    public function getShortDescription(): ?string
+    public function getShortDescription()
     {
         return $this->element->getShortDescription();
     }
@@ -159,7 +159,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return array
      * */
-    public function getCustomProperties( ): array
+    public function getCustomProperties( )
     {
         return $this->element->getCustomProperties( );
     }
@@ -179,7 +179,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return float
      */
-    protected function getBasePrice( ): float
+    protected function getBasePrice( )
     {
         return $this->element->getBasePrice();
     }
@@ -189,7 +189,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return bool
      */
-    protected function needToRecalculate( ) : bool
+    protected function needToRecalculate( )
     {
         return $this->recalculate || empty($this->calculator);
     }
@@ -199,7 +199,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return int
      */
-    protected function getImpostPercentage(): int
+    protected function getImpostPercentage()
     {
         return $this->impostPercentage;
     }
@@ -209,7 +209,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return Model
      */
-    protected function model( ): Model
+    protected function model( )
     {
         return $this->element;
     }
@@ -219,7 +219,7 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return Calculator
      */
-    private function calculatorInstance( ): Calculator
+    private function calculatorInstance( )
     {
         if ( empty($path = config('cashier.calculator'))) {
             return new Calculator($this->getBasePrice(), $this->getQuantity());

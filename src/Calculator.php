@@ -29,7 +29,7 @@ class Calculator implements CalculatorContract
      *
      * @var int
      * */
-    protected const ABSOLUTE = 100;
+    const ABSOLUTE = 100;
 
     /**
      * Base price for item
@@ -84,11 +84,11 @@ class Calculator implements CalculatorContract
      * @param int $planDiscountPercentage
      */
     public function __construct(
-        float $basePrice,
-        int $quantity,
-        int $impostPercentage = self::ZERO,
-        int $discountPercentage = self::ZERO,
-        int $planDiscountPercentage = self::ZERO
+        $basePrice,
+        $quantity,
+        $impostPercentage = self::ZERO,
+        $discountPercentage = self::ZERO,
+        $planDiscountPercentage = self::ZERO
     ) {
         $this->basePrice = $basePrice;
         $this->quantity = $quantity;
@@ -135,7 +135,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      * */
-    protected function getFormatImpostPercentage( ): float
+    protected function getFormatImpostPercentage( )
     {
         return $this->toPercentage($this->impostPercentage);
     }
@@ -145,7 +145,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      * */
-    protected function getFormatDiscountPercentage( ): float
+    protected function getFormatDiscountPercentage( )
     {
         return $this->toPercentage($this->discountPercentage);
     }
@@ -155,7 +155,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      * */
-    protected function getFormatPlanDiscountPercentage( ): float
+    protected function getFormatPlanDiscountPercentage( )
     {
         return $this->toPercentage($this->planDiscountPercentage);
     }
@@ -166,7 +166,7 @@ class Calculator implements CalculatorContract
      *
      * @return int
      */
-    public function getQuantity( ): int
+    public function getQuantity( )
     {
         return $this->quantity;
     }
@@ -176,7 +176,7 @@ class Calculator implements CalculatorContract
      *
      * @return int
      */
-    public function getImpostPercentage( ): int
+    public function getImpostPercentage( )
     {
         return $this->impostPercentage;
     }
@@ -186,7 +186,7 @@ class Calculator implements CalculatorContract
      *
      * @return int
      */
-    public function getDiscountPercentage(): int
+    public function getDiscountPercentage()
     {
         return $this->discountPercentage;
     }
@@ -196,7 +196,7 @@ class Calculator implements CalculatorContract
      *
      * @return int
      */
-    public function getPlanDiscountPercentage(): int
+    public function getPlanDiscountPercentage()
     {
         return $this->planDiscountPercentage;
     }
@@ -207,7 +207,7 @@ class Calculator implements CalculatorContract
      * @param int $percentage
      * @return CalculatorContract
      */
-    public function setDiscountPercentage( int $percentage ): CalculatorContract
+    public function setDiscountPercentage( $percentage )
     {
         $this->discountPercentage = $percentage;
         return $this;
@@ -219,7 +219,7 @@ class Calculator implements CalculatorContract
     * @param int $percentage
     * @return CalculatorContract
     */
-    public function setImpostPercentage( int $percentage ): CalculatorContract
+    public function setImpostPercentage( $percentage )
     {
         $this->impostPercentage = $percentage;
         return $this;
@@ -231,7 +231,7 @@ class Calculator implements CalculatorContract
     * @param int $percentage
     * @return CalculatorContract
     */
-    public function setPlanPercentage( int $percentage ): CalculatorContract
+    public function setPlanPercentage( $percentage )
     {
         $this->planDiscountPercentage = $percentage;
         return $this;
@@ -242,7 +242,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      */
-    public function getBasePrice( ): float
+    public function getBasePrice( )
     {
         return $this->format( $this->basePrice );
     }
@@ -252,7 +252,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      */
-    public function getSubtotal( ): float
+    public function getSubtotal( )
     {
         return $this->format($this->basePrice * $this->getQuantity( ));
     }
@@ -262,7 +262,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      */
-    public function getDiscount( ): float
+    public function getDiscount( )
     {
         return $this->format($this->getSubtotal( ) * $this->getFormatDiscountPercentage( ));
     }
@@ -272,7 +272,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      */
-    public function getPlanDiscount( ): float
+    public function getPlanDiscount( )
     {
         return $this->format($this->getSubtotal( ) * $this->getFormatPlanDiscountPercentage( ));
     }
@@ -282,7 +282,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      */
-    public function getTotalDiscounts( ): float
+    public function getTotalDiscounts( )
     {
         return $this->format($this->getDiscount( ) + $this->getPlanDiscount( ));
     }
@@ -292,7 +292,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      */
-    public function getImpost( ): float
+    public function getImpost( )
     {
         return $this->format($this->getSubtotal( ) * $this->getFormatImpostPercentage( ) );
     }
@@ -302,7 +302,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      */
-    public function getDefinitiveTotal( ): float
+    public function getDefinitiveTotal( )
     {
         return $this->format($this->getSubtotal( ) - $this->getTotalDiscounts( ) + $this->getImpost( ));
     }
@@ -313,7 +313,7 @@ class Calculator implements CalculatorContract
      * @param int $percentage
      * @return float
      */
-    protected function toPercentage( int $percentage ): float
+    protected function toPercentage( $percentage )
     {
         return $percentage / self::ABSOLUTE;
     }
@@ -324,7 +324,7 @@ class Calculator implements CalculatorContract
      * @param float $total
      * @return float
      */
-    protected function format(float $total ): float
+    protected function format( $total )
     {
         $this->decimals = $this->decimals ?: $this->decimals = config('cashier.decimals', 3);
 

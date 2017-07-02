@@ -20,7 +20,7 @@ class Preinvoice extends Model implements AccountContract
      *
      * @return string
      */
-    public function getKeyIdentification(): string
+    public function getKeyIdentification()
     {
         return $this->getKey();
     }
@@ -30,7 +30,7 @@ class Preinvoice extends Model implements AccountContract
      *
      * @return array
      * */
-    public function getCustomProperties(): array
+    public function getCustomProperties()
     {
         return [
             'custom_property' => $this->custom_property,
@@ -42,7 +42,7 @@ class Preinvoice extends Model implements AccountContract
      *
      * @return Collection
      */
-    public function getElements(): Collection
+    public function getElements()
     {
         return collect([
             new PreinvoiceItem(['id' => 100, 'price' => 130.50, 'quantity' => 3, 'description' => 'some description', 'taxable' => true]),

@@ -26,13 +26,13 @@ interface BusinessOwner
      *
      * @return string
      */
-    public function getTaxpayerIdentification( ): string;
+    public function getTaxpayerIdentification( );
 
     /**
      * Returns the social reason
      *
      * @return string
      */
-    public function getDescription( ): string;
+    public function getDescription( );
 
 }

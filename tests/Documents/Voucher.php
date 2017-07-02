@@ -17,7 +17,7 @@ class Voucher implements DocumentContract
      *
      * @return int
      */
-    public function getTaxPercentageAttribute(): int
+    public function getTaxPercentageAttribute()
     {
         return 0;
     }
@@ -27,7 +27,7 @@ class Voucher implements DocumentContract
      *
      * @return BusinessOwner
      * */
-    public function getBusinessOwner(): ?BusinessOwner
+    public function getBusinessOwner()
     {
         return null;
     }

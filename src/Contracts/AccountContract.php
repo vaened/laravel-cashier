@@ -27,20 +27,20 @@ interface AccountContract
      *
      * @return string
      */
-    public function getKeyIdentification(): string;
+    public function getKeyIdentification();
 
     /**
      * Returns an array with extra properties
      *
      * @return array
      * */
-    public function getCustomProperties( ): array;
+    public function getCustomProperties( );
 
     /**
      * Returns elements that implement 'SalableContract'
      *
      * @return Collection
      */
-    public function getElements( ): Collection;
+    public function getElements( );
 
 }

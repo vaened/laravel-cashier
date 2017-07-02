@@ -11,7 +11,7 @@ use Enea\Cashier\Calculator;
 class CalculatorTest extends TestCase
 {
 
-    protected function getCalculator( $impost = 18, $discount = 23, $plan = 10 ): Calculator
+    protected function getCalculator( $impost = 18, $discount = 23, $plan = 10 )
     {
         $properties = [
            635.90, // base price

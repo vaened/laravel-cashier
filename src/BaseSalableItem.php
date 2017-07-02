@@ -5,7 +5,6 @@
 
 namespace Enea\Cashier;
 
-
 use Enea\Cashier\Contracts\SalableContract;
 
 abstract class BaseSalableItem extends BaseItem
@@ -18,7 +17,7 @@ abstract class BaseSalableItem extends BaseItem
      * @param int $quantity
      * @param int $impostPercentage
      */
-    public function __construct(SalableContract $salable, int $quantity, int $impostPercentage = 0 )
+    public function __construct(SalableContract $salable, $quantity, $impostPercentage = 0 )
     {
         parent::__construct( $salable );
         parent::setQuantity($quantity);
@@ -30,7 +29,7 @@ abstract class BaseSalableItem extends BaseItem
      *
      * @return SalableContract
      */
-    public function getSalable(): SalableContract
+    public function getSalable()
     {
         return $this->element;
     }
@@ -40,7 +39,7 @@ abstract class BaseSalableItem extends BaseItem
      *
      * @param int $percentage
      */
-    public function setImpostPercentage( int $percentage): void
+    public function setImpostPercentage( $percentage)
     {
         if ($this->getSalable( )->isTaxable()) {
             $this->recalculate = true;

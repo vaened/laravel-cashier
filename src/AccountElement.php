@@ -5,10 +5,7 @@
 
 namespace Enea\Cashier;
 
-
 use Enea\Cashier\Contracts\AccountElementContract;
-use Enea\Cashier\Contracts\SalableContract;
-use Illuminate\Database\Eloquent\Model;
 
 class AccountElement extends BaseSalableItem
 {
@@ -18,7 +15,7 @@ class AccountElement extends BaseSalableItem
      * @param AccountElementContract $salable
      * @param int $impostPercentage
      */
-    public function __construct(AccountElementContract $salable, int $impostPercentage = 0 )
+    public function __construct(AccountElementContract $salable, $impostPercentage = 0 )
     {
         parent::__construct($salable, $salable->getQuantity(), $impostPercentage);
     }

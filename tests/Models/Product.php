@@ -32,7 +32,7 @@ class Product extends Model implements SalableContract
      *
      * @return string
      * */
-    public function getShortDescription(): ?string
+    public function getShortDescription()
     {
         return $this->description;
     }
@@ -42,7 +42,7 @@ class Product extends Model implements SalableContract
      *
      * @return string
      * */
-    public function getMeasure(): ?string
+    public function getMeasure()
     {
         // $this->measure->name;
         return $this->measure;
@@ -53,7 +53,7 @@ class Product extends Model implements SalableContract
      *
      * @return float
      */
-    public function getBasePrice(): float
+    public function getBasePrice()
     {
         return $this->price;
     }
@@ -63,7 +63,7 @@ class Product extends Model implements SalableContract
      *
      * @return array
      * */
-    public function getCustomProperties(): array
+    public function getCustomProperties()
     {
         return [
             'custom_property' => $this->custom_property,
@@ -75,7 +75,7 @@ class Product extends Model implements SalableContract
      *
      * @return bool
      */
-    public function isTaxable(): bool
+    public function isTaxable()
     {
         return $this->taxable;
     }

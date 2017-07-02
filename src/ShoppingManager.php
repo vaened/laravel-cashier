@@ -45,7 +45,7 @@ class ShoppingManager
      * @param DocumentContract $document
      * @return ShoppingCart
      */
-    public function initialize( BuyerContract $buyer, DocumentContract $document = null ): ShoppingCart
+    public function initialize( BuyerContract $buyer, DocumentContract $document = null )
     {
         $shopping = new ShoppingCart($buyer, $document);
 
@@ -64,7 +64,7 @@ class ShoppingManager
      * @param string $_token
      * @return ShoppingCart|null
      */
-    public function find( string $_token ): ?ShoppingCart
+    public function find( $_token )
     {
         if( ! $this->isInitiated( ) ) {
             return null;
@@ -79,7 +79,7 @@ class ShoppingManager
      * @param string $_token
      * @return bool
      */
-    public function drop(string $_token ): bool
+    public function drop( $_token )
     {
         if( ! $this->isInitiated( ) ) {
             return false;
@@ -99,7 +99,7 @@ class ShoppingManager
      *
      * @return void
      */
-    public function flush( ): void
+    public function flush( )
     {
         $this->session->forget($this->key( ));
     }
@@ -110,7 +110,7 @@ class ShoppingManager
      * @param ShoppingCart $shopping
      * @return void
      */
-    protected function attach(ShoppingCart $shopping ): void
+    protected function attach(ShoppingCart $shopping )
     {
         $this->carts()->put($shopping->token(), $shopping);
     }
@@ -120,7 +120,7 @@ class ShoppingManager
      *
      * @return string
      */
-    protected function key( ): string
+    protected function key( )
     {
         return $this->key ?: $this->key = config( 'cashier.session_key', 'default_laravel_shopping_session_key' );
     }
@@ -130,7 +130,7 @@ class ShoppingManager
      *
      * @return bool
      */
-    protected function isInitiated( ): bool
+    protected function isInitiated( )
     {
         return  $this->session->has( $this->key( ) );
     }
@@ -140,7 +140,7 @@ class ShoppingManager
      *
      * @return Collection|null
      */
-    protected function carts( ): ? Collection
+    protected function carts( )
     {
         return $this->session->get($this->key( ));
     }

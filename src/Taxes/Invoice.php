@@ -18,7 +18,7 @@ use Enea\Cashier\Contracts\DocumentContract;
  */
 class Invoice implements DocumentContract
 {
-    protected const IGV = 18;
+    const IGV = 18;
 
     /**
      * @var BusinessOwner
@@ -39,7 +39,7 @@ class Invoice implements DocumentContract
      *
      * @return int
      */
-    public function getTaxPercentageAttribute(): int
+    public function getTaxPercentageAttribute()
     {
         return self::IGV;
     }
@@ -47,9 +47,9 @@ class Invoice implements DocumentContract
     /**
      * Returns the owner of social reason
      *
-     * @return BusinessOwner
+     * @return null|BusinessOwner
      * */
-    public function getBusinessOwner(): ?BusinessOwner
+    public function getBusinessOwner()
     {
         return $this->owner;
     }

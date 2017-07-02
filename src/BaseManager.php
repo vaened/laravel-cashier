@@ -5,8 +5,6 @@
 
 namespace Enea\Cashier;
 
-
-use Enea\Cashier\Contracts\DocumentContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
@@ -49,7 +47,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return float
      */
-    public function getSubtotal( ): float
+    public function getSubtotal( )
     {
         return $this->collection->sum(function ( BaseItem $item ){
             return $item->getCalculator( )->getSubtotal();
@@ -61,7 +59,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return float
      */
-    public function getDefinitiveTotal( ): float
+    public function getDefinitiveTotal( )
     {
         return $this->collection->sum(function ( BaseItem $item ) {
             return $item->getCalculator( )->getDefinitiveTotal();
@@ -73,7 +71,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return float
      */
-    public function getImpost( ): float
+    public function getImpost( )
     {
         return $this->collection->sum(function ( BaseItem $item ){
             return $item->getCalculator( )->getImpost();
@@ -85,7 +83,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return float
      */
-    public function getDiscount( ): float
+    public function getDiscount( )
     {
         return $this->collection->sum(function ( BaseItem $item ){
             return $item->getCalculator( )->getDiscount();
@@ -95,7 +93,7 @@ abstract class BaseManager implements Arrayable, Jsonable
     /**
      * @return float
      */
-    public function getPlanDiscount( ): float
+    public function getPlanDiscount( )
     {
         return $this->collection->sum(function ( BaseItem $item ){
             return $item->getCalculator( )->getPlanDiscount( );
@@ -108,7 +106,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return float
      */
-    public function getTotalDiscounts( ): float
+    public function getTotalDiscounts( )
     {
         return $this->collection->sum(function ( BaseItem $item ){
             return $item->getCalculator( )->getTotalDiscounts();
@@ -121,7 +119,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return int
      */
-    public function getImpostPercentage( ): int
+    public function getImpostPercentage( )
     {
         return $this->impostPercentage;
     }
@@ -134,7 +132,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      * @param BaseItem $item
      * @return void
      */
-    protected function add( $key, BaseItem $item): void
+    protected function add( $key, BaseItem $item)
     {
         $this->collection->put( $key, $item);
     }
@@ -144,7 +142,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      * 
      * @return  Collection
      */
-    public function collection( ): Collection
+    public function collection( )
     {
         return $this->collection;
     }
@@ -155,7 +153,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return  void
      * */
-    public function clean( ): void
+    public function clean( )
     {
         $this->collection = collect();
         $this->storage = collect();
@@ -166,7 +164,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return int
      */
-    public function count( ): int
+    public function count( )
     {
         return $this->collection()->count();
     }
@@ -196,7 +194,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return Collection
      */
-    public function lists( ): Collection
+    public function lists( )
     {
         return $this->collection( )->values( );
     }
@@ -217,7 +215,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return string
      */
-    public function token( ): string
+    public function token( )
     {
         return $this->token ?: $this->token = str_random(30);
     }

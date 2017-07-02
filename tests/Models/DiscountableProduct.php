@@ -18,7 +18,7 @@ class DiscountableProduct extends Product implements DiscountableContract
      *
      * @return int
      */
-    public function getDiscountPercentage(): int
+    public function getDiscountPercentage()
     {
         return $this->discount;
     }

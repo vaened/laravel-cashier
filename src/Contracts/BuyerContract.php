@@ -27,6 +27,6 @@ interface BuyerContract
      *
      * @return array
      * */
-    public function getCustomProperties( ): array;
+    public function getCustomProperties( );
 
 }

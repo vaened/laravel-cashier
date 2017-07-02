@@ -23,7 +23,7 @@ class Client extends Model implements BuyerContract
      *
      * @return array
      * */
-    public function getCustomProperties(): array
+    public function getCustomProperties()
     {
         return [ ];
     }

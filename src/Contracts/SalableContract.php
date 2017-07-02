@@ -13,6 +13,6 @@ interface SalableContract extends CartElementContract
      *
      * @return bool
      */
-    public function isTaxable(): bool;
+    public function isTaxable();
 
 }

@@ -18,7 +18,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
      *
      * @return int
      * */
-    public function getQuantity(): int
+    public function getQuantity()
     {
         return $this->quantity;
     }
@@ -38,7 +38,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
      *
      * @return string
      * */
-    public function getShortDescription(): ?string
+    public function getShortDescription()
     {
         // $this->product->description;
         return $this->description;
@@ -49,7 +49,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
      *
      * @return string
      * */
-    public function getMeasure(): ?string
+    public function getMeasure()
     {
         // $this->product->measure->name;
         return $this->measure;
@@ -60,7 +60,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
      *
      * @return float
      */
-    public function getBasePrice(): float
+    public function getBasePrice()
     {
         return $this->price;
     }
@@ -70,7 +70,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
      *
      * @return array
      * */
-    public function getCustomProperties(): array
+    public function getCustomProperties()
     {
         return [
 
@@ -82,7 +82,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
      *
      * @return bool
      */
-    public function isTaxable(): bool
+    public function isTaxable()
     {
         return $this->taxable;
     }

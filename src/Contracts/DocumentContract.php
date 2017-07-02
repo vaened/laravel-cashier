@@ -19,12 +19,12 @@ interface DocumentContract
      *
      * @return int
      */
-    public function getTaxPercentageAttribute( ): int;
+    public function getTaxPercentageAttribute( );
 
     /**
      * Returns the owner of social reason
      *
-     * @return BusinessOwner
+     * @return null|BusinessOwner
      * */
-    public function getBusinessOwner( ): ?BusinessOwner;
+    public function getBusinessOwner( );
 }

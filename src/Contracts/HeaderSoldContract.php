@@ -23,20 +23,20 @@ interface HeaderSoldContract
      *
      * @return Collection
      */
-    public function elements( ): Collection;
+    public function elements( );
 
     /**
      * Returns the series plus the generated document number
      *
      * @return string
      * */
-    public function getDocumentAttribute( ): string;
+    public function getDocumentAttribute( );
 
     /**
      * Get tax percentage
      *
      * @return int
      */
-    public function getTaxPercentageAttribute( ) : int;
+    public function getTaxPercentageAttribute( );
 
 }

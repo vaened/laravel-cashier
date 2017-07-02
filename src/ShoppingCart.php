@@ -5,10 +5,11 @@
 
 namespace Enea\Cashier;
 
-
-use Enea\Cashier\Contracts\{
-    AccountContract, AccountElementContract, BuyerContract, DocumentContract, SalableContract
-};
+use Enea\Cashier\Contracts\AccountContract;
+use Enea\Cashier\Contracts\AccountElementContract;
+use Enea\Cashier\Contracts\DocumentContract;
+use Enea\Cashier\Contracts\BuyerContract;
+use Enea\Cashier\Contracts\SalableContract;
 use Enea\Cashier\Exceptions\IrreplaceableDetailItemException;
 use Enea\Cashier\Exceptions\OneAccountAtTimeException;
 use Illuminate\Support\Collection;
@@ -49,7 +50,7 @@ class ShoppingCart extends BaseManager
      * @return ShoppingCart
      * @throws OneAccountAtTimeException
      */
-    public function attach( AccountContract $account ): ShoppingCart
+    public function attach( AccountContract $account )
     {
         if( $this->isAttachedAccount( ) ) {
             throw new OneAccountAtTimeException();
@@ -70,7 +71,7 @@ class ShoppingCart extends BaseManager
      * @return ShoppingCart
      * @throws OneAccountAtTimeException
      */
-    public function detach( ): ShoppingCart
+    public function detach( )
     {
         if ($this->isAttachedAccount()) {
             $this->account = null;
@@ -89,7 +90,7 @@ class ShoppingCart extends BaseManager
      * @param int $quantity
      * @return bool
      */
-    public function push( SalableContract $salable, int $quantity = 1 ): bool
+    public function push( SalableContract $salable, $quantity = 1 )
     {
         if( $this->isAttachedAccount( )) {
             throw new IrreplaceableDetailItemException( );
@@ -110,7 +111,7 @@ class ShoppingCart extends BaseManager
      * @param string $key
      * @return bool
      */
-    public function pull( String $key ): bool
+    public function pull( $key )
     {
         if ( $has = $this->storage()->has($key)) {
             $element = $this->getAccountElement( $key );
@@ -125,7 +126,7 @@ class ShoppingCart extends BaseManager
      *
      * @return ShoppingCart
      */
-    public function pullAll( ): ShoppingCart
+    public function pullAll( )
     {
         $this->storage()->each(function ( AccountElement $element ) {
             $this->pull($element->getKey( ));
@@ -138,7 +139,7 @@ class ShoppingCart extends BaseManager
      * @param string|int $key
      * @return SalableItem|null
      */
-    public function find( $key ): ?SalableItem
+    public function find( $key )
     {
         return $this->collection()->get( $key );
     }
@@ -149,7 +150,7 @@ class ShoppingCart extends BaseManager
      * @param string|int $key
      * @return bool
      */
-    public function remove( $key ): bool
+    public function remove( $key )
     {
         if($has =  $this->hasItem($key)) {
             $this->collection()->forget( $key );
@@ -174,7 +175,7 @@ class ShoppingCart extends BaseManager
      *
      * @return BuyerContract
      */
-    public function buyer( ): BuyerContract
+    public function buyer( )
     {
         return $this->buyer;
     }
@@ -184,7 +185,7 @@ class ShoppingCart extends BaseManager
      *
      * @return AccountContract
      */
-    public function getAccount( ): ? AccountContract
+    public function getAccount( )
     {
         return $this->account;
     }
@@ -194,7 +195,7 @@ class ShoppingCart extends BaseManager
      *
      * @return Collection
      * */
-    public function storage( ): Collection
+    public function storage( )
     {
         return $this->storage;
     }
@@ -220,7 +221,7 @@ class ShoppingCart extends BaseManager
      *
      * @return bool
      */
-    protected function isAttachedAccount( ): bool
+    protected function isAttachedAccount( )
     {
         return ! is_null( $this->account );
     }
@@ -231,7 +232,7 @@ class ShoppingCart extends BaseManager
      * @param string $key
      * @return AccountElement|null
      */
-    protected function getAccountElement(string $key): ? AccountElement
+    protected function getAccountElement( $key)
     {
         return $this->storage()->get( $key );
     }

@@ -14,5 +14,5 @@ interface AccountElementContract extends SalableContract
     *
     * @return int
     * */
-    public function getQuantity( ): int;
+    public function getQuantity( );
 }
