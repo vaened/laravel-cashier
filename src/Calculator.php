@@ -206,6 +206,7 @@ class Calculator implements CalculatorContract
     public function setDiscountPercentage($percentage)
     {
         $this->discountPercentage = $percentage;
+
         return $this;
     }
 
@@ -219,6 +220,7 @@ class Calculator implements CalculatorContract
     public function setImpostPercentage($percentage)
     {
         $this->impostPercentage = $percentage;
+
         return $this;
     }
 
@@ -232,6 +234,7 @@ class Calculator implements CalculatorContract
     public function setPlanPercentage($percentage)
     {
         $this->planDiscountPercentage = $percentage;
+
         return $this;
     }
 
