@@ -1,13 +1,13 @@
 {
     "name": "enea/laravel-cashier",
     "description": "Simple package for product management",
+    "keywords": ["cashier", "sales", "cart", "shopping", "manager", "enea"],
     "authors": [
         {
             "name": "enea dhack",
             "email": "eneas.so@live.com"
         }
     ],
-
     "type": "library",
     "license": "MIT",
     "minimum-stability": "stable",
