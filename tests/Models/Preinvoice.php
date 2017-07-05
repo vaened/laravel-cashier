@@ -1,10 +1,9 @@
 <?php
 /**
- * Created by enea dhack - 17/06/17 01:09 PM
+ * Created by enea dhack - 17/06/17 01:09 PM.
  */
 
 namespace Enea\Tests\Models;
-
 
 use Enea\Cashier\Contracts\AccountContract;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +15,7 @@ class Preinvoice extends Model implements AccountContract
     public $incrementing = false;
 
     /**
-     * Returns identification one in the database - primary key
+     * Returns identification one in the database - primary key.
      *
      * @return string
      */
@@ -26,7 +25,7 @@ class Preinvoice extends Model implements AccountContract
     }
 
     /**
-     * Returns an array with extra properties
+     * Returns an array with extra properties.
      *
      * @return array
      * */
@@ -38,7 +37,7 @@ class Preinvoice extends Model implements AccountContract
     }
 
     /**
-     * Returns elements that implement 'SalableContract'
+     * Returns elements that implement 'SalableContract'.
      *
      * @return Collection
      */
@@ -51,6 +50,4 @@ class Preinvoice extends Model implements AccountContract
             new PreinvoiceItem(['id' => 103, 'price' => 30.40, 'quantity' => 2, 'description' => 'some description', 'taxable' => true]),
         ]);
     }
-
-
 }

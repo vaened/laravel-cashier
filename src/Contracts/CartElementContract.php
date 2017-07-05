@@ -1,39 +1,37 @@
 <?php
 /**
- * Created by enea dhack - 17/06/17 03:52 PM
+ * Created by enea dhack - 17/06/17 03:52 PM.
  */
 
 namespace Enea\Cashier\Contracts;
 
-
 interface CartElementContract
 {
-
     /**
-     * Key that identifies the article as unique
+     * Key that identifies the article as unique.
      *
      * @return int|string
      */
-    public function getItemKey( );
+    public function getItemKey();
 
     /**
-     * Returns item name
+     * Returns item name.
      *
      * @return null|string
      * */
-    public function getShortDescription( );
+    public function getShortDescription();
 
     /**
-     * Get base price for item
+     * Get base price for item.
      *
      * @return float
      */
-    public function getBasePrice( );
+    public function getBasePrice();
 
     /**
-     * Returns an array with extra properties
+     * Returns an array with extra properties.
      *
      * @return array
      * */
-    public function getCustomProperties( );
+    public function getCustomProperties();
 }

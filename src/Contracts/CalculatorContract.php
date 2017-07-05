@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by enea dhack - 16/06/17 09:05 PM
+ * Created by enea dhack - 16/06/17 09:05 PM.
  */
 
 namespace Enea\Cashier\Contracts;
@@ -8,114 +8,111 @@ namespace Enea\Cashier\Contracts;
 use Illuminate\Contracts\Support\Arrayable;
 
 /**
- * Interface CalculatorContract
- * @package Enea\Cashier\Contracts
- *
- * Calculates all the amounts in the package, if you want to create a different logic to
- * calculate the balances, you must implement this interface or extend the calculator class
- * that comes by default in the package
+ * Interface CalculatorContract.
  */
 interface CalculatorContract extends Arrayable
 {
     /**
-     * Returns the requested quantity for the item
+     * Returns the requested quantity for the item.
      *
      * @return int
      */
-    public function getQuantity( );
+    public function getQuantity();
 
     /**
-     * Returns the assigned tax
+     * Returns the assigned tax.
      *
      * @return int
      */
-    public function getImpostPercentage( );
+    public function getImpostPercentage();
 
     /**
-     * Returns the assigned discount item
+     * Returns the assigned discount item.
      *
      * @return int
      */
     public function getDiscountPercentage();
 
     /**
-     * Returns the assigned plan discount item
+     * Returns the assigned plan discount item.
      *
      * @return int
      */
     public function getPlanDiscountPercentage();
 
     /**
-     * Returns the assigned discount item
+     * Returns the assigned discount item.
      *
      * @param int $percentage
+     *
      * @return CalculatorContract
      */
-    public function setDiscountPercentage( $percentage );
+    public function setDiscountPercentage($percentage);
 
     /**
-     * Set a tax rate for the item
+     * Set a tax rate for the item.
      *
      * @param int $percentage
+     *
      * @return CalculatorContract
      */
-    public function setImpostPercentage( $percentage );
+    public function setImpostPercentage($percentage);
 
     /**
-     * Set a plan discount for the item
+     * Set a plan discount for the item.
      *
      * @param int $percentage
+     *
      * @return CalculatorContract
      */
-    public function setPlanPercentage( $percentage );
+    public function setPlanPercentage($percentage);
 
     /**
-     * Returns the unit price
+     * Returns the unit price.
      *
      * @return float
      */
-    public function getBasePrice( );
+    public function getBasePrice();
 
     /**
-     * Multiply the total by the amount
+     * Multiply the total by the amount.
      *
      * @return float
      */
-    public function getSubtotal( );
+    public function getSubtotal();
 
     /**
-     * Returns discount item
+     * Returns discount item.
      *
      * @return float
      */
-    public function getDiscount( );
+    public function getDiscount();
 
     /**
-     * Returns plan discount
+     * Returns plan discount.
      *
      * @return float
      */
-    public function getPlanDiscount( );
+    public function getPlanDiscount();
 
     /**
-     * Total sum of discounts
+     * Total sum of discounts.
      *
      * @return float
      */
-    public function getTotalDiscounts( );
+    public function getTotalDiscounts();
 
     /**
-     * Get general sale sax
+     * Get general sale sax.
      *
      * @return float
      */
-    public function getImpost( );
+    public function getImpost();
 
     /**
-     * Returns total definitive
+     * Returns total definitive.
      *
      * @return float
      */
-    public function getDefinitiveTotal( );
-
+    public function getDefinitiveTotal();
 }

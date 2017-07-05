@@ -1,10 +1,9 @@
 <?php
 /**
- * Created by enea dhack - 17/06/17 01:59 PM
+ * Created by enea dhack - 17/06/17 01:59 PM.
  */
 
 namespace Enea\Tests\Documents;
-
 
 use Enea\Cashier\Contracts\BusinessOwner;
 use Enea\Cashier\Contracts\DocumentContract;
@@ -17,18 +16,19 @@ class Invoice implements DocumentContract
     private $owner;
 
     const IGV = 18;
+
     /**
      * Invoice constructor.
+     *
      * @param BusinessOwner $owner
      */
-    public function __construct( BusinessOwner $owner = null )
+    public function __construct(BusinessOwner $owner = null)
     {
         $this->owner = $owner;
     }
 
-
     /**
-     * Get tax percentage
+     * Get tax percentage.
      *
      * @return int
      */
@@ -38,7 +38,7 @@ class Invoice implements DocumentContract
     }
 
     /**
-     * Returns the owner of social reason
+     * Returns the owner of social reason.
      *
      * @return BusinessOwner
      * */

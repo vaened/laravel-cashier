@@ -1,20 +1,19 @@
 <?php
 /**
- * Created by enea dhack - 12/06/17 10:54 PM
+ * Created by enea dhack - 12/06/17 10:54 PM.
  */
 
 namespace Enea\Cashier\Facades;
 
-
 use Enea\Cashier\Contracts\BuyerContract;
 use Enea\Cashier\Contracts\DocumentContract;
 use Enea\Cashier\ShoppingCart;
+use Enea\Cashier\ShoppingManager as Manager;
 use Illuminate\Support\Facades\Facade;
-use \Enea\Cashier\ShoppingManager as Manager;
 
 /**
- * Class ShoppingManager
- * @package Enea\Cashier\Facades
+ * Class ShoppingManager.
+ *
  * @author enea dhack <enea.so@live.com>
  *
  * Methods
@@ -28,17 +27,15 @@ use \Enea\Cashier\ShoppingManager as Manager;
  */
 class ShoppingManager extends Facade
 {
-
     /**
      * Get the registered name of the component.
      *
-     * @return string
-     *
      * @throws \RuntimeException
+     *
+     * @return string
      */
     protected static function getFacadeAccessor()
     {
         return Manager::class;
     }
-
 }

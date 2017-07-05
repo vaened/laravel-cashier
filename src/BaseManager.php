@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by enea dhack - 30/05/2017 03:19 PM
+ * Created by enea dhack - 30/05/2017 03:19 PM.
  */
 
 namespace Enea\Cashier;
@@ -12,14 +12,14 @@ use Illuminate\Support\Collection;
 abstract class BaseManager implements Arrayable, Jsonable
 {
     /**
-     * Identification
+     * Identification.
      *
      * @var string
      * */
     protected $token;
 
     /**
-     * Selected items
+     * Selected items.
      *
      * @var  Collection
      * */
@@ -35,125 +35,120 @@ abstract class BaseManager implements Arrayable, Jsonable
      */
     protected $impostPercentage = Calculator::ZERO;
 
-
-
-    public function __construct( )
+    public function __construct()
     {
-        $this->clean( );
+        $this->clean();
     }
 
     /**
-     * Build subtotal items
+     * Build subtotal items.
      *
      * @return float
      */
-    public function getSubtotal( )
+    public function getSubtotal()
     {
-        return $this->collection->sum(function ( BaseItem $item ){
-            return $item->getCalculator( )->getSubtotal();
+        return $this->collection->sum(function (BaseItem $item) {
+            return $item->getCalculator()->getSubtotal();
         });
     }
 
     /**
-     * Build definite total
+     * Build definite total.
      *
      * @return float
      */
-    public function getDefinitiveTotal( )
+    public function getDefinitiveTotal()
     {
-        return $this->collection->sum(function ( BaseItem $item ) {
-            return $item->getCalculator( )->getDefinitiveTotal();
+        return $this->collection->sum(function (BaseItem $item) {
+            return $item->getCalculator()->getDefinitiveTotal();
         });
     }
 
     /**
-     * Build total tax
+     * Build total tax.
      *
      * @return float
      */
-    public function getImpost( )
+    public function getImpost()
     {
-        return $this->collection->sum(function ( BaseItem $item ){
-            return $item->getCalculator( )->getImpost();
+        return $this->collection->sum(function (BaseItem $item) {
+            return $item->getCalculator()->getImpost();
         });
     }
 
     /**
-     * Returns the discount applied to the item
+     * Returns the discount applied to the item.
      *
      * @return float
      */
-    public function getDiscount( )
+    public function getDiscount()
     {
-        return $this->collection->sum(function ( BaseItem $item ){
-            return $item->getCalculator( )->getDiscount();
+        return $this->collection->sum(function (BaseItem $item) {
+            return $item->getCalculator()->getDiscount();
         });
     }
 
     /**
      * @return float
      */
-    public function getPlanDiscount( )
+    public function getPlanDiscount()
     {
-        return $this->collection->sum(function ( BaseItem $item ){
-            return $item->getCalculator( )->getPlanDiscount( );
+        return $this->collection->sum(function (BaseItem $item) {
+            return $item->getCalculator()->getPlanDiscount();
         });
     }
 
-
     /**
-     * Returns the total discount
+     * Returns the total discount.
      *
      * @return float
      */
-    public function getTotalDiscounts( )
+    public function getTotalDiscounts()
     {
-        return $this->collection->sum(function ( BaseItem $item ){
-            return $item->getCalculator( )->getTotalDiscounts();
+        return $this->collection->sum(function (BaseItem $item) {
+            return $item->getCalculator()->getTotalDiscounts();
         });
     }
 
-
     /**
-     * Returns the tax percentage
+     * Returns the tax percentage.
      *
      * @return int
      */
-    public function getImpostPercentage( )
+    public function getImpostPercentage()
     {
         return $this->impostPercentage;
     }
 
-
     /**
-     * Add a new item to the collection
+     * Add a new item to the collection.
      *
      * @param $key
      * @param BaseItem $item
+     *
      * @return void
      */
-    protected function add( $key, BaseItem $item)
+    protected function add($key, BaseItem $item)
     {
-        $this->collection->put( $key, $item);
+        $this->collection->put($key, $item);
     }
 
     /**
-     * Filter items that have not been marked as deleted
-     * 
+     * Filter items that have not been marked as deleted.
+     *
      * @return  Collection
      */
-    public function collection( )
+    public function collection()
     {
         return $this->collection;
     }
 
-
     /**
-     * Clean the collection
+     * Clean the collection.
      *
      * @return  void
      * */
-    public function clean( )
+    public function clean()
     {
         $this->collection = collect();
         $this->storage = collect();
@@ -164,7 +159,7 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return int
      */
-    public function count( )
+    public function count()
     {
         return $this->collection()->count();
     }
@@ -185,24 +180,25 @@ abstract class BaseManager implements Arrayable, Jsonable
             'plan_discount' => $this->getPlanDiscount(),
             'total_discounts' => $this->getTotalDiscounts(),
             'impost_percentage' => $this->getImpostPercentage(),
-            'elements' => $this->collection( )->toArray(),
+            'elements' => $this->collection()->toArray(),
         ];
     }
 
     /**
-     * Returns only the value of the elements leaving aside the keys
+     * Returns only the value of the elements leaving aside the keys.
      *
      * @return Collection
      */
-    public function lists( )
+    public function lists()
     {
-        return $this->collection( )->values( );
+        return $this->collection()->values();
     }
 
     /**
      * Convert the object to its JSON representation.
      *
      * @param  int $options
+     *
      * @return string
      */
     public function toJson($options = 0)
@@ -215,9 +211,8 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return string
      */
-    public function token( )
+    public function token()
     {
         return $this->token ?: $this->token = str_random(30);
     }
-
 }

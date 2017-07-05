@@ -1,10 +1,9 @@
 <?php
 /**
- * Created by enea dhack - 17/06/17 01:06 PM
+ * Created by enea dhack - 17/06/17 01:06 PM.
  */
 
 namespace Enea\Tests\Models;
-
 
 use Enea\Cashier\Contracts\SalableContract;
 use Illuminate\Database\Eloquent\Model;
@@ -17,8 +16,9 @@ class Product extends Model implements SalableContract
     protected $casts = [
         'taxable' => 'boolean'
     ];
+
     /**
-     * Key that identifies the article as unique
+     * Key that identifies the article as unique.
      *
      * @return int|string
      */
@@ -28,7 +28,7 @@ class Product extends Model implements SalableContract
     }
 
     /**
-     * Returns item name
+     * Returns item name.
      *
      * @return string
      * */
@@ -38,7 +38,7 @@ class Product extends Model implements SalableContract
     }
 
     /**
-     * Returns the unit of measure of the item
+     * Returns the unit of measure of the item.
      *
      * @return string
      * */
@@ -49,7 +49,7 @@ class Product extends Model implements SalableContract
     }
 
     /**
-     * Get base price for item
+     * Get base price for item.
      *
      * @return float
      */
@@ -59,7 +59,7 @@ class Product extends Model implements SalableContract
     }
 
     /**
-     * Returns an array with extra properties
+     * Returns an array with extra properties.
      *
      * @return array
      * */
@@ -71,7 +71,7 @@ class Product extends Model implements SalableContract
     }
 
     /**
-     * Returns true in case of being subject to tax
+     * Returns true in case of being subject to tax.
      *
      * @return bool
      */
