@@ -1,0 +1,12 @@
+disabled:
+  - align_double_arrow
+  - concat_without_spaces
+  - trailing_comma_in_multiline_array
+  - phpdoc_align
+  - short_array_syntax
+  - phpdoc_separation
+
+enabled:
+  - concat_with_spaces
+  - no_blank_lines_after_return
+  - not_operator_with_successor_space
