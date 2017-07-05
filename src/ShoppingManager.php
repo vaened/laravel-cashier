@@ -1,32 +1,28 @@
 <?php
 /**
- * Created by enea dhack - 12/06/17 10:17 PM
+ * Created by enea dhack - 12/06/17 10:17 PM.
  */
 
 namespace Enea\Cashier;
 
-
 use Enea\Cashier\Contracts\BuyerContract;
 use Enea\Cashier\Contracts\DocumentContract;
-use Enea\Cashier\Contracts\InvoiceContract;
 use Illuminate\Session\SessionManager;
 use Illuminate\Support\Collection;
 
 class ShoppingManager
 {
-
     /**
      * @var SessionManager
      */
     protected $session;
 
     /**
-     * Main session key
+     * Main session key.
      *
      * @var string
      * */
-    protected  $key;
-
+    protected $key;
 
     /**
      * ShoppingManager constructor.
@@ -39,109 +35,113 @@ class ShoppingManager
     }
 
     /**
-     * Start a new shopping cart in session and return the session ID
+     * Start a new shopping cart in session and return the session ID.
      *
      * @param BuyerContract $buyer
      * @param DocumentContract $document
+     *
      * @return ShoppingCart
      */
-    public function initialize( BuyerContract $buyer, DocumentContract $document = null )
+    public function initialize(BuyerContract $buyer, DocumentContract $document = null)
     {
         $shopping = new ShoppingCart($buyer, $document);
 
-        if(! $this->isInitiated( ) ) {
+        if (! $this->isInitiated()) {
             $this->session->put($this->key(), collect());
         }
 
-        $this->attach( $shopping );
+        $this->attach($shopping);
 
         return $shopping;
     }
 
     /**
-     * Return the shopping cart from the session
+     * Return the shopping cart from the session.
      *
      * @param string $_token
+     *
      * @return ShoppingCart|null
      */
-    public function find( $_token )
+    public function find($_token)
     {
-        if( ! $this->isInitiated( ) ) {
-            return null;
+        if (! $this->isInitiated()) {
+            return;
         }
 
-        return $this->carts( )->get( $_token ) ;
+        return $this->carts()->get($_token);
     }
 
     /**
-     * Delete a specific shopping cart and return true if it was found
+     * Delete a specific shopping cart and return true if it was found.
      *
      * @param string $_token
+     *
      * @return bool
      */
-    public function drop( $_token )
+    public function drop($_token)
     {
-        if( ! $this->isInitiated( ) ) {
+        if (! $this->isInitiated()) {
             return false;
         }
 
-        $carts = $this->carts( );
+        $carts = $this->carts();
 
-        if ( $has =  $carts->has( $_token ) ) {
-            $carts->forget( $_token );
+        if ($has = $carts->has($_token)) {
+            $carts->forget($_token);
         }
 
         return $has;
     }
 
     /**
-     * Delete all items from the session
+     * Delete all items from the session.
      *
      * @return void
      */
-    public function flush( )
+    public function flush()
     {
-        $this->session->forget($this->key( ));
+        $this->session->forget($this->key());
     }
 
     /**
-     * Add a new shopping cart to the session
+     * Add a new shopping cart to the session.
      *
      * @param ShoppingCart $shopping
+     *
      * @return void
      */
-    protected function attach(ShoppingCart $shopping )
+    protected function attach(ShoppingCart $shopping)
     {
         $this->carts()->put($shopping->token(), $shopping);
     }
 
     /**
-     * Returns the main key of the session
+     * Returns the main key of the session.
      *
      * @return string
      */
-    protected function key( )
+    protected function key()
     {
-        return $this->key ?: $this->key = config( 'cashier.session_key', 'default_laravel_shopping_session_key' );
+        return $this->key ?: $this->key = config('cashier.session_key', 'default_laravel_shopping_session_key');
     }
 
     /**
-     * Returns true in case the session handler has been initialized
+     * Returns true in case the session handler has been initialized.
      *
      * @return bool
      */
-    protected function isInitiated( )
+    protected function isInitiated()
     {
-        return  $this->session->has( $this->key( ) );
+        return  $this->session->has($this->key());
     }
 
     /**
-     * Returns all shopping cars in session
+     * Returns all shopping cars in session.
      *
      * @return Collection|null
      */
-    protected function carts( )
+    protected function carts()
     {
-        return $this->session->get($this->key( ));
+        return $this->session->get($this->key());
     }
 }

@@ -1,10 +1,9 @@
 <?php
 /**
- * Created by enea dhack - 17/06/17 01:09 PM
+ * Created by enea dhack - 17/06/17 01:09 PM.
  */
 
 namespace Enea\Tests\Models;
-
 
 use Enea\Cashier\Contracts\AccountElementContract;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +13,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
     protected $fillable = ['quantity', 'id', 'description', 'measure', 'price', 'taxable'];
 
     /**
-     * Get item quantity
+     * Get item quantity.
      *
      * @return int
      * */
@@ -24,7 +23,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
     }
 
     /**
-     * Key that identifies the article as unique
+     * Key that identifies the article as unique.
      *
      * @return int|string
      */
@@ -34,7 +33,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
     }
 
     /**
-     * Returns item name
+     * Returns item name.
      *
      * @return string
      * */
@@ -45,7 +44,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
     }
 
     /**
-     * Returns the unit of measure of the item
+     * Returns the unit of measure of the item.
      *
      * @return string
      * */
@@ -56,7 +55,7 @@ class PreinvoiceItem extends Model implements AccountElementContract
     }
 
     /**
-     * Get base price for item
+     * Get base price for item.
      *
      * @return float
      */
@@ -66,19 +65,18 @@ class PreinvoiceItem extends Model implements AccountElementContract
     }
 
     /**
-     * Returns an array with extra properties
+     * Returns an array with extra properties.
      *
      * @return array
      * */
     public function getCustomProperties()
     {
         return [
-
         ];
     }
 
     /**
-     * Returns true in case of being subject to tax
+     * Returns true in case of being subject to tax.
      *
      * @return bool
      */

@@ -1,38 +1,33 @@
 <?php
 /**
- * Created by enea dhack - 31/05/2017 11:35 AM
+ * Created by enea dhack - 31/05/2017 11:35 AM.
  */
 
 namespace Enea\Cashier\Contracts;
 
-
 /**
- * Turns the model into a business name for use on an invoice
- *
- * @package Enea\Cashier\Contracts
+ * Turns the model into a business name for use on an invoice.
  */
 interface BusinessOwner
 {
-
     /**
-     * Identification of the owner of the business name
+     * Identification of the owner of the business name.
      *
      * @return int|string
      * */
-    public function getBusinessOwnerKey( );
+    public function getBusinessOwnerKey();
 
     /**
-     * Returns the taxpayer's unique identification
+     * Returns the taxpayer's unique identification.
      *
      * @return string
      */
-    public function getTaxpayerIdentification( );
+    public function getTaxpayerIdentification();
 
     /**
-     * Returns the social reason
+     * Returns the social reason.
      *
      * @return string
      */
-    public function getDescription( );
-
+    public function getDescription();
 }

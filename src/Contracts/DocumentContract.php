@@ -1,30 +1,26 @@
 <?php
 /**
- * Created by enea dhack - 16/06/17 08:59 PM
+ * Created by enea dhack - 16/06/17 08:59 PM.
  */
 
 namespace Enea\Cashier\Contracts;
 
-
 /**
- * Interface DocumentContract
- * @package Enea\Cashier\Contracts
- *
- * Specifies a document type - Examples: ballots or invoices
+ * Interface DocumentContract.
  */
 interface DocumentContract
 {
     /**
-     * Get tax percentage
+     * Get tax percentage.
      *
      * @return int
      */
-    public function getTaxPercentageAttribute( );
+    public function getTaxPercentageAttribute();
 
     /**
-     * Returns the owner of social reason
+     * Returns the owner of social reason.
      *
      * @return null|BusinessOwner
      * */
-    public function getBusinessOwner( );
+    public function getBusinessOwner();
 }

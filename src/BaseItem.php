@@ -1,10 +1,9 @@
 <?php
 /**
- * Created by enea dhack - 30/05/2017 03:36 PM
+ * Created by enea dhack - 30/05/2017 03:36 PM.
  */
 
 namespace Enea\Cashier;
-
 
 use Enea\Cashier\Contracts\CartElementContract;
 use Enea\Cashier\Contracts\DiscountableContract;
@@ -14,16 +13,15 @@ use Illuminate\Database\Eloquent\Model;
 
 abstract class BaseItem implements Arrayable, Jsonable
 {
-
     /**
-     * Item quantity
+     * Item quantity.
      *
      * @var int
      */
     private $quantity;
 
     /**
-     * Old quantity
+     * Old quantity.
      *
      * @var int
      * */
@@ -40,14 +38,14 @@ abstract class BaseItem implements Arrayable, Jsonable
     protected $recalculate = false;
 
     /**
-     * Tax percentage
+     * Tax percentage.
      *
      * @var int
      * */
     protected $impostPercentage = Calculator::ZERO;
 
     /**
-     * Plan discount percentage
+     * Plan discount percentage.
      *
      * @var int
      * */
@@ -60,20 +58,22 @@ abstract class BaseItem implements Arrayable, Jsonable
 
     /**
      * BaseItem constructor.
+     *
      * @param CartElementContract $element
      */
-    public function __construct(CartElementContract $element )
+    public function __construct(CartElementContract $element)
     {
         $this->element = $element;
     }
 
     /**
-     * Change quantity for item
+     * Change quantity for item.
      *
      * @param int $quantity
+     *
      * @return void
      */
-    public function setQuantity( $quantity )
+    public function setQuantity($quantity)
     {
         $this->quantity = $quantity;
         $this->old_quantity = $this->old_quantity ?: $quantity;
@@ -81,71 +81,70 @@ abstract class BaseItem implements Arrayable, Jsonable
     }
 
     /**
-     * Returns item quantity
+     * Returns item quantity.
      *
      * @return int
      */
-    public function getQuantity( )
+    public function getQuantity()
     {
         return $this->quantity;
     }
 
     /**
-     *
      * @param string $property
+     *
      * @return string|bool|int|array
      */
-    public function getProperty( $property )
+    public function getProperty($property)
     {
-        return isset($this->getCustomProperties( )[$property]) ? $this->getCustomProperties( )[$property] : null;
+        return isset($this->getCustomProperties()[$property]) ? $this->getCustomProperties()[$property] : null;
     }
 
     /**
-     *  Returns the model to calculate prices
+     *  Returns the model to calculate prices.
      *
      * @return Calculator
      */
-    public function getCalculator( )
+    public function getCalculator()
     {
-        if ($this->needToRecalculate( )) {
+        if ($this->needToRecalculate()) {
+            $this->calculator = $this->calculatorInstance();
 
-            $this->calculator = $this->calculatorInstance( );
+            $model = $this->model();
 
-            $model = $this->model( );
-
-            if ( $model instanceof  DiscountableContract) {
-                $this->calculator->setDiscountPercentage($model->getDiscountPercentage( ));
+            if ($model instanceof  DiscountableContract) {
+                $this->calculator->setDiscountPercentage($model->getDiscountPercentage());
             }
 
-            $this->calculator->setImpostPercentage( $this->getImpostPercentage( ) );
-            $this->calculator->setPlanPercentage( $this->planDiscountPercentage );
+            $this->calculator->setImpostPercentage($this->getImpostPercentage());
+            $this->calculator->setPlanPercentage($this->planDiscountPercentage);
         }
 
         return $this->calculator;
     }
 
     /**
-     * Set a plan discount for the item
+     * Set a plan discount for the item.
      *
      * @param int $percentage
      */
-    public function setPlanDiscountPercentage( $percentage)
+    public function setPlanDiscountPercentage($percentage)
     {
         $this->planDiscountPercentage = $percentage;
     }
 
     /**
-     * Returns true in case the quantity of the item has been changed and is no longer the same as in the beginning
+     * Returns true in case the quantity of the item has been changed and is no longer the same as in the beginning.
      *
      * @return bool
      */
-    public function isTouched( )
+    public function isTouched()
     {
-        return $this->old_quantity != $this->getQuantity( );
+        return $this->old_quantity != $this->getQuantity();
     }
 
     /**
-     * Returns item name
+     * Returns item name.
      *
      * @return null|string
      * */
@@ -155,17 +154,17 @@ abstract class BaseItem implements Arrayable, Jsonable
     }
 
     /**
-     * Returns an array with extra properties
+     * Returns an array with extra properties.
      *
      * @return array
      * */
-    public function getCustomProperties( )
+    public function getCustomProperties()
     {
-        return $this->element->getCustomProperties( );
+        return $this->element->getCustomProperties();
     }
 
     /**
-     * Returns identification
+     * Returns identification.
      *
      * @return int|string
      * */
@@ -175,27 +174,27 @@ abstract class BaseItem implements Arrayable, Jsonable
     }
 
     /**
-     * Get base price for item
+     * Get base price for item.
      *
      * @return float
      */
-    protected function getBasePrice( )
+    protected function getBasePrice()
     {
         return $this->element->getBasePrice();
     }
 
     /**
-     * Verifies whether it is necessary to recalculate the price
+     * Verifies whether it is necessary to recalculate the price.
      *
      * @return bool
      */
-    protected function needToRecalculate( )
+    protected function needToRecalculate()
     {
         return $this->recalculate || empty($this->calculator);
     }
 
     /**
-     * Returns the assigned tax
+     * Returns the assigned tax.
      *
      * @return int
      */
@@ -205,23 +204,23 @@ abstract class BaseItem implements Arrayable, Jsonable
     }
 
     /**
-     * Return an instance of the model that represents the product
+     * Return an instance of the model that represents the product.
      *
      * @return Model
      */
-    protected function model( )
+    protected function model()
     {
         return $this->element;
     }
 
     /**
-     * Returns an instance of calculator
+     * Returns an instance of calculator.
      *
      * @return Calculator
      */
-    private function calculatorInstance( )
+    private function calculatorInstance()
     {
-        if ( empty($path = config('cashier.calculator'))) {
+        if (empty($path = config('cashier.calculator'))) {
             return new Calculator($this->getBasePrice(), $this->getQuantity());
         }
 
@@ -233,9 +232,9 @@ abstract class BaseItem implements Arrayable, Jsonable
      *
      * @return array
      */
-    public function toArray( )
+    public function toArray()
     {
-        return array_merge($this->getCalculator( )->toArray(), [
+        return array_merge($this->getCalculator()->toArray(), [
             'key' => $this->getKey(),
             'name' => $this->getShortDescription(),
             'properties' => $this->getCustomProperties(),
@@ -246,12 +245,11 @@ abstract class BaseItem implements Arrayable, Jsonable
      * Convert the object to its JSON representation.
      *
      * @param  int  $options
+     *
      * @return string
      */
     public function toJson($options = 0)
     {
         return json_encode($this->toArray(), $options);
     }
-
-
 }

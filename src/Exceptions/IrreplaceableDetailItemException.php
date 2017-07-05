@@ -1,10 +1,9 @@
 <?php
 /**
- * Created by enea dhack - 13/06/2017 09:47 PM
+ * Created by enea dhack - 13/06/2017 09:47 PM.
  */
 
 namespace Enea\Cashier\Exceptions;
-
 
 use Enea\Cashier\Contracts\DetailedStaticContract;
 use RuntimeException;

@@ -1,14 +1,14 @@
 <?php
 /**
- * Created by enea dhack - 30/05/2017 03:31 PM
+ * Created by enea dhack - 30/05/2017 03:31 PM.
  */
 
 namespace Enea\Cashier;
 
 use Enea\Cashier\Contracts\AccountContract;
 use Enea\Cashier\Contracts\AccountElementContract;
-use Enea\Cashier\Contracts\DocumentContract;
 use Enea\Cashier\Contracts\BuyerContract;
+use Enea\Cashier\Contracts\DocumentContract;
 use Enea\Cashier\Contracts\SalableContract;
 use Enea\Cashier\Exceptions\IrreplaceableDetailItemException;
 use Enea\Cashier\Exceptions\OneAccountAtTimeException;
@@ -16,7 +16,6 @@ use Illuminate\Support\Collection;
 
 class ShoppingCart extends BaseManager
 {
-
     /**
      * @var BuyerContract
      */
@@ -29,53 +28,57 @@ class ShoppingCart extends BaseManager
 
     /**
      * ShoppingCart constructor.
+     *
      * @param BuyerContract $buyer
      * @param DocumentContract $document
      */
-    public function __construct( BuyerContract $buyer, DocumentContract $document = null )
+    public function __construct(BuyerContract $buyer, DocumentContract $document = null)
     {
-        parent::__construct( );
+        parent::__construct();
 
         $this->buyer = $buyer;
 
-        if ( ! is_null( $document ) ) {
-            $this->setPaymentDocument( $document );
+        if (! is_null($document)) {
+            $this->setPaymentDocument($document);
         }
     }
 
     /**
-     * Attaches an account to pay and limits the elements to the detail of said account
+     * Attaches an account to pay and limits the elements to the detail of said account.
      *
      * @param AccountContract $account
-     * @return ShoppingCart
+     *
      * @throws OneAccountAtTimeException
+     *
+     * @return ShoppingCart
      */
-    public function attach( AccountContract $account )
+    public function attach(AccountContract $account)
     {
-        if( $this->isAttachedAccount( ) ) {
+        if ($this->isAttachedAccount()) {
             throw new OneAccountAtTimeException();
         }
 
         $this->account = $account;
 
-        $this->account->getElements( )->each(function ( AccountElementContract $element ) {
-            $this->storage->put( $element->getItemKey( ), new AccountElement( $element, $this->getImpostPercentage( ) ));
+        $this->account->getElements()->each(function (AccountElementContract $element) {
+            $this->storage->put($element->getItemKey(), new AccountElement($element, $this->getImpostPercentage()));
         });
 
         return $this;
     }
 
     /**
-     * Unlink car account and clean all items
+     * Unlink car account and clean all items.
+     *
+     * @throws OneAccountAtTimeException
      *
      * @return ShoppingCart
-     * @throws OneAccountAtTimeException
      */
-    public function detach( )
+    public function detach()
     {
         if ($this->isAttachedAccount()) {
             $this->account = null;
-            $this->clean( );
+            $this->clean();
         }
 
         return $this;
@@ -84,76 +87,80 @@ class ShoppingCart extends BaseManager
     /**
      * Add a new item to the collection and return true if successful, if the buyer
      * has implemented the 'DetailedStaticContract' interface,
-     * you will not be able to use this method
+     * you will not be able to use this method.
      *
      * @param SalableContract $salable
      * @param int $quantity
+     *
      * @return bool
      */
-    public function push( SalableContract $salable, $quantity = 1 )
+    public function push(SalableContract $salable, $quantity = 1)
     {
-        if( $this->isAttachedAccount( )) {
-            throw new IrreplaceableDetailItemException( );
+        if ($this->isAttachedAccount()) {
+            throw new IrreplaceableDetailItemException();
         }
 
-        $item = new SalableItem( $salable, $quantity, $this->getImpostPercentage( ) );
+        $item = new SalableItem($salable, $quantity, $this->getImpostPercentage());
 
-        if ( $has = ! $this->hasItem( $salable->getItemKey( ) ) ) {
-            $this->add($salable->getItemKey( ), $item);
+        if ($has = ! $this->hasItem($salable->getItemKey())) {
+            $this->add($salable->getItemKey(), $item);
         }
 
         return $has;
     }
 
     /**
-     * Passes an item from the store to the collection and returns true on success
+     * Passes an item from the store to the collection and returns true on success.
      *
      * @param string $key
+     *
      * @return bool
      */
-    public function pull( $key )
+    public function pull($key)
     {
-        if ( $has = $this->storage()->has($key)) {
-            $element = $this->getAccountElement( $key );
-            $this->add($element->getKey( ), new SalableItem($element->getSalable( ), $element->getQuantity( ), $this->getImpostPercentage()));
+        if ($has = $this->storage()->has($key)) {
+            $element = $this->getAccountElement($key);
+            $this->add($element->getKey(), new SalableItem($element->getSalable(), $element->getQuantity(), $this->getImpostPercentage()));
         }
 
         return $has;
     }
 
     /**
-     * Move all elements from storage to collection for purchase
+     * Move all elements from storage to collection for purchase.
      *
      * @return ShoppingCart
      */
-    public function pullAll( )
+    public function pullAll()
     {
-        $this->storage()->each(function ( AccountElement $element ) {
-            $this->pull($element->getKey( ));
+        $this->storage()->each(function (AccountElement $element) {
+            $this->pull($element->getKey());
         });
     }
 
     /**
-     * Returns a item by identification
+     * Returns a item by identification.
      *
      * @param string|int $key
+     *
      * @return SalableItem|null
      */
-    public function find( $key )
+    public function find($key)
     {
-        return $this->collection()->get( $key );
+        return $this->collection()->get($key);
     }
 
     /**
-     * Removes an item from the collection
+     * Removes an item from the collection.
      *
      * @param string|int $key
+     *
      * @return bool
      */
-    public function remove( $key )
+    public function remove($key)
     {
-        if($has =  $this->hasItem($key)) {
-            $this->collection()->forget( $key );
+        if ($has = $this->hasItem($key)) {
+            $this->collection()->forget($key);
         }
 
         return $has;
@@ -163,78 +170,80 @@ class ShoppingCart extends BaseManager
      * Determine if an item exists in the collection by key.
      *
      * @param $key
+     *
      * @return bool
      */
-    public function hasItem( $key )
+    public function hasItem($key)
     {
-        return isset($this->collection( )[$key]);
+        return isset($this->collection()[$key]);
     }
 
     /**
-     * Returns buyer instance
+     * Returns buyer instance.
      *
      * @return BuyerContract
      */
-    public function buyer( )
+    public function buyer()
     {
         return $this->buyer;
     }
 
     /**
-     * Returns the attached account
+     * Returns the attached account.
      *
      * @return AccountContract
      */
-    public function getAccount( )
+    public function getAccount()
     {
         return $this->account;
     }
 
     /**
-     * Returns storage
+     * Returns storage.
      *
      * @return Collection
      * */
-    public function storage( )
+    public function storage()
     {
         return $this->storage;
     }
 
     /**
-     * Set the payment document and extract tex percentage
+     * Set the payment document and extract tex percentage.
      *
      * @param DocumentContract $document
      *
      * @return int
      */
-    public function setPaymentDocument( DocumentContract $document )
+    public function setPaymentDocument(DocumentContract $document)
     {
-        $this->impostPercentage = $document->getTaxPercentageAttribute( );
+        $this->impostPercentage = $document->getTaxPercentageAttribute();
 
-        $this->collection()->each(function ( SalableItem $item ){
-            $item->setImpostPercentage($this->getImpostPercentage( ));
+        $this->collection()->each(function (SalableItem $item) {
+            $item->setImpostPercentage($this->getImpostPercentage());
         });
     }
 
     /**
-     * Returns true if you have attached an account
+     * Returns true if you have attached an account.
      *
      * @return bool
      */
-    protected function isAttachedAccount( )
+    protected function isAttachedAccount()
     {
-        return ! is_null( $this->account );
+        return ! is_null($this->account);
     }
 
     /**
-     * Return an item belonging to the attached account
+     * Return an item belonging to the attached account.
      *
      * @param string $key
+     *
      * @return AccountElement|null
      */
-    protected function getAccountElement( $key)
+    protected function getAccountElement($key)
     {
-        return $this->storage()->get( $key );
+        return $this->storage()->get($key);
     }
 
     /**
@@ -242,25 +251,24 @@ class ShoppingCart extends BaseManager
      *
      * @return array
      */
-    public function toArray( )
+    public function toArray()
     {
         $account = null;
 
-        if( $this->isAttachedAccount( ) ) {
+        if ($this->isAttachedAccount()) {
             $account = [
-                'key' => $this->getAccount( )->getKeyIdentification( ),
-                'properties' => $this->getAccount( )->getCustomProperties( ),
+                'key' => $this->getAccount()->getKeyIdentification(),
+                'properties' => $this->getAccount()->getCustomProperties(),
             ];
         }
 
-        return array_merge( parent::toArray( ), [
+        return array_merge(parent::toArray(), [
             'buyer' => [
                 'key' => $this->buyer()->getBuyerKey(),
                 'properties' => $this->buyer()->getCustomProperties()
             ],
-            'storage' => $this->storage()->toArray( ),
+            'storage' => $this->storage()->toArray(),
             'account' => $account
         ]);
     }
-
 }

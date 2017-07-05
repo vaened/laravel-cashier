@@ -1,11 +1,10 @@
 <?php
 /**
- * Created by enea dhack - 30/05/2017 04:42 PM
+ * Created by enea dhack - 30/05/2017 04:42 PM.
  */
 
 namespace Enea\Tests;
 
-use Enea\Cashier\ShoppingCart;
 use Enea\Cashier\ShoppingManager;
 use Enea\Tests\Documents\Invoice;
 use Enea\Tests\Models\Client;
@@ -15,7 +14,6 @@ use Enea\Tests\Models\Product;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {
-
     protected function salable(array $attributes = array())
     {
         $attributes = array_merge([
@@ -40,21 +38,21 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return new DiscountableProduct($attributes);
     }
 
-    protected function getManager( )
+    protected function getManager()
     {
-        return new ShoppingManager( $this->app['session'] );
+        return new ShoppingManager($this->app['session']);
     }
 
-    protected function getShoppingCart( ShoppingManager $manager,  $client_id = 10000)
+    protected function getShoppingCart(ShoppingManager $manager, $client_id = 10000)
     {
-        $client = new Client(['id' => $client_id ]);
+        $client = new Client(['id' => $client_id]);
 
         $document = new Invoice();
 
-        return  $manager->initialize( $client, $document );
+        return  $manager->initialize($client, $document);
     }
 
-    protected function getPreinvoice( array $attributes = array() )
+    protected function getPreinvoice(array $attributes = array())
     {
         $attributes = array_merge([
             'id' => 11234,
@@ -62,5 +60,4 @@ class TestCase extends \Orchestra\Testbench\TestCase
 
         return new Preinvoice($attributes);
     }
-
 }
