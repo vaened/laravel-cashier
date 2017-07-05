@@ -22,6 +22,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             'id' => 1,
             'taxable' => true
         ], $attributes);
+
         return new Product($attributes);
     }
 
