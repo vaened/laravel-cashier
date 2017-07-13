@@ -11,6 +11,13 @@ namespace Enea\Cashier\Contracts;
 interface DocumentContract
 {
     /**
+     * Returns the key document
+     *
+     * @return string|int
+     */
+    public function getKeyDocument();
+
+    /**
      * Get tax percentage.
      *
      * @return int
