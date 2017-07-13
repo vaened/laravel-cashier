@@ -30,7 +30,7 @@ class Voucher implements DocumentContract
     }
 
     /**
-     * Returns the key document
+     * Returns the key document.
      *
      * @return string|int
      */
