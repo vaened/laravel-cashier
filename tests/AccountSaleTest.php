@@ -36,6 +36,7 @@ class AccountSaleTest extends TestCase
 
         $shopping = $this->getShoppingCart($manager)->attach($account);
 
+        $this->assertTrue($shopping->isAttachedAccount());
         $this->assertSame($shopping->storage()->count(), 4);
         $this->assertSame($shopping->collection()->count(), 0);
 

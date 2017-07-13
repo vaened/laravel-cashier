@@ -46,4 +46,14 @@ class Invoice implements DocumentContract
     {
         return $this->owner;
     }
+
+    /**
+     * Returns the key document.
+     *
+     * @return string|int
+     */
+    public function getKeyDocument()
+    {
+        return 1;
+    }
 }
