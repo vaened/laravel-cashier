@@ -17,14 +17,25 @@ use Illuminate\Support\Collection;
 class ShoppingCart extends BaseManager
 {
     /**
+     * Customer cart owner
+     *
      * @var BuyerContract
      */
     protected $buyer;
 
     /**
+     * The account attached to the cart
+     *
      * @var AccountContract
      * */
     protected $account;
+
+    /**
+     * The payment document
+     *
+     * @var DocumentContract
+     * */
+    protected $document;
 
     /**
      * ShoppingCart constructor.
@@ -47,9 +58,7 @@ class ShoppingCart extends BaseManager
      * Attaches an account to pay and limits the elements to the detail of said account.
      *
      * @param AccountContract $account
-     *
      * @throws OneAccountAtTimeException
-     *
      * @return ShoppingCart
      */
     public function attach(AccountContract $account)
@@ -71,7 +80,6 @@ class ShoppingCart extends BaseManager
      * Unlink car account and clean all items.
      *
      * @throws OneAccountAtTimeException
-     *
      * @return ShoppingCart
      */
     public function detach()
@@ -91,7 +99,6 @@ class ShoppingCart extends BaseManager
      *
      * @param SalableContract $salable
      * @param int $quantity
-     *
      * @return bool
      */
     public function push(SalableContract $salable, $quantity = 1)
@@ -142,7 +149,6 @@ class ShoppingCart extends BaseManager
      * Returns a item by identification.
      *
      * @param string|int $key
-     *
      * @return SalableItem|null
      */
     public function find($key)
@@ -154,7 +160,6 @@ class ShoppingCart extends BaseManager
      * Removes an item from the collection.
      *
      * @param string|int $key
-     *
      * @return bool
      */
     public function remove($key)
@@ -170,7 +175,6 @@ class ShoppingCart extends BaseManager
      * Determine if an item exists in the collection by key.
      *
      * @param $key
-     *
      * @return bool
      */
     public function hasItem($key)
@@ -212,11 +216,11 @@ class ShoppingCart extends BaseManager
      * Set the payment document and extract tex percentage.
      *
      * @param DocumentContract $document
-     *
      * @return int
      */
     public function setPaymentDocument(DocumentContract $document)
     {
+        $this->document = $document;
         $this->impostPercentage = $document->getTaxPercentageAttribute();
 
         $this->collection()->each(function (SalableItem $item) {
@@ -225,11 +229,21 @@ class ShoppingCart extends BaseManager
     }
 
     /**
+     * Return the document type.
+     *
+     * @return DocumentContract
+     */
+    public function getPaymentDocument()
+    {
+        return $this->document;
+    }
+
+    /**
      * Returns true if you have attached an account.
      *
      * @return bool
      */
-    protected function isAttachedAccount()
+    public function isAttachedAccount()
     {
         return ! is_null($this->account);
     }
@@ -238,10 +252,9 @@ class ShoppingCart extends BaseManager
      * Return an item belonging to the attached account.
      *
      * @param string $key
-     *
      * @return AccountElement|null
      */
-    protected function getAccountElement($key)
+    public function getAccountElement($key)
     {
         return $this->storage()->get($key);
     }
