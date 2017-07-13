@@ -11,7 +11,7 @@ namespace Enea\Cashier\Contracts;
 interface DocumentContract
 {
     /**
-     * Returns the key document
+     * Returns the key document.
      *
      * @return string|int
      */

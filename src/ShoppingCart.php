@@ -17,21 +17,21 @@ use Illuminate\Support\Collection;
 class ShoppingCart extends BaseManager
 {
     /**
-     * Customer cart owner
+     * Customer cart owner.
      *
      * @var BuyerContract
      */
     protected $buyer;
 
     /**
-     * The account attached to the cart
+     * The account attached to the cart.
      *
      * @var AccountContract
      * */
     protected $account;
 
     /**
-     * The payment document
+     * The payment document.
      *
      * @var DocumentContract
      * */
