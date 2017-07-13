@@ -28,4 +28,14 @@ class Voucher implements DocumentContract
     public function getBusinessOwner()
     {
     }
+
+    /**
+     * Returns the key document
+     *
+     * @return string|int
+     */
+    public function getKeyDocument()
+    {
+        return 2;
+    }
 }

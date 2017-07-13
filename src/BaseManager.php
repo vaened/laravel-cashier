@@ -19,6 +19,27 @@ abstract class BaseManager implements Arrayable, Jsonable
     protected $token;
 
     /**
+     * Temporary storage of account items.
+     *
+     * @var Collection
+     */
+    protected $storage;
+
+    /**
+     * Custom properties.
+     *
+     * @var Collection
+     */
+    protected $properties;
+
+    /**
+     * Default igv percentage.
+     *
+     * @var int
+     */
+    protected $impostPercentage = Calculator::ZERO;
+
+    /**
      * Selected items.
      *
      * @var  Collection
@@ -26,15 +47,8 @@ abstract class BaseManager implements Arrayable, Jsonable
     private $collection;
 
     /**
-     * @var Collection
+     * BaseManager constructor.
      */
-    protected $storage;
-
-    /**
-     * @var int
-     */
-    protected $impostPercentage = Calculator::ZERO;
-
     public function __construct()
     {
         $this->clean();
@@ -89,6 +103,8 @@ abstract class BaseManager implements Arrayable, Jsonable
     }
 
     /**
+     * Returns the plan discount.
+     *
      * @return float
      */
     public function getPlanDiscount()
@@ -125,7 +141,6 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @param $key
      * @param BaseItem $item
-     *
      * @return void
      */
     protected function add($key, BaseItem $item)
@@ -150,8 +165,9 @@ abstract class BaseManager implements Arrayable, Jsonable
      * */
     public function clean()
     {
-        $this->collection = collect();
         $this->storage = collect();
+        $this->collection = collect();
+        $this->properties = collect();
     }
 
     /**
@@ -182,6 +198,51 @@ abstract class BaseManager implements Arrayable, Jsonable
             'impost_percentage' => $this->getImpostPercentage(),
             'elements' => $this->collection()->toArray(),
         ];
+    }
+
+    /**
+     * Returns the dynamic properties that were added to the cart.
+     *
+     * @return Collection
+     */
+    public function properties()
+    {
+        return $this->properties;
+    }
+
+    /**
+     * Returns true in case the property passed by parameter exists in the cart.
+     *
+     * @param $property
+     * @return bool
+     */
+    public function hasProperty($property)
+    {
+        return isset($this->properties[$property]);
+    }
+
+    /**
+     * Returns property passed by parameter, and null, if not found.
+     *
+     * @param $property
+     * @return mixed
+     */
+    public function getProperty($property)
+    {
+        return $this->properties()->get($property);
+    }
+
+    /**
+     * Set a dynamic property.
+     *
+     * @param string $property
+     * @param mixed $value
+     * @return $this
+     */
+    public function setProperty($property, $value)
+    {
+        $this->properties()->put($property, $value);
+        return $this;
     }
 
     /**

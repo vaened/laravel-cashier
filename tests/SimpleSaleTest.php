@@ -5,6 +5,7 @@
 
 namespace Enea\Tests;
 
+use Enea\Cashier\Contracts\DocumentContract;
 use Enea\Cashier\SalableItem;
 use Enea\Cashier\ShoppingCart;
 use Enea\Tests\Documents\Invoice;
@@ -77,12 +78,20 @@ class SimpleSaleTest extends TestCase
         $product = $this->salable(['price' => 36.99]);
 
         $shopping->setPaymentDocument(new Invoice());
+        $this->assertTrue($shopping->getPaymentDocument() instanceof Invoice);
+        $this->assertTrue($shopping->getPaymentDocument() instanceof DocumentContract);
+        $this->assertTrue($shopping->getPaymentDocument()->getKeyDocument() === 1);
+
         $this->assertTrue($shopping->push($product, 3));
         $this->assertSame($shopping->getSubtotal(), 110.97);
         $this->assertSame($shopping->getImpost(), 19.975);
         $this->assertSame($shopping->getDefinitiveTotal(), 130.945);
 
         $shopping->setPaymentDocument(new Voucher());
+        $this->assertTrue($shopping->getPaymentDocument() instanceof Voucher);
+        $this->assertTrue($shopping->getPaymentDocument() instanceof DocumentContract);
+        $this->assertTrue($shopping->getPaymentDocument()->getKeyDocument() === 2);
+
         $this->assertSame($shopping->getSubtotal(), 110.97);
         $this->assertSame($shopping->getImpost(), 0.0);
         $this->assertSame($shopping->getDefinitiveTotal(), 110.97);
