@@ -100,7 +100,7 @@ class Calculator implements CalculatorContract
      */
     public function toArray()
     {
-        return array(
+        return [
             // base
             'base_price' => $this->getBasePrice(),
             'quantity' => $this->getQuantity(),
@@ -123,7 +123,7 @@ class Calculator implements CalculatorContract
 
             // total
             'definitive_total' => $this->getDefinitiveTotal(),
-        );
+        ];
     }
 
     /**
@@ -243,9 +243,79 @@ class Calculator implements CalculatorContract
      *
      * @return float
      */
+    public function getCleanBasePrice()
+    {
+        return (float) $this->basePrice;
+    }
+
+    /**
+     * Multiply the total by the amount.
+     *
+     * @return float
+     */
+    public function getCleanSubtotal()
+    {
+        return $this->getCleanBasePrice() * $this->getQuantity();
+    }
+
+    /**
+     * Returns discount item.
+     *
+     * @return float
+     */
+    public function getCleanDiscount()
+    {
+        return $this->getCleanSubtotal() * $this->getFormatDiscountPercentage();
+    }
+
+    /**
+     * Returns plan discount.
+     *
+     * @return float
+     */
+    public function getCleanPlanDiscount()
+    {
+        return $this->getCleanSubtotal() * $this->getFormatPlanDiscountPercentage();
+    }
+
+    /**
+     * Total sum of discounts.
+     *
+     * @return float
+     */
+    public function getCleanTotalDiscounts()
+    {
+        return $this->getCleanDiscount() + $this->getCleanPlanDiscount();
+    }
+
+    /**
+     * Get general sale sax.
+     *
+     * @return float
+     */
+    public function getCleanImpost()
+    {
+        return $this->getCleanSubtotal() * $this->getFormatImpostPercentage();
+    }
+
+    /**
+     * Returns total definitive.
+     *
+     * @return float
+     */
+    public function getCleanDefinitiveTotal()
+    {
+        return $this->getCleanSubtotal() - $this->getCleanTotalDiscounts() + $this->getCleanImpost();
+    }
+
+    /**
+     * Returns the unit price.
+     *
+     * @return float
+     */
     public function getBasePrice()
     {
-        return $this->format($this->basePrice);
+        return $this->format($this->getCleanBasePrice());
     }
 
     /**
@@ -255,7 +325,7 @@ class Calculator implements CalculatorContract
      */
     public function getSubtotal()
     {
-        return $this->format($this->getBasePrice() * $this->getQuantity());
+        return $this->format($this->getCleanSubtotal());
     }
 
     /**
@@ -265,7 +335,7 @@ class Calculator implements CalculatorContract
      */
     public function getDiscount()
     {
-        return $this->format($this->getSubtotal() * $this->getFormatDiscountPercentage());
+        return $this->format($this->getCleanDiscount());
     }
 
     /**
@@ -275,7 +345,7 @@ class Calculator implements CalculatorContract
      */
     public function getPlanDiscount()
     {
-        return $this->format($this->getSubtotal() * $this->getFormatPlanDiscountPercentage());
+        return $this->format($this->getCleanPlanDiscount());
     }
 
     /**
@@ -285,7 +355,7 @@ class Calculator implements CalculatorContract
      */
     public function getTotalDiscounts()
     {
-        return $this->format($this->getDiscount() + $this->getPlanDiscount());
+        return $this->format($this->getCleanTotalDiscounts());
     }
 
     /**
@@ -295,7 +365,7 @@ class Calculator implements CalculatorContract
      */
     public function getImpost()
     {
-        return $this->format($this->getSubtotal() * $this->getFormatImpostPercentage());
+        return $this->format($this->getCleanImpost());
     }
 
     /**
@@ -305,7 +375,7 @@ class Calculator implements CalculatorContract
      */
     public function getDefinitiveTotal()
     {
-        return $this->format($this->getSubtotal() - $this->getTotalDiscounts() + $this->getImpost());
+        return $this->format($this->getCleanDefinitiveTotal());
     }
 
     /**
@@ -327,7 +397,7 @@ class Calculator implements CalculatorContract
      *
      * @return float
      */
-    protected function format($total)
+    public function format($total)
     {
         $this->decimals = $this->decimals ?: $this->decimals = config('cashier.decimals', 3);
 
