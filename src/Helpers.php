@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by enea dhack - 15/09/2017 02:12 PM
+ * Created by enea dhack - 15/09/2017 02:12 PM.
  */
 
 namespace Enea\Cashier;
