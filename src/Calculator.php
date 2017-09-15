@@ -33,7 +33,7 @@ class Calculator implements CalculatorContract
      *
      * @var float
      */
-    private $basePrice;
+    protected $basePrice;
 
     /**
      * iIem quantity.
@@ -255,7 +255,7 @@ class Calculator implements CalculatorContract
      */
     public function getSubtotal()
     {
-        return $this->format($this->basePrice * $this->getQuantity());
+        return $this->format($this->getBasePrice() * $this->getQuantity());
     }
 
     /**
