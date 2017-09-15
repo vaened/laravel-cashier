@@ -62,7 +62,7 @@ abstract class BaseManager implements Arrayable, Jsonable
     public function getSubtotal()
     {
         return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getSubtotal();
+            return $item->getCalculator()->getCleanSubtotal();
         }));
     }
 
@@ -74,7 +74,7 @@ abstract class BaseManager implements Arrayable, Jsonable
     public function getDefinitiveTotal()
     {
         return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getDefinitiveTotal();
+            return $item->getCalculator()->getCleanDefinitiveTotal();
         }));
     }
 
@@ -86,7 +86,7 @@ abstract class BaseManager implements Arrayable, Jsonable
     public function getImpost()
     {
         return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getImpost();
+            return $item->getCalculator()->getCleanImpost();
         }));
     }
 
@@ -98,7 +98,7 @@ abstract class BaseManager implements Arrayable, Jsonable
     public function getDiscount()
     {
         return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getDiscount();
+            return $item->getCalculator()->getCleanDiscount();
         }));
     }
 
@@ -110,7 +110,7 @@ abstract class BaseManager implements Arrayable, Jsonable
     public function getPlanDiscount()
     {
         return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getPlanDiscount();
+            return $item->getCalculator()->getCleanPlanDiscount();
         }));
     }
 
@@ -122,7 +122,7 @@ abstract class BaseManager implements Arrayable, Jsonable
     public function getTotalDiscounts()
     {
         return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getTotalDiscounts();
+            return $item->getCalculator()->getCleanTotalDiscounts();
         }));
     }
 
