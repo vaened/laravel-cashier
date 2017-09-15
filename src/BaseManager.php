@@ -61,9 +61,9 @@ abstract class BaseManager implements Arrayable, Jsonable
      */
     public function getSubtotal()
     {
-        return $this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
             return $item->getCalculator()->getSubtotal();
-        });
+        }));
     }
 
     /**
@@ -73,9 +73,9 @@ abstract class BaseManager implements Arrayable, Jsonable
      */
     public function getDefinitiveTotal()
     {
-        return $this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
             return $item->getCalculator()->getDefinitiveTotal();
-        });
+        }));
     }
 
     /**
@@ -85,9 +85,9 @@ abstract class BaseManager implements Arrayable, Jsonable
      */
     public function getImpost()
     {
-        return $this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
             return $item->getCalculator()->getImpost();
-        });
+        }));
     }
 
     /**
@@ -97,9 +97,9 @@ abstract class BaseManager implements Arrayable, Jsonable
      */
     public function getDiscount()
     {
-        return $this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
             return $item->getCalculator()->getDiscount();
-        });
+        }));
     }
 
     /**
@@ -109,9 +109,9 @@ abstract class BaseManager implements Arrayable, Jsonable
      */
     public function getPlanDiscount()
     {
-        return $this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
             return $item->getCalculator()->getPlanDiscount();
-        });
+        }));
     }
 
     /**
@@ -121,9 +121,9 @@ abstract class BaseManager implements Arrayable, Jsonable
      */
     public function getTotalDiscounts()
     {
-        return $this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
             return $item->getCalculator()->getTotalDiscounts();
-        });
+        }));
     }
 
     /**

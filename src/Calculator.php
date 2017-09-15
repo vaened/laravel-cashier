@@ -315,7 +315,7 @@ class Calculator implements CalculatorContract
      */
     public function getBasePrice()
     {
-        return $this->format($this->getCleanBasePrice());
+        return Helpers::decimalFormat($this->getCleanBasePrice());
     }
 
     /**
@@ -325,7 +325,7 @@ class Calculator implements CalculatorContract
      */
     public function getSubtotal()
     {
-        return $this->format($this->getCleanSubtotal());
+        return Helpers::decimalFormat($this->getCleanSubtotal());
     }
 
     /**
@@ -335,7 +335,7 @@ class Calculator implements CalculatorContract
      */
     public function getDiscount()
     {
-        return $this->format($this->getCleanDiscount());
+        return Helpers::decimalFormat($this->getCleanDiscount());
     }
 
     /**
@@ -345,7 +345,7 @@ class Calculator implements CalculatorContract
      */
     public function getPlanDiscount()
     {
-        return $this->format($this->getCleanPlanDiscount());
+        return Helpers::decimalFormat($this->getCleanPlanDiscount());
     }
 
     /**
@@ -355,7 +355,7 @@ class Calculator implements CalculatorContract
      */
     public function getTotalDiscounts()
     {
-        return $this->format($this->getCleanTotalDiscounts());
+        return Helpers::decimalFormat($this->getCleanTotalDiscounts());
     }
 
     /**
@@ -365,7 +365,7 @@ class Calculator implements CalculatorContract
      */
     public function getImpost()
     {
-        return $this->format($this->getCleanImpost());
+        return Helpers::decimalFormat($this->getCleanImpost());
     }
 
     /**
@@ -375,7 +375,7 @@ class Calculator implements CalculatorContract
      */
     public function getDefinitiveTotal()
     {
-        return $this->format($this->getCleanDefinitiveTotal());
+        return Helpers::decimalFormat($this->getCleanDefinitiveTotal());
     }
 
     /**
@@ -388,19 +388,5 @@ class Calculator implements CalculatorContract
     protected function toPercentage($percentage)
     {
         return $percentage / self::ABSOLUTE;
-    }
-
-    /**
-     * format decimal.
-     *
-     * @param float $total
-     *
-     * @return float
-     */
-    public function format($total)
-    {
-        $this->decimals = $this->decimals ?: $this->decimals = config('cashier.decimals', 3);
-
-        return round($total, $this->decimals);
     }
 }
