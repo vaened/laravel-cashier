@@ -64,13 +64,6 @@ class Calculator implements CalculatorContract
     private $planDiscountPercentage;
 
     /**
-     * Total decimals.
-     *
-     * @var int
-     * */
-    private $decimals;
-
-    /**
      * Calculator constructor.
      *
      * @param float $basePrice
