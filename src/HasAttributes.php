@@ -12,7 +12,8 @@ namespace Enea\Cashier;
  *
  * Properties
  *
- * @property  \Illuminate\Support\Collection attributes;
+ * @property  \Illuminate\Support\Collection $additionalAttributes;
+ * @method   \Illuminate\Support\Collection getAdditionalAttributes();
  */
 trait HasAttributes
 {
@@ -24,7 +25,7 @@ trait HasAttributes
      */
     public function hasAttribute($key)
     {
-        return isset($this->attributes[$key]);
+        return isset($this->getAdditionalAttributes()[$key]);
     }
 
     /**
@@ -36,7 +37,7 @@ trait HasAttributes
      */
     public function putAttribute($key, $value)
     {
-        $this->attributes->put($key, $value);
+        $this->getAdditionalAttributes()->put($key, $value);
     }
 
     /**
@@ -47,6 +48,6 @@ trait HasAttributes
      */
     public function removeAttribute($key)
     {
-        $this->attributes->forget($key);
+        $this->getAdditionalAttributes()->forget($key);
     }
 }
