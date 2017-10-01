@@ -8,7 +8,7 @@ namespace Enea\Cashier\Modifiers\Taxes;
 use Enea\Cashier\IsJsonable;
 use Enea\Cashier\Modifiers\TaxContract;
 
-abstract class BaseTax implements TaxContract
+abstract class Tax implements TaxContract
 {
     use IsJsonable;
 

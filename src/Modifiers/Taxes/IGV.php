@@ -5,8 +5,6 @@
 
 namespace Enea\Cashier\Modifiers\Taxes;
 
-use Enea\Cashier\Modifiers\Taxes\BaseTax as Tax;
-
 class IGV extends Tax
 {
     /**
