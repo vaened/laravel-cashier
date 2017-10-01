@@ -5,13 +5,30 @@
 
 namespace Enea\Cashier\Contracts;
 
+use Enea\Cashier\Calculations\Modifier;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Support\Collection;
 
 /**
  * Interface CalculatorContract.
  */
-interface CalculatorContract extends Arrayable
+interface CalculatorContract extends Arrayable, Jsonable
 {
+    /**
+     * Returns all taxes.
+     *
+     * @return Collection
+     */
+    public function getTaxes();
+
+    /**
+     * Returns all discounts.
+     *
+     * @return Collection
+     */
+    public function getDiscounts();
+
     /**
      * Returns the requested quantity for the item.
      *
@@ -20,99 +37,45 @@ interface CalculatorContract extends Arrayable
     public function getQuantity();
 
     /**
-     * Returns the assigned tax.
-     *
-     * @return int
-     */
-    public function getImpostPercentage();
-
-    /**
-     * Returns the assigned discount item.
-     *
-     * @return int
-     */
-    public function getDiscountPercentage();
-
-    /**
-     * Returns the assigned plan discount item.
-     *
-     * @return int
-     */
-    public function getPlanDiscountPercentage();
-
-    /**
-     * Returns the assigned discount item.
-     *
-     * @param int $percentage
-     *
-     * @return CalculatorContract
-     */
-    public function setDiscountPercentage($percentage);
-
-    /**
-     * Set a tax rate for the item.
-     *
-     * @param int $percentage
-     *
-     * @return CalculatorContract
-     */
-    public function setImpostPercentage($percentage);
-
-    /**
-     * Set a plan discount for the item.
-     *
-     * @param int $percentage
-     *
-     * @return CalculatorContract
-     */
-    public function setPlanPercentage($percentage);
-
-    /**
-     * Returns the unit price.
+     * Returns the unit price with configured decimal format.
      *
      * @return float
      */
     public function getBasePrice();
 
     /**
-     * Multiply the total by the amount.
+     * Returns the subtotal with configured decimal format.
      *
      * @return float
      */
     public function getSubtotal();
 
     /**
-     * Returns discount item.
-     *
-     * @return float
-     */
-    public function getDiscount();
-
-    /**
-     * Returns plan discount.
-     *
-     * @return float
-     */
-    public function getPlanDiscount();
-
-    /**
-     * Total sum of discounts.
+     * Returns the discount total with configured decimal format.
      *
      * @return float
      */
     public function getTotalDiscounts();
 
     /**
-     * Get general sale sax.
+     * Returns the tax total with configured decimal format.
      *
      * @return float
      */
-    public function getImpost();
+    public function getTotalTaxes();
 
     /**
-     * Returns total definitive.
+     * Returns the definitive total with configured decimal format
      *
      * @return float
      */
     public function getDefinitiveTotal();
+
+    /**
+     * Returns a discount located by its code.
+     *
+     * @param string|int $code
+     * @return Modifier|null
+     */
+    public function getDiscount($code);
 }
