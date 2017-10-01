@@ -31,7 +31,7 @@ class Discount implements DiscountContract
     /**
      * @var array
      */
-    protected $attributes;
+    protected $additionalAttributes;
 
     /**
      * Discount constructor.
@@ -39,14 +39,14 @@ class Discount implements DiscountContract
      * @param string|int $key
      * @param string $description
      * @param int $percentage
-     * @param Collection $attributes
+     * @param Collection $additionalAttributes
      */
-    public function __construct($key, $description, $percentage, Collection $attributes = null)
+    public function __construct($key, $description, $percentage, Collection $additionalAttributes = null)
     {
         $this->key = $key;
         $this->description = $description;
         $this->percentage = $percentage;
-        $this->attributes = $attributes ?: collect();
+        $this->additionalAttributes = $additionalAttributes ?: collect();
     }
 
     /**
@@ -114,7 +114,7 @@ class Discount implements DiscountContract
      * */
     public function getAdditionalAttributes()
     {
-        return $this->attributes;
+        return $this->additionalAttributes;
     }
 
     /**
