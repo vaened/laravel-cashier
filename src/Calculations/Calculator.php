@@ -3,11 +3,11 @@
  * Created by enea dhack - 30/05/2017 02:54 PM.
  */
 
-namespace Enea\Cashier;
+namespace Enea\Cashier\Calculations;
 
-use Enea\Cashier\Calculations\Excluder;
-use Enea\Cashier\Calculations\Modifier;
 use Enea\Cashier\Contracts\CalculatorContract;
+use Enea\Cashier\Helpers;
+use Enea\Cashier\IsJsonable;
 use Enea\Cashier\Modifiers\DiscountContract;
 use Enea\Cashier\Modifiers\TaxContract;
 use Illuminate\Support\Collection;

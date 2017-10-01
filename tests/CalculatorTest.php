@@ -5,7 +5,7 @@
 
 namespace Enea\Tests;
 
-use Enea\Cashier\Calculator;
+use Enea\Cashier\Calculations\Calculator;
 use Enea\Cashier\Modifiers\Discounts\Discount;
 use Enea\Cashier\Modifiers\Taxes\IGV;
 
