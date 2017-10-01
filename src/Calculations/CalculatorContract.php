@@ -3,9 +3,8 @@
  * Created by enea dhack - 16/06/17 09:05 PM.
  */
 
-namespace Enea\Cashier\Contracts;
+namespace Enea\Cashier\Calculations;
 
-use Enea\Cashier\Calculations\Modifier;
 use Enea\Cashier\Modifiers\DiscountContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;

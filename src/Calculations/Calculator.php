@@ -5,7 +5,6 @@
 
 namespace Enea\Cashier\Calculations;
 
-use Enea\Cashier\Contracts\CalculatorContract;
 use Enea\Cashier\Helpers;
 use Enea\Cashier\IsJsonable;
 use Enea\Cashier\Modifiers\AmountModifierContract;
