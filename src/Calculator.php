@@ -5,7 +5,12 @@
 
 namespace Enea\Cashier;
 
+use Enea\Cashier\Calculations\Excluder;
+use Enea\Cashier\Calculations\Modifier;
 use Enea\Cashier\Contracts\CalculatorContract;
+use Enea\Cashier\Modifiers\DiscountContract;
+use Enea\Cashier\Modifiers\TaxContract;
+use Illuminate\Support\Collection;
 
 /**
  * Class Calculator.
@@ -14,19 +19,14 @@ use Enea\Cashier\Contracts\CalculatorContract;
  */
 class Calculator implements CalculatorContract
 {
-    /**
-     * Default value.
-     *
-     * @var int
-     * */
-    const ZERO = 0;
+    use IsJsonable;
 
     /**
-     * Absolute value.
+     * Tax excluder included.
      *
-     * @var int
-     * */
-    const ABSOLUTE = 100;
+     * @var Excluder
+     */
+    protected $excluder;
 
     /**
      * Base price for item.
@@ -40,195 +40,67 @@ class Calculator implements CalculatorContract
      *
      * @var int
      */
-    private $quantity;
+    protected $quantity;
 
     /**
-     * Tax price percentage.
+     * Contains all taxes.
      *
-     * @var int
+     * @var Collection<Modifier>
      */
-    private $impostPercentage;
+    protected $taxes;
 
     /**
-     * Discount item percentage.
+     * Contains all discounts..
      *
-     * @var int
+     * @var Collection<Modifier>
      */
-    private $discountPercentage;
-
-    /**
-     * Plan discount Percentage.
-     *
-     * @var int
-     */
-    private $planDiscountPercentage;
+    protected $discounts;
 
     /**
      * Calculator constructor.
      *
      * @param float $basePrice
      * @param int $quantity
-     * @param int $impostPercentage
-     * @param int $discountPercentage
-     * @param int $planDiscountPercentage
+     * @param Collection $taxes
+     * @param Collection $discounts
      */
     public function __construct(
         $basePrice,
         $quantity,
-        $impostPercentage = self::ZERO,
-        $discountPercentage = self::ZERO,
-        $planDiscountPercentage = self::ZERO
+        Collection $taxes = null,
+        Collection $discounts = null
     ) {
+        $taxes = $taxes ?: collect();
+
         $this->basePrice = $basePrice;
         $this->quantity = $quantity;
-        $this->impostPercentage = $impostPercentage;
-        $this->discountPercentage = $discountPercentage;
-        $this->planDiscountPercentage = $planDiscountPercentage;
+        $this->excluder = new Excluder($taxes);
+        $this->taxes = $this->buildTaxes($taxes);
+        $this->discounts = $this->buildDiscounts($discounts ?: collect());
     }
 
     /**
-     * Get the instance as an array.
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function toArray()
+    public function getTaxes()
     {
-        return [
-            // base
-            'base_price' => $this->getBasePrice(),
-            'quantity' => $this->getQuantity(),
-            'subtotal' => $this->getSubtotal(),
-
-            // plan discounts
-            'plan_discount' => $this->getPlanDiscount(),
-            'plan_discount_percentage' => $this->getPlanDiscountPercentage(),
-
-            // only discounts
-            'discount' => $this->getDiscount(),
-            'discount_percentage' => $this->getDiscountPercentage(),
-
-            // total discounts
-            'total_discounts' => $this->getTotalDiscounts(),
-
-            // taxes
-            'general_sale_tax' => $this->getImpost(),
-            'tax_percentage' => $this->getImpostPercentage(),
-
-            // total
-            'definitive_total' => $this->getDefinitiveTotal(),
-        ];
+        return $this->taxes;
     }
 
     /**
-     * Returns the percentage of formatted igv.
-     *
-     * @return float
-     * */
-    protected function getFormatImpostPercentage()
+     * {@inheritdoc}
+     */
+    public function getDiscounts()
     {
-        return $this->toPercentage($this->impostPercentage);
+        return $this->discounts;
     }
 
     /**
-     * Returns the formatted discount percentage.
-     *
-     * @return float
-     * */
-    protected function getFormatDiscountPercentage()
-    {
-        return $this->toPercentage($this->discountPercentage);
-    }
-
-    /**
-     * Returns insurance discount percentage formatted.
-     *
-     * @return float
-     * */
-    protected function getFormatPlanDiscountPercentage()
-    {
-        return $this->toPercentage($this->planDiscountPercentage);
-    }
-
-    /**
-     * Returns the requested quantity for the item.
-     *
-     * @return int
+     * {@inheritdoc}
      */
     public function getQuantity()
     {
-        return $this->quantity;
-    }
-
-    /**
-     * Returns the assigned tax.
-     *
-     * @return int
-     */
-    public function getImpostPercentage()
-    {
-        return $this->impostPercentage;
-    }
-
-    /**
-     * Returns the assigned discount item.
-     *
-     * @return int
-     */
-    public function getDiscountPercentage()
-    {
-        return $this->discountPercentage;
-    }
-
-    /**
-     * Returns the assigned plan discount item.
-     *
-     * @return int
-     */
-    public function getPlanDiscountPercentage()
-    {
-        return $this->planDiscountPercentage;
-    }
-
-    /**
-     * Returns the assigned discount item.
-     *
-     * @param int $percentage
-     *
-     * @return CalculatorContract
-     */
-    public function setDiscountPercentage($percentage)
-    {
-        $this->discountPercentage = $percentage;
-
-        return $this;
-    }
-
-    /**
-     * Set a tax rate for the item.
-     *
-     * @param int $percentage
-     *
-     * @return CalculatorContract
-     */
-    public function setImpostPercentage($percentage)
-    {
-        $this->impostPercentage = $percentage;
-
-        return $this;
-    }
-
-    /**
-     * Set a plan discount for the item.
-     *
-     * @param int $percentage
-     *
-     * @return CalculatorContract
-     */
-    public function setPlanPercentage($percentage)
-    {
-        $this->planDiscountPercentage = $percentage;
-
-        return $this;
+        return (int) $this->quantity;
     }
 
     /**
@@ -238,7 +110,8 @@ class Calculator implements CalculatorContract
      */
     public function getCleanBasePrice()
     {
-        return (float) $this->basePrice;
+        $base = (float) $this->basePrice;
+        return $base - $this->getTaxDiscounter()->getCleanTotalTaxIncluded($base);
     }
 
     /**
@@ -252,59 +125,41 @@ class Calculator implements CalculatorContract
     }
 
     /**
-     * Returns discount item.
+     * Returns total discounts.
      *
      * @return float
      */
-    public function getCleanDiscount()
+    public function getCleanDiscounts()
     {
-        return $this->getCleanSubtotal() * $this->getFormatDiscountPercentage();
+        return $this->getDiscounts()->sum(function (Modifier $discount) {
+            return $discount->getCleanTotalExtracted();
+        });
     }
 
     /**
-     * Returns plan discount.
+     * Returns total tax payable.
      *
      * @return float
      */
-    public function getCleanPlanDiscount()
+    public function getCleanTaxes()
     {
-        return $this->getCleanSubtotal() * $this->getFormatPlanDiscountPercentage();
+        return $this->getTaxes()->sum(function (Modifier $tax) {
+            return $tax->getCleanTotalExtracted();
+        });
     }
 
     /**
-     * Total sum of discounts.
-     *
-     * @return float
-     */
-    public function getCleanTotalDiscounts()
-    {
-        return $this->getCleanDiscount() + $this->getCleanPlanDiscount();
-    }
-
-    /**
-     * Get general sale sax.
-     *
-     * @return float
-     */
-    public function getCleanImpost()
-    {
-        return $this->getCleanSubtotal() * $this->getFormatImpostPercentage();
-    }
-
-    /**
-     * Returns total definitive.
+     * Returns the definitive total.
      *
      * @return float
      */
     public function getCleanDefinitiveTotal()
     {
-        return $this->getCleanSubtotal() - $this->getCleanTotalDiscounts() + $this->getCleanImpost();
+        return $this->getCleanSubtotal() - $this->getCleanDiscounts() + $this->getCleanTaxes();
     }
 
     /**
-     * Returns the unit price.
-     *
-     * @return float
+     * {@inheritdoc}
      */
     public function getBasePrice()
     {
@@ -312,9 +167,7 @@ class Calculator implements CalculatorContract
     }
 
     /**
-     * Multiply the total by the amount.
-     *
-     * @return float
+     * {@inheritdoc}
      */
     public function getSubtotal()
     {
@@ -322,49 +175,23 @@ class Calculator implements CalculatorContract
     }
 
     /**
-     * Returns discount item.
-     *
-     * @return float
-     */
-    public function getDiscount()
-    {
-        return Helpers::decimalFormat($this->getCleanDiscount());
-    }
-
-    /**
-     * Returns plan discount.
-     *
-     * @return float
-     */
-    public function getPlanDiscount()
-    {
-        return Helpers::decimalFormat($this->getCleanPlanDiscount());
-    }
-
-    /**
-     * Total sum of discounts.
-     *
-     * @return float
+     * {@inheritdoc}
      */
     public function getTotalDiscounts()
     {
-        return Helpers::decimalFormat($this->getCleanTotalDiscounts());
+        return Helpers::decimalFormat($this->getCleanDiscounts());
     }
 
     /**
-     * Get general sale sax.
-     *
-     * @return float
+     * {@inheritdoc}
      */
-    public function getImpost()
+    public function getTotalTaxes()
     {
-        return Helpers::decimalFormat($this->getCleanImpost());
+        return Helpers::decimalFormat($this->getCleanTaxes());
     }
 
     /**
-     * Returns total definitive.
-     *
-     * @return float
+     * {@inheritdoc}
      */
     public function getDefinitiveTotal()
     {
@@ -372,14 +199,74 @@ class Calculator implements CalculatorContract
     }
 
     /**
-     * Converts to decimals.
-     *
-     * @param int $percentage
-     *
-     * @return float
+     * {@inheritdoc}
      */
-    protected function toPercentage($percentage)
+    public function getDiscount($code)
     {
-        return $percentage / self::ABSOLUTE;
+        return $this->getDiscounts()->get($code);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toArray()
+    {
+        return [
+            // base
+            'base_price' => $this->getBasePrice(),
+            'quantity' => $this->getQuantity(),
+            'subtotal' => $this->getSubtotal(),
+
+            // total discounts
+            'total_discounts' => $this->getTotalDiscounts(),
+            'discounts' => $this->getDiscounts()->toArray(),
+
+            // taxes
+            'total_taxes' => $this->getTotalTaxes(),
+            'taxes' => $this->getTaxes()->toArray(),
+
+            // total
+            'definitive_total' => $this->getDefinitiveTotal(),
+        ];
+    }
+
+    /**
+     * Builds simplification of discounts.
+     *
+     * @param Collection $discounts
+     * @return Collection
+     */
+    protected function buildDiscounts(Collection $discounts)
+    {
+        $modifier = collect();
+
+        $discounts->each(function (DiscountContract $discount) use ($modifier) {
+            $modifier->put($discount->getDiscountCode(), new Modifier($discount, $this->getCleanSubtotal()));
+        });
+
+        return $modifier;
+    }
+
+    /**
+     * Builds a simplification of taxes.
+     *
+     * @param Collection $taxes
+     * @return Collection
+     */
+    protected function buildTaxes(Collection $taxes)
+    {
+        return $taxes->map(function (TaxContract $tax) {
+            return new Modifier($tax, $this->getCleanSubtotal());
+        });
+    }
+
+    /**
+     * Returns the taxes that are included in the price.
+     *
+     * @return Excluder
+     */
+    protected function getTaxDiscounter()
+    {
+        return $this->excluder;
     }
 }
