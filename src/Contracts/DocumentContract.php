@@ -5,6 +5,8 @@
 
 namespace Enea\Cashier\Contracts;
 
+use Illuminate\Support\Collection;
+
 /**
  * Interface DocumentContract.
  */
@@ -18,16 +20,16 @@ interface DocumentContract
     public function getKeyDocument();
 
     /**
-     * Get tax percentage.
-     *
-     * @return int
-     */
-    public function getTaxPercentageAttribute();
-
-    /**
      * Returns the owner of social reason.
      *
      * @return null|BusinessOwner
      * */
     public function getBusinessOwner();
+
+    /**
+     * Returns the taxes of the document.
+     *
+     * @return Collection<TaxContract>|null
+     */
+    public function getTaxes();
 }
