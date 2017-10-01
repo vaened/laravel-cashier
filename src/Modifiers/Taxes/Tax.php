@@ -8,7 +8,7 @@ namespace Enea\Cashier\Modifiers\Taxes;
 use Enea\Cashier\IsJsonable;
 use Enea\Cashier\Modifiers\TaxContract;
 
-abstract class Tax implements TaxContract
+class Tax implements TaxContract
 {
     use IsJsonable;
 
@@ -35,6 +35,18 @@ abstract class Tax implements TaxContract
     }
 
     /**
+     * Returns a tax instance.
+     *
+     * @param $percentage
+     * @param $included
+     * @return static
+     */
+    static public function make($percentage = 0, $included = false)
+    {
+        return new static($percentage, $included);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getPercentage()
@@ -48,6 +60,14 @@ abstract class Tax implements TaxContract
     public function isIncluded()
     {
         return $this->included;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDescription()
+    {
+        return 'simple tax';
     }
 
     /**
