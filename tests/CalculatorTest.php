@@ -6,95 +6,115 @@
 namespace Enea\Tests;
 
 use Enea\Cashier\Calculator;
+use Enea\Cashier\Modifiers\Discounts\Discount;
+use Enea\Cashier\Modifiers\Taxes\IGV;
 
 class CalculatorTest extends TestCase
 {
-    protected function getCalculator($impost = 18, $discount = 23, $plan = 10)
+    protected function getCalculator(array $params)
     {
-        $properties = [
-           635.90, // base price
-           3, // quantity
-           $impost, // tax percentage
-           $discount, // discount percentage
-           $plan, //plan discount percentage
-        ];
-
-        return new Calculator(...$properties);
+        $params = array_values($params);
+        return new Calculator(...$params);
     }
 
     public function test_calculations_are_accurate_with_imposts_and_discounts()
     {
-        $calculator = $this->getCalculator($impost = 18, $discount = 23, $plan = 10);
+        $params = [
+            'price' => 123.456,
+            'quantity' => 4,
+            'taxes' => collect([
+                new IGV()
+            ]),
+            'discounts' => collect([
+                new Discount('PTS', 'parties', 10),
+                new Discount('ANN', 'anniversary', 5),
+            ])
+        ];
 
-        $this->assertSame($calculator->getBasePrice(), 635.90);
+        $calculator = $this->getCalculator($params);
 
-        $this->assertSame($calculator->getSubtotal(), 1907.70);
+        $this->assertSame($calculator->getBasePrice(), 123.456);
+        $this->assertSame($calculator->getSubtotal(), 493.824);
+        $this->assertSame($calculator->getDiscount('PTS')->getTotalExtracted(), 49.382);
+        $this->assertSame($calculator->getDiscount('ANN')->getTotalExtracted(), 24.691);
+        $this->assertSame($calculator->getTotalDiscounts(), 74.074);
+        $this->assertSame($calculator->getQuantity(), 4);
+        $this->assertSame($calculator->getTotalTaxes(), 88.888);
+        $this->assertSame($calculator->getDefinitiveTotal(), 508.639);
+    }
 
-        $this->assertSame($calculator->getDiscount(), 438.771);
+    public function test_tax_calculations_included_are_correct()
+    {
+        $params = [
+            'price' => 173.412,
+            'quantity' => 4,
+            'taxes' => collect([
+                new IGV(18, true)
+            ]),
+            'discounts' => collect([
+                new Discount('PTS', 'parties', 12),
+                new Discount('TEST', 'test discount', 8),
+            ])
+        ];
 
-        $this->assertSame($calculator->getPlanDiscount(), 190.77);
+        $calculator = $this->getCalculator($params);
 
-        $this->assertSame($calculator->getTotalDiscounts(), 629.541);
+        $this->assertSame($calculator->getBasePrice(), 146.959);
+        $this->assertSame($calculator->getSubtotal(), 587.837);
 
-        $this->assertSame($calculator->getImpost(), 343.386);
+        $this->assertSame($calculator->getDiscount('PTS')->getTotalExtracted(), 70.540);
+        $this->assertSame($calculator->getDiscount('TEST')->getTotalExtracted(), 47.027);
+        $this->assertSame($calculator->getTotalDiscounts(), 117.567);
 
-        $this->assertSame($calculator->getDefinitiveTotal(), 1621.545);
+        $this->assertSame($calculator->getQuantity(), 4);
+
+        $this->assertSame($calculator->getTotalTaxes(), 105.811);
+        $this->assertSame($calculator->getDefinitiveTotal(), 576.081);
     }
 
     public function test_calculations_are_accurate_only_impost()
     {
-        $calculator = $this->getCalculator($impost = 18, $discount = 0, $plan = 0);
+        $params = [
+            'price' => 987.654,
+            'quantity' => 3,
+            'taxes' => collect([
+                new IGV(21)
+            ]),
+            'discounts' => null
+        ];
+        $calculator = $this->getCalculator($params);
 
-        $this->assertSame($calculator->getBasePrice(), 635.90);
-
-        $this->assertSame($calculator->getSubtotal(), 1907.70);
-
-        $this->assertSame($calculator->getDiscount(), 0.0);
-
-        $this->assertSame($calculator->getPlanDiscount(), 0.0);
-
+        $this->assertSame($calculator->getBasePrice(), 987.654);
+        $this->assertSame($calculator->getSubtotal(), 2962.962);
         $this->assertSame($calculator->getTotalDiscounts(), 0.0);
-
-        $this->assertSame($calculator->getImpost(), 343.386);
-
-        $this->assertSame($calculator->getDefinitiveTotal(), 2251.086);
+        $this->assertSame($calculator->getQuantity(), 3);
+        $this->assertSame($calculator->getTotalTaxes(), 622.222);
+        $this->assertSame($calculator->getDefinitiveTotal(), 3585.184);
     }
 
     public function test_calculations_are_accurate_only_discount()
     {
-        $calculator = $this->getCalculator($impost = 0, $discount = 12, $plan = 0);
+        $params = [
+            'price' => 108.960,
+            'quantity' => 3,
+            'taxes' => null,
+            'discounts' => collect([
+                new Discount('ANN', 'anniversary', 13, collect(['max' => 18])),
+                new Discount('TEST', 'test discount', 1),
+            ])
+        ];
+        $calculator = $this->getCalculator($params);
 
-        $this->assertSame($calculator->getBasePrice(), 635.90);
+        $this->assertSame($calculator->getBasePrice(), 108.960);
+        $this->assertSame($calculator->getSubtotal(), 326.88);
 
-        $this->assertSame($calculator->getSubtotal(), 1907.70);
+        $this->assertSame($calculator->getDiscount('ANN')->getTotalExtracted(), 42.494);
+        $this->assertSame($calculator->getDiscount('ANN')->getPercentage(), 13);
+        $this->assertSame($calculator->getDiscount('TEST')->getTotalExtracted(), 3.269);
+        $this->assertSame($calculator->getDiscount('TEST')->getPercentage(), 1);
+        $this->assertSame($calculator->getTotalDiscounts(), 45.763);
 
-        $this->assertSame($calculator->getDiscount(), 228.924);
-
-        $this->assertSame($calculator->getPlanDiscount(), 0.0);
-
-        $this->assertSame($calculator->getTotalDiscounts(), 228.924);
-
-        $this->assertSame($calculator->getImpost(), 0.0);
-
-        $this->assertSame($calculator->getDefinitiveTotal(), 1678.776);
-    }
-
-    public function test_calculations_are_accurate_only_plan_discount()
-    {
-        $calculator = $this->getCalculator($impost = 0, $discount = 0, $plan = 16);
-
-        $this->assertSame($calculator->getBasePrice(), 635.90);
-
-        $this->assertSame($calculator->getSubtotal(), 1907.70);
-
-        $this->assertSame($calculator->getDiscount(), 0.0);
-
-        $this->assertSame($calculator->getPlanDiscount(), 305.232);
-
-        $this->assertSame($calculator->getTotalDiscounts(), 305.232);
-
-        $this->assertSame($calculator->getImpost(), 0.0);
-
-        $this->assertSame($calculator->getDefinitiveTotal(), 1602.468);
+        $this->assertSame($calculator->getTotalTaxes(), 0.0);
+        $this->assertSame($calculator->getDefinitiveTotal(), 281.117);
     }
 }
