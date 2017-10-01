@@ -8,6 +8,7 @@ namespace Enea\Cashier\Calculations;
 use Enea\Cashier\Contracts\CalculatorContract;
 use Enea\Cashier\Helpers;
 use Enea\Cashier\IsJsonable;
+use Enea\Cashier\Modifiers\AmountModifierContract;
 use Enea\Cashier\Modifiers\DiscountContract;
 use Enea\Cashier\Modifiers\TaxContract;
 use Illuminate\Support\Collection;
@@ -209,6 +210,22 @@ class Calculator implements CalculatorContract
     /**
      * {@inheritdoc}
      */
+    public function addDiscount(DiscountContract $discount)
+    {
+        $this->getDiscounts()->put($discount->getDiscountCode(), $this->makeModifierInstance($discount));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeDiscount($code)
+    {
+        $this->getDiscounts()->forget($code);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function toArray()
     {
         return [
@@ -241,7 +258,7 @@ class Calculator implements CalculatorContract
         $modifier = collect();
 
         $discounts->each(function (DiscountContract $discount) use ($modifier) {
-            $modifier->put($discount->getDiscountCode(), new Modifier($discount, $this->getCleanSubtotal()));
+            $modifier->put($discount->getDiscountCode(), $this->makeModifierInstance($discount));
         });
 
         return $modifier;
@@ -256,8 +273,19 @@ class Calculator implements CalculatorContract
     protected function buildTaxes(Collection $taxes)
     {
         return $taxes->map(function (TaxContract $tax) {
-            return new Modifier($tax, $this->getCleanSubtotal());
+            return $this->makeModifierInstance($tax);
         });
+    }
+
+    /**
+     * Build a new modifier instance.
+     *
+     * @param AmountModifierContract $modifier
+     * @return Modifier
+     */
+    protected function makeModifierInstance(AmountModifierContract $modifier)
+    {
+        return new Modifier($modifier, $this->getCleanSubtotal());
     }
 
     /**

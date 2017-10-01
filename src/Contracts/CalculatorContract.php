@@ -6,6 +6,7 @@
 namespace Enea\Cashier\Contracts;
 
 use Enea\Cashier\Calculations\Modifier;
+use Enea\Cashier\Modifiers\DiscountContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
@@ -70,6 +71,22 @@ interface CalculatorContract extends Arrayable, Jsonable
      * @return float
      */
     public function getDefinitiveTotal();
+
+    /**
+     * Adds a discount to the discount collection.
+     *
+     * @param DiscountContract $discount
+     * @return void
+     */
+    public function addDiscount(DiscountContract $discount);
+
+    /**
+     * Remove a discount from the discount collection.
+     *
+     * @param string|int $code
+     * @return void
+     */
+    public function removeDiscount($code);
 
     /**
      * Returns a discount located by its code.
