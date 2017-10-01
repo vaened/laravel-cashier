@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 /**
  * Interface CalculatorContract.
  */
-interface CalculatorContract extends Arrayable, Jsonable
+interface CalculatorContract extends Arrayable, Jsonable, CleanCalculatorContract
 {
     /**
      * Returns all taxes.

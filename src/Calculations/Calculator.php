@@ -104,9 +104,7 @@ class Calculator implements CalculatorContract
     }
 
     /**
-     * Returns the unit price.
-     *
-     * @return float
+     * {@inheritdoc}
      */
     public function getCleanBasePrice()
     {
@@ -115,9 +113,7 @@ class Calculator implements CalculatorContract
     }
 
     /**
-     * Multiply the total by the amount.
-     *
-     * @return float
+     * {@inheritdoc}
      */
     public function getCleanSubtotal()
     {
@@ -125,9 +121,7 @@ class Calculator implements CalculatorContract
     }
 
     /**
-     * Returns total discounts.
-     *
-     * @return float
+     * {@inheritdoc}
      */
     public function getCleanDiscounts()
     {
@@ -137,9 +131,7 @@ class Calculator implements CalculatorContract
     }
 
     /**
-     * Returns total tax payable.
-     *
-     * @return float
+     * {@inheritdoc}
      */
     public function getCleanTaxes()
     {
@@ -149,9 +141,7 @@ class Calculator implements CalculatorContract
     }
 
     /**
-     * Returns the definitive total.
-     *
-     * @return float
+     * {@inheritdoc}
      */
     public function getCleanDefinitiveTotal()
     {
