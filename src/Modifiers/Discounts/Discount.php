@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by enea dhack - 29/09/2017 12:02 PM
+ * Created by enea dhack - 29/09/2017 12:02 PM.
  */
 
 namespace Enea\Cashier\Modifiers\Discounts;
@@ -70,7 +70,7 @@ class Discount implements DiscountContract
      * @param Collection $attributes
      * @return static
      */
-    static public function make($key, $description, $percentage, Collection $attributes = null)
+    public static function make($key, $description, $percentage, Collection $attributes = null)
     {
         return new static($key, $description, $percentage, true, $attributes);
     }
@@ -83,7 +83,7 @@ class Discount implements DiscountContract
      * @param Collection $attributes
      * @return static
      */
-    static public function generate($description, $percentage, Collection $attributes = null)
+    public static function generate($description, $percentage, Collection $attributes = null)
     {
         $key = hash('adler32', microtime(true), false);
         return static::make($key, $description, $percentage, $attributes);

@@ -25,7 +25,7 @@ class Helpers
      * @param int $percentage
      * @return float
      */
-    static public function toPercentage($percentage)
+    public static function toPercentage($percentage)
     {
         if (! is_float($percentage)) {
             return $percentage / 100;

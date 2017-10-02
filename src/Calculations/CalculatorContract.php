@@ -81,7 +81,7 @@ interface CalculatorContract extends Arrayable, Jsonable, CleanCalculatorContrac
     public function getTotalTaxes();
 
     /**
-     * Returns the definitive total with configured decimal format
+     * Returns the definitive total with configured decimal format.
      *
      * @return float
      */

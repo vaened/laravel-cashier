@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by enea dhack - 29/09/2017 12:00 PM
+ * Created by enea dhack - 29/09/2017 12:00 PM.
  */
 
 namespace Enea\Cashier\Modifiers;
@@ -8,7 +8,7 @@ namespace Enea\Cashier\Modifiers;
 use Enea\Cashier\Contracts\AttributableContract;
 
 /**
- * Interface DiscountContract
+ * Interface DiscountContract.
  *
  * Defined a discount.
  *

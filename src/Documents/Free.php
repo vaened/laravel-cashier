@@ -20,7 +20,7 @@ class Free extends Document
      *
      * @return static
      */
-    static public function make()
+    public static function make()
     {
         return new static();
     }

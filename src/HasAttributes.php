@@ -1,12 +1,12 @@
 <?php
 /**
- * Created by enea dhack - 29/09/2017 02:44 PM
+ * Created by enea dhack - 29/09/2017 02:44 PM.
  */
 
 namespace Enea\Cashier;
 
 /**
- * Trait HasAttributes
+ * Trait HasAttributes.
  *
  * @package Enea\Cashier\Contracts
  *
