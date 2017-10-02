@@ -6,44 +6,51 @@
 namespace Enea\Tests;
 
 use Enea\Cashier\Contracts\DocumentContract;
+use Enea\Cashier\Documents\Invoice;
+use Enea\Cashier\Documents\Voucher;
+use Enea\Cashier\Modifiers\Discounts\Discount;
 use Enea\Cashier\SalableItem;
 use Enea\Cashier\ShoppingCart;
-use Enea\Tests\Documents\Invoice;
-use Enea\Tests\Documents\Voucher;
+use Enea\Tests\Models\Client;
 
 class SimpleSaleTest extends TestCase
 {
     public function test_a_purchase_starts()
     {
+        $client = new Client();
+        $document = new Invoice();
         $manager = $this->getManager();
-        $shopping = $this->getShoppingCart($manager, 1000);
 
-        $_token = $shopping->token();
+        $shopping = $manager->initialize($client, $document);
+
+        $_token = $shopping->getGeneratedToken();
 
         $this->assertNotEmpty($_token);
 
-        $this->assertTrue($manager->find($_token) instanceof ShoppingCart);
+        $shopping = $manager->find($_token);
+
+        $this->assertTrue($shopping instanceof ShoppingCart);
+        $this->assertEquals($shopping->getGeneratedToken(), $_token);
     }
 
     public function test_manage_the_products_in_a_shopping_cart()
     {
-        $manager = $this->getManager();
-        $shopping = $this->getShoppingCart($manager);
+        $shopping = $this->getShoppingCart();
 
         $quantity = 10;
         $key = 1;
 
         $keyboard = $this->salable(['id' => 'k-1015', 'description' => 'keyboard', 'custom_property' => 'custom']);
-
         $this->assertTrue($shopping->push($keyboard, $quantity));
+
         $item = $shopping->find($keyboard->getItemKey());
 
         $this->assertTrue($item instanceof SalableItem);
 
-        $this->assertSame($item->getShortDescription(), 'keyboard');
-        $this->assertSame($item->getKey(), 'k-1015');
-        $this->assertSame($item->getProperty('custom_property'), 'custom');
-        $this->assertNull($item->getProperty('non-existent'));
+        $this->assertSame($item->getSalable()->getShortDescription(), 'keyboard');
+        $this->assertSame($item->getElementKey(), 'k-1015');
+        $this->assertSame($item->getAdditionalAttribute('custom_property'), 'custom');
+        $this->assertNull($item->getAdditionalAttribute('non-existent'));
 
         $this->assertTrue($item->getSalable() instanceof $keyboard);
         $this->assertTrue($item->getQuantity() === $quantity);
@@ -52,7 +59,7 @@ class SimpleSaleTest extends TestCase
         $this->assertFalse($shopping->remove('non-existent'));
         $this->assertTrue($shopping->count() === 1);
 
-        $this->assertTrue($shopping->remove($item->getKey()));
+        $this->assertTrue($shopping->remove($item->getElementKey()));
         $this->assertTrue($shopping->count() === 0);
 
         $this->assertTrue($shopping->push($this->salable(['id' => $key]), $quantity));
@@ -73,53 +80,52 @@ class SimpleSaleTest extends TestCase
 
     public function test_correct_calculations_are_performed()
     {
-        $manager = $this->getManager();
-        $shopping = $this->getShoppingCart($manager);
+        $shopping = $this->getShoppingCart();
         $product = $this->salable(['price' => 36.99]);
 
-        $shopping->setPaymentDocument(new Invoice());
-        $this->assertTrue($shopping->getPaymentDocument() instanceof Invoice);
-        $this->assertTrue($shopping->getPaymentDocument() instanceof DocumentContract);
-        $this->assertTrue($shopping->getPaymentDocument()->getKeyDocument() === 1);
+        $shopping->setDocument(new Invoice());
+        $this->assertInstanceOf(Invoice::class, $shopping->getDocument());
+        $this->assertInstanceOf(DocumentContract::class, $shopping->getDocument());
+        $this->assertSame($shopping->getDocument()->getKeyDocument(), 'invoice');
 
         $this->assertTrue($shopping->push($product, 3));
         $this->assertSame($shopping->getSubtotal(), 110.97);
-        $this->assertSame($shopping->getImpost(), 19.975);
+        $this->assertSame($shopping->getTotalTaxes(), 19.975);
         $this->assertSame($shopping->getDefinitiveTotal(), 130.945);
 
-        $shopping->setPaymentDocument(new Voucher());
-        $this->assertTrue($shopping->getPaymentDocument() instanceof Voucher);
-        $this->assertTrue($shopping->getPaymentDocument() instanceof DocumentContract);
-        $this->assertTrue($shopping->getPaymentDocument()->getKeyDocument() === 2);
+        $shopping->setDocument(new Voucher());
+        $this->assertInstanceOf(Voucher::class, $shopping->getDocument());
+        $this->assertInstanceOf(DocumentContract::class, $shopping->getDocument());
+        $this->assertSame($shopping->getDocument()->getKeyDocument(), 'voucher');
 
         $this->assertSame($shopping->getSubtotal(), 110.97);
-        $this->assertSame($shopping->getImpost(), 0.0);
+        $this->assertSame($shopping->getTotalTaxes(), 0.0);
         $this->assertSame($shopping->getDefinitiveTotal(), 110.97);
 
         $this->assertTrue($shopping->remove($product->getItemKey()));
 
-        $product = $this->discountableProduct(['id' => 'discountable', 'price' => 128.9, 'discount' => 10]);
+        $product = $this->discountableProduct(['id' => 'PD001', 'price' => 128.9, 'discount' => 10]);
 
-        $shopping->setPaymentDocument(new Invoice());
+        $shopping->setDocument(new Invoice());
         $this->assertTrue($shopping->push($product, 2));
         $this->assertSame($shopping->getSubtotal(), 257.8);
-        $this->assertSame($shopping->getDiscount(), 25.78);
-        $this->assertSame($shopping->getImpost(), 46.404);
+        $this->assertSame($shopping->getTotalDiscounts(), 25.78);
+        $this->assertSame($shopping->getTotalTaxes(), 46.404);
         $this->assertSame($shopping->getDefinitiveTotal(), 278.424);
 
-        $shopping->setPaymentDocument(new Voucher());
+        $shopping->setDocument(new Voucher());
         $this->assertSame($shopping->getSubtotal(), 257.8);
-        $this->assertSame($shopping->getDiscount(), 25.78);
-        $this->assertSame($shopping->getImpost(), 0.0);
+        $this->assertSame($shopping->getTotalDiscounts(), 25.78);
+        $this->assertSame($shopping->getTotalTaxes(), 0.0);
         $this->assertSame($shopping->getDefinitiveTotal(), 232.02);
 
         $product = $this->salable(['price' => 36.99]);
 
-        $shopping->setPaymentDocument(new Invoice());
+        $shopping->setDocument(new Invoice());
         $this->assertTrue($shopping->push($product, 3));
         $this->assertSame($shopping->getSubtotal(), 368.77);
-        $this->assertSame($shopping->getDiscount(), 25.78);
-        $this->assertSame($shopping->getImpost(), 66.379);
+        $this->assertSame($shopping->getTotalDiscounts(), 25.78);
+        $this->assertSame($shopping->getTotalTaxes(), 66.379);
         $this->assertSame($shopping->getDefinitiveTotal(), 409.369);
     }
 }
