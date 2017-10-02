@@ -5,19 +5,19 @@
 
 namespace Enea\Tests;
 
+use Enea\Cashier\AccountManager;
 use Enea\Cashier\SalableItem;
 
 class AccountSaleTest extends TestCase
 {
     public function test_an_account_is_attached_to_a_purchase()
     {
-        $manager = $this->getManager();
-
         $account = $this->getPreinvoice(['id' => 'preinvoice']);
 
-        $shopping = $this->getShoppingCart($manager, 'client')->attach($account);
+        $shopping = $this->getShoppingCart(20)->attach($account);
 
-        $this->assertTrue($shopping->getAccount() instanceof $account);
+        $this->assertInstanceOf(get_class($account), $shopping->getAccount()->getModel());
+        $this->assertInstanceOf(AccountManager::class, $shopping->getAccount());
         $this->assertSame($shopping->getAccount()->getKeyIdentification(), 'preinvoice');
     }
 
@@ -30,33 +30,30 @@ class AccountSaleTest extends TestCase
      * */
     public function test_manage_account_detail_attached()
     {
-        $manager = $this->getManager();
-
         $account = $this->getPreinvoice();
 
-        $shopping = $this->getShoppingCart($manager)->attach($account);
+        $shopping = $this->getShoppingCart()->attach($account);
 
         $this->assertTrue($shopping->isAttachedAccount());
-        $this->assertSame($shopping->storage()->count(), 4);
+        $this->assertSame($shopping->getAccount()->getElements()->count(), 4);
         $this->assertSame($shopping->collection()->count(), 0);
 
         $this->assertNull($shopping->find(100));
         $this->assertTrue($shopping->pull(100));
-        $this->assertSame($shopping->storage()->count(), 4);
+        $this->assertSame($shopping->getAccount()->getElements()->count(), 4);
         $this->assertSame($shopping->collection()->count(), 1);
         $this->assertTrue($shopping->find(100) instanceof SalableItem);
 
         $this->assertFalse($shopping->pull('non-existent'));
-        $this->assertSame($shopping->storage()->count(), 4);
+        $this->assertSame($shopping->getAccount()->getElements()->count(), 4);
         $this->assertSame($shopping->collection()->count(), 1);
 
         $this->assertTrue($shopping->pull(101));
-        $this->assertSame($shopping->storage()->count(), 4);
+        $this->assertSame($shopping->getAccount()->getElements()->count(), 4);
         $this->assertSame($shopping->collection()->count(), 2);
         $this->assertTrue($shopping->find(101) instanceof SalableItem);
 
         $shopping->detach();
-        $this->assertSame($shopping->storage()->count(), 0);
-        $this->assertSame($shopping->collection()->count(), 0);
+        $this->assertFalse($shopping->isAttachedAccount());
     }
 }
