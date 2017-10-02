@@ -16,6 +16,22 @@ use Illuminate\Support\Collection;
 interface CalculatorContract extends Arrayable, Jsonable, CleanCalculatorContract
 {
     /**
+     * Set quantity.
+     *
+     * @param int $quantity
+     * @return void
+     */
+    public function setQuantity($quantity);
+
+    /**
+     * Set multiple taxes.
+     *
+     * @param Collection $taxes
+     * @return void
+     */
+    public function setTaxes(Collection $taxes);
+
+    /**
      * Returns all taxes.
      *
      * @return Collection
@@ -25,7 +41,7 @@ interface CalculatorContract extends Arrayable, Jsonable, CleanCalculatorContrac
     /**
      * Returns all discounts.
      *
-     * @return Collection
+     * @return Collection<Modifier>
      */
     public function getDiscounts();
 

@@ -73,10 +73,26 @@ class Calculator implements CalculatorContract
         $taxes = $taxes ?: collect();
 
         $this->basePrice = $basePrice;
-        $this->quantity = $quantity;
-        $this->excluder = new Excluder($taxes);
-        $this->taxes = $this->buildTaxes($taxes);
+        $this->setQuantity($quantity);
+        $this->preparesTaxes($taxes);
         $this->discounts = $this->buildDiscounts($discounts ?: collect());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setQuantity($quantity)
+    {
+        $this->quantity = $quantity;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setTaxes(Collection $taxes)
+    {
+        $this->preparesTaxes($taxes);
+        $this->recalculateDiscounts();
     }
 
     /**
@@ -275,6 +291,30 @@ class Calculator implements CalculatorContract
     protected function makeModifierInstance(AmountModifierContract $modifier)
     {
         return new Modifier($modifier, $this->getCleanSubtotal());
+    }
+
+    /**
+     * Recalculate the discounts.
+     *
+     * @return void
+     */
+    protected function recalculateDiscounts()
+    {
+        $this->discounts->each(function (Modifier $modifier) {
+            $modifier->setAmount($this->getCleanSubtotal());
+        });
+    }
+
+    /**
+     * Prepares the taxes.
+     *
+     * @param Collection $taxes
+     * @return void
+     */
+    protected function preparesTaxes(Collection $taxes)
+    {
+        $this->excluder = new Excluder($taxes);
+        $this->taxes = $this->buildTaxes($taxes);
     }
 
     /**

@@ -38,6 +38,17 @@ class Modifier implements Arrayable, Jsonable
     }
 
     /**
+     * Set amount.
+     *
+     * @param float $amount
+     * @return void
+     */
+    public function setAmount($amount)
+    {
+        $this->amount = $amount;
+    }
+
+    /**
      * Returns the percentage to extract from the amount.
      *
      * @return int
