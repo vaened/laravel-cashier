@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model implements SalableContract
 {
     protected $fillable = ['id', 'price', 'description', 'taxable', 'custom_property'];
+
     public $incrementing = false;
 
     protected $casts = [
@@ -59,18 +60,6 @@ class Product extends Model implements SalableContract
     }
 
     /**
-     * Returns an array with extra properties.
-     *
-     * @return array
-     * */
-    public function getCustomProperties()
-    {
-        return [
-            'custom_property' => $this->custom_property,
-        ];
-    }
-
-    /**
      * Returns true in case of being subject to tax.
      *
      * @return bool
@@ -78,5 +67,17 @@ class Product extends Model implements SalableContract
     public function isTaxable()
     {
         return $this->taxable;
+    }
+
+    /**
+     * Returns an array with extra attributes.
+     *
+     * @return \Illuminate\Support\Collection
+     * */
+    public function getAdditionalAttributes()
+    {
+        return collect([
+            'custom_property' => $this->custom_property,
+        ]);
     }
 }
