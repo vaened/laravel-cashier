@@ -13,10 +13,9 @@ class AccountElement extends BaseSalableItem
      * AccountElement constructor.
      *
      * @param AccountElementContract $salable
-     * @param int $impostPercentage
      */
-    public function __construct(AccountElementContract $salable, $impostPercentage = 0)
+    public function __construct(AccountElementContract $salable)
     {
-        parent::__construct($salable, $salable->getQuantity(), $impostPercentage);
+        parent::__construct($salable, $salable->getQuantity());
     }
 }
