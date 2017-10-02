@@ -109,14 +109,14 @@ class CalculatorTest extends TestCase
         $this->assertSame($calculator->getSubtotal(), 326.88);
 
         $this->assertSame($calculator->getDiscount('ANN')->getTotalExtracted(), 42.494);
-        $this->assertSame($calculator->getDiscount('ANN')->getPercentage(), 13);
+        $this->assertSame($calculator->getDiscount('ANN')->getModifierValue(), 13);
         $this->assertSame($calculator->getDiscount('TEST')->getTotalExtracted(), 3.269);
-        $this->assertSame($calculator->getDiscount('TEST')->getPercentage(), 1);
+        $this->assertSame($calculator->getDiscount('TEST')->getModifierValue(), 1);
 
         $calculator->addDiscount(new Discount('NEW', 'only news', 8));
 
         $this->assertSame($calculator->getDiscount('NEW')->getTotalExtracted(), 26.150);
-        $this->assertSame($calculator->getDiscount('NEW')->getPercentage(), 8);
+        $this->assertSame($calculator->getDiscount('NEW')->getModifierValue(), 8);
 
         $this->assertSame($calculator->getTotalDiscounts(), 71.914);
 
@@ -129,6 +129,5 @@ class CalculatorTest extends TestCase
         $this->assertSame($calculator->getTotalDiscounts(), 68.645);
         $this->assertSame($calculator->getTotalTaxes(), 0.0);
         $this->assertSame($calculator->getDefinitiveTotal(), 258.235);
-
     }
 }
