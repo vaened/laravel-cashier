@@ -128,4 +128,48 @@ class SimpleSaleTest extends TestCase
         $this->assertSame($shopping->getTotalTaxes(), 66.379);
         $this->assertSame($shopping->getDefinitiveTotal(), 409.369);
     }
+
+    public function test_the_calculations_are_correct_with_discounts_and_dynamic_taxes()
+    {
+        $shopping = $this->getShoppingCart();
+        $anniversary = Discount::make('ANN', 'Anniversary discount', 12);
+        $test = Discount::make('TEST', 'Test discount', 5);
+        $invoice = Invoice::make()->withTaxIncluded();
+
+        $shopping->setDocument($invoice);
+        $shopping->addDiscount($anniversary);
+
+        $product = $this->discountableProduct(['id' => 'PD001', 'price' => 76.926, 'discount' => 1]);
+        $this->assertTrue($shopping->push($product));
+        $this->assertNotNull($shopping->getDiscount('ANN'));
+
+        $this->assertSame($shopping->getSubtotal(), 65.192);
+        $this->assertSame($shopping->getTotalDiscounts(), 8.475);
+        $this->assertSame($shopping->getTotalTaxes(), 11.734);
+        $this->assertSame($shopping->getDefinitiveTotal(), 68.451);
+
+        $shopping->addDiscount($test);
+
+        $this->assertSame($shopping->getSubtotal(), 65.192);
+        $this->assertSame($shopping->getTotalDiscounts(), 11.734);
+        $this->assertSame($shopping->getTotalTaxes(), 11.734);
+        $this->assertSame($shopping->getDefinitiveTotal(), 65.192);
+
+        $shopping->removeDiscount('ANN');
+        $this->assertNull($shopping->getDiscount('ANN'));
+
+        $this->assertSame($shopping->getSubtotal(), 65.192);
+        $this->assertSame($shopping->getTotalDiscounts(), 3.911);
+        $this->assertSame($shopping->getTotalTaxes(), 11.734);
+        $this->assertSame($shopping->getDefinitiveTotal(), 73.015);
+
+        $invoice = Invoice::make()->withoutTaxIncluded();
+
+        $shopping->setDocument($invoice);
+        $this->assertNull($shopping->getDiscount('ANN'));
+        $this->assertSame($shopping->getSubtotal(), 76.926);
+        $this->assertSame($shopping->getTotalDiscounts(), 4.616);
+        $this->assertSame($shopping->getTotalTaxes(), 13.847);
+        $this->assertSame($shopping->getDefinitiveTotal(), 86.157);
+    }
 }
