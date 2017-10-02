@@ -41,7 +41,7 @@ class Tax implements TaxContract
      * @param $included
      * @return static
      */
-    static public function make($percentage = 0, $included = false)
+    public static function make($percentage = 0, $included = false)
     {
         return new static($percentage, $included);
     }

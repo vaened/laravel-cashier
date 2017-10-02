@@ -147,7 +147,7 @@ abstract class BaseSalableItem extends BaseItem
     }
 
     /**
-     * Returns true if the salable item is discountable,
+     * Returns true if the salable item is discountable,.
      *
      * @return bool
      */

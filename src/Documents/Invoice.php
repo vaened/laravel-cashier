@@ -32,7 +32,7 @@ class Invoice extends Document
      * @param BusinessOwner|null $owner
      * @return static
      */
-    static public function make(BusinessOwner $owner = null)
+    public static function make(BusinessOwner $owner = null)
     {
         return new static($owner);
     }
