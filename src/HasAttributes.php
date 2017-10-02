@@ -41,6 +41,17 @@ trait HasAttributes
     }
 
     /**
+     * Get an item from the collection by key.
+     *
+     * @param $key
+     * @return mixed
+     */
+    public function getAdditionAttribute($key)
+    {
+        return $this->getAdditionalAttributes()->get($key);
+    }
+
+    /**
      * Remove a attribute.
      *
      * @param string|int $key
