@@ -11,9 +11,17 @@ use Illuminate\Contracts\Support\Jsonable;
 interface AmountModifierContract extends Arrayable, Jsonable
 {
     /**
-     * Returns the percentage in integer format to be taken from the amount.
+     * Returns the value that modifies the amount.
+     * if it is a percentage value, it must be an integer.
      *
-     * @return int
+     * @return float
      */
-    public function getPercentage();
+    public function getModifierValue();
+
+    /**
+     * Returns true in case the discount is percentage.
+     *
+     * @return bool
+     */
+    public function isPercentage();
 }

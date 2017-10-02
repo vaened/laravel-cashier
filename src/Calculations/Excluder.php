@@ -5,6 +5,7 @@
 
 namespace Enea\Cashier\Calculations;
 
+use Closure;
 use Enea\Cashier\Helpers;
 use Enea\Cashier\Modifiers\TaxContract;
 use Illuminate\Support\Collection;
@@ -34,7 +35,9 @@ class Excluder
      */
     public function getCleanTotalTaxIncluded($amount)
     {
+        $amount -= $this->getTotalValueIncluded();
         $percentage = $this->getFormatPercentageToExtract() + 1;
+
         return $amount / $percentage * $this->getFormatPercentageToExtract();
     }
 
@@ -56,7 +59,8 @@ class Excluder
     public function toArray($amount)
     {
         return [
-            'percentage' => $this->getPercentageToExtract(),
+            'modifier_percentage' => $this->getPercentageToExtract(),
+            'modifier_value' => $this->getTotalValueIncluded(),
             'clean_total' => $this->getCleanTotalTaxIncluded($amount),
             'total' => $this->getTotalTaxIncluded($amount),
         ];
@@ -69,9 +73,33 @@ class Excluder
      */
     public function getPercentageToExtract()
     {
-        return $this->taxes->sum(function (TaxContract $tax) {
-            return $tax->getPercentage();
-        });
+        return $this->taxes->filter(function (TaxContract $tax) {
+            return $tax->isPercentage();
+        })->sum($this->modifierValue());
+    }
+
+    /**
+     * Returns the value to extract from the amount.
+     *
+     * @return float
+     */
+    public function getTotalValueIncluded()
+    {
+        return $this->taxes->filter(function (TaxContract $tax) {
+            return ! $tax->isPercentage();
+        })->sum($this->modifierValue());
+    }
+
+    /**
+     * Returns the modifier value of tax.
+     *
+     * @return Closure
+     */
+    protected function modifierValue()
+    {
+        return function (TaxContract $tax) {
+            return $tax->getModifierValue();
+        };
     }
 
     /**

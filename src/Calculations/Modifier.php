@@ -38,24 +38,13 @@ class Modifier implements Arrayable, Jsonable
     }
 
     /**
-     * Set amount.
-     *
-     * @param float $amount
-     * @return void
-     */
-    public function setAmount($amount)
-    {
-        $this->amount = $amount;
-    }
-
-    /**
      * Returns the percentage to extract from the amount.
      *
      * @return int
      */
-    public function getPercentage()
+    public function getModifierValue()
     {
-        return $this->modifier->getPercentage();
+        return $this->modifier->getModifierValue();
     }
 
     /**
@@ -65,7 +54,11 @@ class Modifier implements Arrayable, Jsonable
      */
     public function getCleanTotalExtracted()
     {
-        return $this->amount * $this->getFormatPercentage();
+        if ($this->modifier->isPercentage()) {
+            return $this->amount * $this->getFormatValue();
+        }
+
+        return $this->getFormatValue();
     }
 
     /**
@@ -87,7 +80,7 @@ class Modifier implements Arrayable, Jsonable
     {
         return array_merge($this->modifier->toArray(), [
             'amount' => $this->amount,
-            'percentage' => $this->getPercentage(),
+            'modifier' => $this->getModifierValue(),
             'extracted' => $this->getTotalExtracted(),
         ]);
     }
@@ -97,23 +90,12 @@ class Modifier implements Arrayable, Jsonable
      *
      * @return float
      */
-    protected function getFormatPercentage()
+    protected function getFormatValue()
     {
-        return Helpers::toPercentage($this->getPercentage());
-    }
-
-    /**
-     * Converts the percentage value to step by parameter.
-     *
-     * @param int $percentage
-     * @return float
-     */
-    protected function toPercentage($percentage)
-    {
-        if (! is_float($percentage)) {
-            return $percentage / 100;
+        if ($this->modifier->isPercentage()) {
+            return Helpers::toPercentage($this->modifier->getModifierValue());
         }
 
-        return $percentage;
+        return $this->modifier->getModifierValue();
     }
 }

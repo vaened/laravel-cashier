@@ -26,6 +26,11 @@ class Discount implements DiscountContract
     /**
      * @var int
      */
+    protected $value;
+
+    /**
+     * @var bool
+     */
     protected $percentage;
 
     /**
@@ -38,13 +43,20 @@ class Discount implements DiscountContract
      *
      * @param string|int $key
      * @param string $description
-     * @param int $percentage
+     * @param int $value
+     * @param bool $percentage
      * @param Collection $additionalAttributes
      */
-    public function __construct($key, $description, $percentage, Collection $additionalAttributes = null)
-    {
+    public function __construct(
+        $key,
+        $description,
+        $value,
+        $percentage = true,
+        Collection $additionalAttributes = null
+    ) {
         $this->key = $key;
         $this->description = $description;
+        $this->value = $value;
         $this->percentage = $percentage;
         $this->additionalAttributes = $additionalAttributes ?: collect();
     }
@@ -60,7 +72,7 @@ class Discount implements DiscountContract
      */
     static public function make($key, $description, $percentage, Collection $attributes = null)
     {
-        return new static($key, $description, $percentage, $attributes);
+        return new static($key, $description, $percentage, true, $attributes);
     }
 
     /**
@@ -88,11 +100,22 @@ class Discount implements DiscountContract
     }
 
     /**
-     * Returns discount  percentage.
+     * Returns the value that modifies the amount.
+     * if it is a percentage value, it must be an integer.
      *
-     * @return int
+     * @return float
      */
-    public function getPercentage()
+    public function getModifierValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * Returns true in case the discount is percentage.
+     *
+     * @return bool
+     */
+    public function isPercentage()
     {
         return $this->percentage;
     }
@@ -126,7 +149,8 @@ class Discount implements DiscountContract
     {
         return [
             'code' => $this->getDiscountCode(),
-            'percentage' => $this->getPercentage(),
+            'modifier' => $this->getModifierValue(),
+            'is_percentage' => $this->isPercentage(),
             'description' => $this->getDescription(),
             'additional_attributes' => $this->getAdditionalAttributes()->toArray(),
         ];

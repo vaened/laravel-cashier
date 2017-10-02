@@ -49,7 +49,7 @@ class Tax implements TaxContract
     /**
      * {@inheritdoc}
      */
-    public function getPercentage()
+    public function getModifierValue()
     {
         return $this->percentage;
     }
@@ -76,9 +76,20 @@ class Tax implements TaxContract
     public function toArray()
     {
         return [
-            'percentage' => $this->getPercentage(),
+            'modifier' => $this->getModifierValue(),
             'description' => $this->getDescription(),
+            'is_percentage' => $this->isPercentage(),
             'is_included' => $this->isIncluded(),
         ];
+    }
+
+    /**
+     * Returns true in case the discount is percentage.
+     *
+     * @return bool
+     */
+    public function isPercentage()
+    {
+        return true;
     }
 }
