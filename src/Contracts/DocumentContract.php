@@ -5,12 +5,14 @@
 
 namespace Enea\Cashier\Contracts;
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
 
 /**
  * Interface DocumentContract.
  */
-interface DocumentContract
+interface DocumentContract extends Arrayable, Jsonable
 {
     /**
      * Returns the key document.
