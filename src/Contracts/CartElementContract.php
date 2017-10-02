@@ -5,7 +5,7 @@
 
 namespace Enea\Cashier\Contracts;
 
-interface CartElementContract
+interface CartElementContract extends AttributableContract
 {
     /**
      * Key that identifies the article as unique.
@@ -27,11 +27,4 @@ interface CartElementContract
      * @return float
      */
     public function getBasePrice();
-
-    /**
-     * Returns an array with extra properties.
-     *
-     * @return array
-     * */
-    public function getCustomProperties();
 }

@@ -5,79 +5,62 @@
 
 namespace Enea\Cashier;
 
+use Enea\Cashier\Calculations\Calculator;
+use Enea\Cashier\Calculations\CalculatorContract;
+use Enea\Cashier\Contracts\AttributableContract;
 use Enea\Cashier\Contracts\CartElementContract;
 use Enea\Cashier\Contracts\DiscountableContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
-abstract class BaseItem implements Arrayable, Jsonable
+abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
 {
+    use IsJsonable, HasAttributes;
+
     /**
-     * Item quantity.
+     * Custom attributes.
      *
-     * @var int
+     * @var Collection<string, mixed>
      */
-    private $quantity;
+    protected $additionalAttributes;
 
     /**
-     * Old quantity.
+     * Element added to the handler.
      *
-     * @var int
-     * */
-    protected $old_quantity;
-
-    /**
-     * @var Calculator
-     * */
-    protected $calculator;
-
-    /**
-     * @var bool
-     * */
-    protected $recalculate = false;
-
-    /**
-     * Tax percentage.
-     *
-     * @var int
-     * */
-    protected $impostPercentage = Calculator::ZERO;
-
-    /**
-     * Plan discount percentage.
-     *
-     * @var int
-     * */
-    protected $planDiscountPercentage = Calculator::ZERO;
-
-    /**
      * @var CartElementContract
      */
     protected $element;
 
     /**
+     * Contains the instance of the calculator.
+     *
+     * @var CalculatorContract
+     * */
+    private $calculator;
+
+    /**
      * BaseItem constructor.
      *
      * @param CartElementContract $element
+     * @param int $quantity
      */
-    public function __construct(CartElementContract $element)
+    public function __construct(CartElementContract $element, $quantity)
     {
         $this->element = $element;
+        $this->initialize();
+        $this->makeCalculator($element->getBasePrice(), $quantity);
+        $this->verifyDiscount();
     }
 
     /**
-     * Change quantity for item.
+     * Returns the amount calculator.
      *
-     * @param int $quantity
-     *
-     * @return void
+     * @return CalculatorContract
      */
-    public function setQuantity($quantity)
+    public function getCalculator()
     {
-        $this->quantity = $quantity;
-        $this->old_quantity = $this->old_quantity ?: $quantity;
-        $this->recalculate = true;
+        return $this->calculator;
     }
 
     /**
@@ -87,169 +70,90 @@ abstract class BaseItem implements Arrayable, Jsonable
      */
     public function getQuantity()
     {
-        return $this->quantity;
+        return $this->getCalculator()->getQuantity();
     }
 
     /**
-     * @param string $property
-     *
-     * @return string|bool|int|array
-     */
-    public function getProperty($property)
-    {
-        return isset($this->getCustomProperties()[$property]) ? $this->getCustomProperties()[$property] : null;
-    }
-
-    /**
-     *  Returns the model to calculate prices.
-     *
-     * @return Calculator
-     */
-    public function getCalculator()
-    {
-        if ($this->needToRecalculate()) {
-            $this->calculator = $this->calculatorInstance();
-
-            $model = $this->model();
-
-            if ($model instanceof  DiscountableContract) {
-                $this->calculator->setDiscountPercentage($model->getDiscountPercentage());
-            }
-
-            $this->calculator->setImpostPercentage($this->getImpostPercentage());
-            $this->calculator->setPlanPercentage($this->planDiscountPercentage);
-        }
-
-        return $this->calculator;
-    }
-
-    /**
-     * Set a plan discount for the item.
-     *
-     * @param int $percentage
-     */
-    public function setPlanDiscountPercentage($percentage)
-    {
-        $this->planDiscountPercentage = $percentage;
-    }
-
-    /**
-     * Returns true in case the quantity of the item has been changed and is no longer the same as in the beginning.
-     *
-     * @return bool
-     */
-    public function isTouched()
-    {
-        return $this->old_quantity != $this->getQuantity();
-    }
-
-    /**
-     * Returns item name.
-     *
-     * @return null|string
-     * */
-    public function getShortDescription()
-    {
-        return $this->element->getShortDescription();
-    }
-
-    /**
-     * Returns an array with extra properties.
-     *
-     * @return array
-     * */
-    public function getCustomProperties()
-    {
-        return $this->element->getCustomProperties();
-    }
-
-    /**
-     * Returns identification.
+     * Returns the identification key of the element.
      *
      * @return int|string
+     */
+    public function getElementKey()
+    {
+        return $this->getElement()->getItemKey();
+    }
+
+    /**
+     * Returns all discounts.
+     *
+     * @return Collection<Modifier>
+     */
+    public function getDiscounts()
+    {
+        return $this->getCalculator()->getDiscounts();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toArray()
+    {
+        return array_merge($this->getCalculator()->toArray(), [
+            'key' => $this->getElementKey(),
+            'name' => $this->getElement()->getShortDescription(),
+            'properties' => $this->getAdditionalAttributes()->toArray(),
+        ]);
+    }
+
+    /**
+     * {@inheritdoc}
      * */
-    public function getKey()
+    public function getAdditionalAttributes()
     {
-        return $this->element->getItemKey();
+        return $this->additionalAttributes->merge($this->getElement()->getAdditionalAttributes());
     }
 
     /**
-     * Get base price for item.
+     * Returns the element added to the handler.
      *
-     * @return float
+     * @return CartElementContract
      */
-    protected function getBasePrice()
-    {
-        return $this->element->getBasePrice();
-    }
-
-    /**
-     * Verifies whether it is necessary to recalculate the price.
-     *
-     * @return bool
-     */
-    protected function needToRecalculate()
-    {
-        return $this->recalculate || empty($this->calculator);
-    }
-
-    /**
-     * Returns the assigned tax.
-     *
-     * @return int
-     */
-    protected function getImpostPercentage()
-    {
-        return $this->impostPercentage;
-    }
-
-    /**
-     * Return an instance of the model that represents the product.
-     *
-     * @return Model
-     */
-    protected function model()
+    protected function getElement()
     {
         return $this->element;
     }
 
     /**
-     * Returns an instance of calculator.
+     * Verifies if the item has a discount and applies it.
      *
-     * @return Calculator
+     * @return void
      */
-    private function calculatorInstance()
+    protected function verifyDiscount()
     {
-        if (empty($path = config('cashier.calculator'))) {
-            return new Calculator($this->getBasePrice(), $this->getQuantity());
+        if ($this->element instanceof DiscountableContract) {
+            $this->getCalculator()->addDiscount($this->element->getDiscounts());
         }
-
-        return new $path($this->getBasePrice(), $this->getQuantity());
     }
 
     /**
-     * Get the instance as an array.
+     * Build a calculator instance.
      *
-     * @return array
+     * @param $basePrice
+     * @param $quantity
+     * @return void
      */
-    public function toArray()
+    protected function makeCalculator($basePrice, $quantity)
     {
-        return array_merge($this->getCalculator()->toArray(), [
-            'key' => $this->getKey(),
-            'name' => $this->getShortDescription(),
-            'properties' => $this->getCustomProperties(),
-        ]);
+        $this->calculator = new Calculator($basePrice, $quantity);
     }
 
     /**
-     * Convert the object to its JSON representation.
+     * Initialize variables.
      *
-     * @param  int  $options
-     *
-     * @return string
+     * @return void
      */
-    public function toJson($options = 0)
+    protected function initialize()
     {
-        return json_encode($this->toArray(), $options);
+        $this->additionalAttributes = collect();
     }
 }
