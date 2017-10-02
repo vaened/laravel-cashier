@@ -46,7 +46,7 @@ trait HasAttributes
      * @param $key
      * @return mixed
      */
-    public function getAdditionAttribute($key)
+    public function getAdditionalAttribute($key)
     {
         return $this->getAdditionalAttributes()->get($key);
     }
