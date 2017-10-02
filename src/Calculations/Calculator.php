@@ -5,11 +5,7 @@
 
 namespace Enea\Cashier\Calculations;
 
-use Enea\Cashier\Helpers;
-use Enea\Cashier\IsJsonable;
-use Enea\Cashier\Modifiers\AmountModifierContract;
 use Enea\Cashier\Modifiers\DiscountContract;
-use Enea\Cashier\Modifiers\TaxContract;
 use Illuminate\Support\Collection;
 
 /**
@@ -17,73 +13,29 @@ use Illuminate\Support\Collection;
  *
  * @author enea dhack <enea.so@live.com>
  */
-class Calculator implements CalculatorContract
+class Calculator extends Base
 {
-    use IsJsonable;
+    protected $memoryBasePrice;
 
-    /**
-     * Tax excluder included.
-     *
-     * @var Excluder
-     */
-    protected $excluder;
+    protected $memorySubtotal;
 
-    /**
-     * Base price for item.
-     *
-     * @var float
-     */
-    protected $basePrice;
+    protected $memoryTaxes;
 
-    /**
-     * iIem quantity.
-     *
-     * @var int
-     */
-    protected $quantity;
+    protected $memoryDiscounts;
 
-    /**
-     * Contains all taxes.
-     *
-     * @var Collection<Modifier>
-     */
-    protected $taxes;
+    protected $memoryDefinitiveTotal;
 
-    /**
-     * Contains all discounts..
-     *
-     * @var Collection<Modifier>
-     */
-    protected $discounts;
+    protected $memoryCollectionTaxes;
 
-    /**
-     * Calculator constructor.
-     *
-     * @param float $basePrice
-     * @param int $quantity
-     * @param Collection $taxes
-     * @param Collection $discounts
-     */
-    public function __construct(
-        $basePrice,
-        $quantity,
-        Collection $taxes = null,
-        Collection $discounts = null
-    ) {
-        $taxes = $taxes ?: collect();
-
-        $this->basePrice = $basePrice;
-        $this->setQuantity($quantity);
-        $this->preparesTaxes($taxes);
-        $this->discounts = $this->buildDiscounts($discounts ?: collect());
-    }
+    protected $memoryCollectionDiscounts;
 
     /**
      * {@inheritdoc}
      */
     public function setQuantity($quantity)
     {
-        $this->quantity = $quantity;
+        parent::setQuantity($quantity);
+        $this->resetMemory();
     }
 
     /**
@@ -91,125 +43,8 @@ class Calculator implements CalculatorContract
      */
     public function setTaxes(Collection $taxes)
     {
-        $this->preparesTaxes($taxes);
-        $this->recalculateDiscounts();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTaxes()
-    {
-        return $this->taxes;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDiscounts()
-    {
-        return $this->discounts;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getQuantity()
-    {
-        return (int) $this->quantity;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanBasePrice()
-    {
-        $base = (float) $this->basePrice;
-        return $base - $this->getTaxDiscounter()->getCleanTotalTaxIncluded($base);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanSubtotal()
-    {
-        return $this->getCleanBasePrice() * $this->getQuantity();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanDiscounts()
-    {
-        return $this->getDiscounts()->sum(function (Modifier $discount) {
-            return $discount->getCleanTotalExtracted();
-        });
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanTaxes()
-    {
-        return $this->getTaxes()->sum(function (Modifier $tax) {
-            return $tax->getCleanTotalExtracted();
-        });
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanDefinitiveTotal()
-    {
-        return $this->getCleanSubtotal() - $this->getCleanDiscounts() + $this->getCleanTaxes();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBasePrice()
-    {
-        return Helpers::decimalFormat($this->getCleanBasePrice());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSubtotal()
-    {
-        return Helpers::decimalFormat($this->getCleanSubtotal());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTotalDiscounts()
-    {
-        return Helpers::decimalFormat($this->getCleanDiscounts());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTotalTaxes()
-    {
-        return Helpers::decimalFormat($this->getCleanTaxes());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefinitiveTotal()
-    {
-        return Helpers::decimalFormat($this->getCleanDefinitiveTotal());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDiscount($code)
-    {
-        return $this->getDiscounts()->get($code);
+        $this->taxes = $taxes;
+        $this->resetMemory();
     }
 
     /**
@@ -217,7 +52,8 @@ class Calculator implements CalculatorContract
      */
     public function addDiscount(DiscountContract $discount)
     {
-        $this->getDiscounts()->put($discount->getDiscountCode(), $this->makeModifierInstance($discount));
+        parent::addDiscount($discount);
+        $this->resetMemory();
     }
 
     /**
@@ -225,105 +61,79 @@ class Calculator implements CalculatorContract
      */
     public function removeDiscount($code)
     {
-        $this->getDiscounts()->forget($code);
+        parent::removeDiscount($code);
+        $this->resetMemory();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function toArray()
+    public function getTaxes()
     {
-        return [
-            // base
-            'base_price' => $this->getBasePrice(),
-            'quantity' => $this->getQuantity(),
-            'subtotal' => $this->getSubtotal(),
-
-            // total discounts
-            'total_discounts' => $this->getTotalDiscounts(),
-            'discounts' => $this->getDiscounts()->toArray(),
-
-            // taxes
-            'total_taxes' => $this->getTotalTaxes(),
-            'taxes' => $this->getTaxes()->toArray(),
-
-            // total
-            'definitive_total' => $this->getDefinitiveTotal(),
-        ];
+        return $this->memoryCollectionTaxes ?: $this->memoryCollectionTaxes = parent::getTaxes();
     }
 
     /**
-     * Builds simplification of discounts.
-     *
-     * @param Collection $discounts
-     * @return Collection
+     * {@inheritdoc}
      */
-    protected function buildDiscounts(Collection $discounts)
+    public function getDiscounts()
     {
-        $modifier = collect();
-
-        $discounts->each(function (DiscountContract $discount) use ($modifier) {
-            $modifier->put($discount->getDiscountCode(), $this->makeModifierInstance($discount));
-        });
-
-        return $modifier;
+        return $this->memoryCollectionDiscounts ?: $this->memoryCollectionDiscounts = parent::getDiscounts();
     }
 
     /**
-     * Builds a simplification of taxes.
-     *
-     * @param Collection $taxes
-     * @return Collection
+     * {@inheritdoc}
      */
-    protected function buildTaxes(Collection $taxes)
+    public function getCleanBasePrice()
     {
-        return $taxes->map(function (TaxContract $tax) {
-            return $this->makeModifierInstance($tax);
-        });
+        return $this->memoryBasePrice ?: $this->memoryBasePrice = parent::getCleanBasePrice();
     }
 
     /**
-     * Build a new modifier instance.
-     *
-     * @param AmountModifierContract $modifier
-     * @return Modifier
+     * {@inheritdoc}
      */
-    protected function makeModifierInstance(AmountModifierContract $modifier)
+    public function getCleanSubtotal()
     {
-        return new Modifier($modifier, $this->getCleanSubtotal());
+        return $this->memorySubtotal ?: $this->memorySubtotal = parent::getCleanSubtotal();
     }
 
     /**
-     * Recalculate the discounts.
+     * {@inheritdoc}
+     */
+    public function getCleanDiscounts()
+    {
+        return $this->memoryDiscounts ?: $this->memoryDiscounts = parent::getCleanDiscounts();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCleanTaxes()
+    {
+        return $this->memoryTaxes ?: $this->memoryTaxes = parent::getCleanTaxes();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCleanDefinitiveTotal()
+    {
+        return $this->memoryDefinitiveTotal ?: $this->memoryDefinitiveTotal = parent::getCleanDefinitiveTotal();
+    }
+
+    /**
+     * Reset all variables.
      *
      * @return void
      */
-    protected function recalculateDiscounts()
+    protected function resetMemory()
     {
-        $this->discounts->each(function (Modifier $modifier) {
-            $modifier->setAmount($this->getCleanSubtotal());
-        });
-    }
-
-    /**
-     * Prepares the taxes.
-     *
-     * @param Collection $taxes
-     * @return void
-     */
-    protected function preparesTaxes(Collection $taxes)
-    {
-        $this->excluder = new Excluder($taxes);
-        $this->taxes = $this->buildTaxes($taxes);
-    }
-
-    /**
-     * Returns the taxes that are included in the price.
-     *
-     * @return Excluder
-     */
-    protected function getTaxDiscounter()
-    {
-        return $this->excluder;
+        $this->memoryBasePrice = null;
+        $this->memorySubtotal = null;
+        $this->memoryTaxes = null;
+        $this->memoryDiscounts = null;
+        $this->memoryDefinitiveTotal = null;
+        $this->memoryCollectionTaxes = null;
+        $this->memoryCollectionDiscounts = null;
     }
 }
