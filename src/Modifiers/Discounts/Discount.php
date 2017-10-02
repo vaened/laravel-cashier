@@ -73,7 +73,7 @@ class Discount implements DiscountContract
      */
     static public function generate($description, $percentage, Collection $attributes = null)
     {
-        $key = hash('adler32', time(), false);
+        $key = hash('adler32', microtime(true), false);
         return static::make($key, $description, $percentage, $attributes);
     }
 
