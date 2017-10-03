@@ -7,6 +7,7 @@ namespace Enea\Cashier;
 
 use Enea\Cashier\Calculations\Calculator;
 use Enea\Cashier\Calculations\CalculatorContract;
+use Enea\Cashier\Calculations\Modifier;
 use Enea\Cashier\Contracts\AttributableContract;
 use Enea\Cashier\Contracts\CartElementContract;
 use Enea\Cashier\Contracts\DiscountableContract;
@@ -92,6 +93,17 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
     public function getDiscounts()
     {
         return $this->getCalculator()->getDiscounts();
+    }
+
+    /**
+     * Returns a discount by code.
+     *
+     * @param $code
+     * @return Modifier
+     */
+    public function getDiscount($code)
+    {
+        return $this->getCalculator()->getDiscount($code);
     }
 
     /**
