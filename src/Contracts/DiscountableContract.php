@@ -5,7 +5,7 @@
 
 namespace Enea\Cashier\Contracts;
 
-use Enea\Cashier\Modifiers\DiscountContract;
+use Illuminate\Support\Collection;
 
 /**
  * When implementing this interface, it is possible to assign a discount on an item.
@@ -13,9 +13,16 @@ use Enea\Cashier\Modifiers\DiscountContract;
 interface DiscountableContract
 {
     /**
-     * Get the item discount in percentage.
+     * Get the item discount.
      *
-     * @return DiscountContract|null
+     * @return Collection<DiscountContract>
      */
     public function getDiscounts();
+
+    /**
+     * Returns true if the item is discountable.
+     *
+     * @return bool
+     */
+    public function isDiscountable();
 }

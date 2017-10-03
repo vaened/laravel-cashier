@@ -10,6 +10,7 @@ use Enea\Cashier\Calculations\CalculatorContract;
 use Enea\Cashier\Contracts\AttributableContract;
 use Enea\Cashier\Contracts\CartElementContract;
 use Enea\Cashier\Contracts\DiscountableContract;
+use Enea\Cashier\Modifiers\DiscountContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
@@ -130,8 +131,10 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
      */
     protected function verifyDiscount()
     {
-        if ($this->element instanceof DiscountableContract) {
-            $this->getCalculator()->addDiscount($this->element->getDiscounts());
+        if ($this->element instanceof DiscountableContract && $this->element->isDiscountable()) {
+            $this->element->getDiscounts()->each(function (DiscountContract $discount) {
+                $this->getCalculator()->addDiscount($discount);
+            });
         }
     }
 

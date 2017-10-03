@@ -157,7 +157,8 @@ abstract class BaseSalableItem extends BaseItem
      */
     protected function isDiscountable()
     {
-        return $this->getSalable() instanceof DiscountableContract;
+        $element = $this->getSalable();
+        return $element instanceof DiscountableContract && $element->isDiscountable();
     }
 
     /**
