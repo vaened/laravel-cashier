@@ -301,7 +301,7 @@ class ShoppingCart extends BaseManager
             ],
             'discounts' => $this->discounts->toArray(),
             'document' => $this->getDocument()->toArray(),
-            'account' => $this->isAttachedAccount() ? $this->getAccountHandler()->toArray() : [],
+            'account' => $this->isAttachedAccount() ? $this->getAccount()->toArray() : [],
         ]);
     }
 
