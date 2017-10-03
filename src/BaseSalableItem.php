@@ -121,7 +121,11 @@ abstract class BaseSalableItem extends BaseItem
     public function setDocument(DocumentContract $document)
     {
         $this->document = $document;
-        $this->getCalculator()->setTaxes($document->getTaxes() ?: collect());
+
+        if ($this->getSalable()->isTaxable()) {
+            $this->getCalculator()->setTaxes($document->getTaxes() ?: collect());
+        }
+
         return $this;
     }
 
