@@ -179,10 +179,11 @@ abstract class BaseManager implements Arrayable, Jsonable, AttributableContract,
      */
     public function toArray()
     {
-        return array_merge($this->getArrayableCalculator(), [
+        return [
+            'calculator' => $this->getArrayableCalculator(),
             'token' => $this->getGeneratedToken(),
             'elements' => $this->collection()->toArray(),
-        ]);
+        ];
     }
 
     /**
