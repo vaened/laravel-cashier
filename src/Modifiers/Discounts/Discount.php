@@ -64,15 +64,15 @@ class Discount implements DiscountContract
     /**
      * Returns a new instance.
      *
-     * @param $key
-     * @param $description
-     * @param $percentage
+     * @param string $key
+     * @param string $description
+     * @param int|float $value
      * @param Collection $attributes
      * @return static
      */
-    public static function make($key, $description, $percentage, Collection $attributes = null)
+    public static function make($key, $description, $value, Collection $attributes = null)
     {
-        return new static($key, $description, $percentage, true, $attributes);
+        return new static($key, $description, $value, true, $attributes);
     }
 
     /**
@@ -85,8 +85,29 @@ class Discount implements DiscountContract
      */
     public static function generate($description, $percentage, Collection $attributes = null)
     {
-        $key = hash('adler32', microtime(true), false);
-        return static::make($key, $description, $percentage, $attributes);
+        return static::make(static::generateKey(), $description, $percentage, $attributes);
+    }
+
+    /**
+     * Makes the discount value an absolute and only subtract the amount.
+     *
+     * @return static
+     */
+    public function withAbsoluteValue()
+    {
+        $this->percentage = false;
+        return $this;
+    }
+
+    /**
+     * Makes the discount value a percentage.
+     *
+     * @return static
+     */
+    public function withPercentageValue()
+    {
+        $this->percentage = true;
+        return $this;
     }
 
     /**
@@ -154,5 +175,15 @@ class Discount implements DiscountContract
             'description' => $this->getDescription(),
             'additional_attributes' => $this->getAdditionalAttributes()->toArray(),
         ];
+    }
+
+    /**
+     * Generate a random key.
+     *
+     * @return string
+     */
+    protected static function generateKey()
+    {
+        return hash('adler32', microtime(true), false);
     }
 }
