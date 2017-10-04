@@ -8,7 +8,7 @@ namespace Enea\Cashier\Contracts;
 /**
  * Interface BuyerContract.
  */
-interface BuyerContract
+interface BuyerContract extends AttributableContract
 {
     /**
      * Primary key that uniquely identifies the buyer.
@@ -16,11 +16,4 @@ interface BuyerContract
      * @return int|string
      */
     public function getBuyerKey();
-
-    /**
-     * Returns an array with extra properties.
-     *
-     * @return array
-     * */
-    public function getCustomProperties();
 }

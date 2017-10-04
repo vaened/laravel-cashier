@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 class Preinvoice extends Model implements AccountContract
 {
     protected $fillable = ['id', 'custom_property'];
+
     public $incrementing = false;
 
     /**
@@ -25,15 +26,11 @@ class Preinvoice extends Model implements AccountContract
     }
 
     /**
-     * Returns an array with extra properties.
-     *
-     * @return array
+     * {@inheritdoc}
      * */
-    public function getCustomProperties()
+    public function getAdditionalAttributes()
     {
-        return [
-            'custom_property' => $this->custom_property,
-        ];
+        // TODO: Implement getAdditionalAttributes() method.
     }
 
     /**
@@ -44,10 +41,34 @@ class Preinvoice extends Model implements AccountContract
     public function getElements()
     {
         return collect([
-            new PreinvoiceItem(['id' => 100, 'price' => 130.50, 'quantity' => 3, 'description' => 'some description', 'taxable' => true]),
-            new PreinvoiceItem(['id' => 101, 'price' => 530.30, 'quantity' => 1, 'description' => 'some description', 'taxable' => true]),
-            new PreinvoiceItem(['id' => 102, 'price' => 10.50, 'quantity' => 5, 'description' => 'some description', 'taxable' => true]),
-            new PreinvoiceItem(['id' => 103, 'price' => 30.40, 'quantity' => 2, 'description' => 'some description', 'taxable' => true]),
+            new PreinvoiceItem([
+                'id' => 100,
+                'price' => 130.50,
+                'quantity' => 3,
+                'description' => 'some description',
+                'taxable' => true,
+            ]),
+            new PreinvoiceItem([
+                'id' => 101,
+                'price' => 530.30,
+                'quantity' => 1,
+                'description' => 'some description',
+                'taxable' => true,
+            ]),
+            new PreinvoiceItem([
+                'id' => 102,
+                'price' => 10.50,
+                'quantity' => 5,
+                'description' => 'some description',
+                'taxable' => true,
+            ]),
+            new PreinvoiceItem([
+                'id' => 103,
+                'price' => 30.40,
+                'quantity' => 2,
+                'description' => 'some description',
+                'taxable' => true,
+            ]),
         ]);
     }
 }

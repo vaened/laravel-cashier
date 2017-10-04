@@ -5,53 +5,54 @@
 
 namespace Enea\Cashier;
 
+use Countable;
+use Enea\Cashier\Contracts\AttributableContract;
+use Enea\Cashier\Contracts\BuyerContract;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
 
-abstract class BaseManager implements Arrayable, Jsonable
+abstract class BaseManager implements Arrayable, Jsonable, AttributableContract, Countable
 {
-    /**
-     * Identification.
-     *
-     * @var string
-     * */
-    protected $token;
+    use IsJsonable, HasAttributes;
 
     /**
-     * Temporary storage of account items.
+     * Customer cart owner.
      *
-     * @var Collection
+     * @var BuyerContract
      */
-    protected $storage;
+    protected $buyer;
 
     /**
      * Custom properties.
      *
      * @var Collection
      */
-    protected $properties;
-
-    /**
-     * Default igv percentage.
-     *
-     * @var int
-     */
-    protected $impostPercentage = Calculator::ZERO;
+    protected $attributes;
 
     /**
      * Selected items.
      *
      * @var  Collection
      * */
-    private $collection;
+    protected $collection;
+
+    /**
+     * Identification token.
+     *
+     * @var string
+     * */
+    private $token;
 
     /**
      * BaseManager constructor.
+     *
+     * @param BuyerContract $buyer
      */
-    public function __construct()
+    public function __construct(BuyerContract $buyer)
     {
-        $this->clean();
+        $this->initialize();
+        $this->buyer = $buyer;
     }
 
     /**
@@ -83,10 +84,10 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return float
      */
-    public function getImpost()
+    public function getTotalTaxes()
     {
         return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getCleanImpost();
+            return $item->getCalculator()->getCleanTaxes();
         }));
     }
 
@@ -95,57 +96,11 @@ abstract class BaseManager implements Arrayable, Jsonable
      *
      * @return float
      */
-    public function getDiscount()
-    {
-        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getCleanDiscount();
-        }));
-    }
-
-    /**
-     * Returns the plan discount.
-     *
-     * @return float
-     */
-    public function getPlanDiscount()
-    {
-        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getCleanPlanDiscount();
-        }));
-    }
-
-    /**
-     * Returns the total discount.
-     *
-     * @return float
-     */
     public function getTotalDiscounts()
     {
         return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
-            return $item->getCalculator()->getCleanTotalDiscounts();
+            return $item->getCalculator()->getCleanDiscounts();
         }));
-    }
-
-    /**
-     * Returns the tax percentage.
-     *
-     * @return int
-     */
-    public function getImpostPercentage()
-    {
-        return $this->impostPercentage;
-    }
-
-    /**
-     * Add a new item to the collection.
-     *
-     * @param $key
-     * @param BaseItem $item
-     * @return void
-     */
-    protected function add($key, BaseItem $item)
-    {
-        $this->collection->put($key, $item);
     }
 
     /**
@@ -159,90 +114,13 @@ abstract class BaseManager implements Arrayable, Jsonable
     }
 
     /**
-     * Clean the collection.
+     * Returns buyer instance.
      *
-     * @return  void
-     * */
-    public function clean()
-    {
-        $this->storage = collect();
-        $this->collection = collect();
-        $this->properties = collect();
-    }
-
-    /**
-     * Count the number of items in the collection.
-     *
-     * @return int
+     * @return BuyerContract
      */
-    public function count()
+    public function buyer()
     {
-        return $this->collection()->count();
-    }
-
-    /**
-     * Get the instance as an array.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return [
-            'token' => $this->token(),
-            'subtotal' => $this->getSubtotal(),
-            'definitive_total' => $this->getDefinitiveTotal(),
-            'impost' => $this->getImpost(),
-            'discount' => $this->getDiscount(),
-            'plan_discount' => $this->getPlanDiscount(),
-            'total_discounts' => $this->getTotalDiscounts(),
-            'impost_percentage' => $this->getImpostPercentage(),
-            'elements' => $this->collection()->toArray(),
-        ];
-    }
-
-    /**
-     * Returns the dynamic properties that were added to the cart.
-     *
-     * @return Collection
-     */
-    public function properties()
-    {
-        return $this->properties;
-    }
-
-    /**
-     * Returns true in case the property passed by parameter exists in the cart.
-     *
-     * @param $property
-     * @return bool
-     */
-    public function hasProperty($property)
-    {
-        return isset($this->properties[$property]);
-    }
-
-    /**
-     * Returns property passed by parameter, and null, if not found.
-     *
-     * @param $property
-     * @return mixed
-     */
-    public function getProperty($property)
-    {
-        return $this->properties()->get($property);
-    }
-
-    /**
-     * Set a dynamic property.
-     *
-     * @param string $property
-     * @param mixed $value
-     * @return $this
-     */
-    public function setProperty($property, $value)
-    {
-        $this->properties()->put($property, $value);
-        return $this;
+        return $this->buyer;
     }
 
     /**
@@ -256,24 +134,77 @@ abstract class BaseManager implements Arrayable, Jsonable
     }
 
     /**
-     * Convert the object to its JSON representation.
-     *
-     * @param  int $options
-     *
-     * @return string
-     */
-    public function toJson($options = 0)
-    {
-        return json_encode($this->toArray(), $options);
-    }
-
-    /**
      * Generate a more truly "random" alpha-numeric string.
      *
      * @return string
      */
-    public function token()
+    public function getGeneratedToken()
     {
         return $this->token ?: $this->token = str_random(30);
+    }
+
+    /**
+     * Returns the calculated amounts.
+     *
+     * @return array
+     */
+    public function getArrayableCalculator()
+    {
+        return [
+            'subtotal' => $this->getSubtotal(),
+            'definitive_total' => $this->getDefinitiveTotal(),
+            'total_taxes' => $this->getTotalTaxes(),
+            'total_discounts' => $this->getTotalDiscounts(),
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return $this->collection()->count();
+    }
+
+    /**
+     * {@inheritdoc}
+     * */
+    public function getAdditionalAttributes()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toArray()
+    {
+        return [
+            'calculator' => $this->getArrayableCalculator(),
+            'token' => $this->getGeneratedToken(),
+            'elements' => $this->collection()->toArray(),
+        ];
+    }
+
+    /**
+     * Add a new item to the collection.
+     *
+     * @param BaseItem $item
+     * @return void
+     */
+    protected function add(BaseItem $item)
+    {
+        $this->collection()->put($item->getElementKey(), $item);
+    }
+
+    /**
+     * Initialize variables.
+     *
+     * @return void
+     */
+    private function initialize()
+    {
+        $this->attributes = collect();
+        $this->collection = collect();
     }
 }

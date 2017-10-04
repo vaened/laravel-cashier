@@ -18,4 +18,19 @@ class Helpers
     {
         return round($value, config('cashier.decimals', 3));
     }
+
+    /**
+     * Returns the percentage value.
+     *
+     * @param int $percentage
+     * @return float
+     */
+    public static function toPercentage($percentage)
+    {
+        if (! is_float($percentage)) {
+            return $percentage / 100;
+        }
+
+        return $percentage;
+    }
 }

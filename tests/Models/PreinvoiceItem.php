@@ -65,17 +65,6 @@ class PreinvoiceItem extends Model implements AccountElementContract
     }
 
     /**
-     * Returns an array with extra properties.
-     *
-     * @return array
-     * */
-    public function getCustomProperties()
-    {
-        return [
-        ];
-    }
-
-    /**
      * Returns true in case of being subject to tax.
      *
      * @return bool
@@ -83,5 +72,15 @@ class PreinvoiceItem extends Model implements AccountElementContract
     public function isTaxable()
     {
         return $this->taxable;
+    }
+
+    /**
+     * Returns an array with extra attributes.
+     *
+     * @return \Illuminate\Support\Collection
+     * */
+    public function getAdditionalAttributes()
+    {
+        return collect();
     }
 }

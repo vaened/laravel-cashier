@@ -5,10 +5,14 @@
 
 namespace Enea\Cashier\Contracts;
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Support\Collection;
+
 /**
  * Interface DocumentContract.
  */
-interface DocumentContract
+interface DocumentContract extends Arrayable, Jsonable
 {
     /**
      * Returns the key document.
@@ -18,16 +22,16 @@ interface DocumentContract
     public function getKeyDocument();
 
     /**
-     * Get tax percentage.
-     *
-     * @return int
-     */
-    public function getTaxPercentageAttribute();
-
-    /**
      * Returns the owner of social reason.
      *
      * @return null|BusinessOwner
      * */
     public function getBusinessOwner();
+
+    /**
+     * Returns the taxes of the document.
+     *
+     * @return Collection<TaxContract>|null
+     */
+    public function getTaxes();
 }
