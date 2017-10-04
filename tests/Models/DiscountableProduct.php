@@ -23,7 +23,7 @@ class DiscountableProduct extends Product implements DiscountableContract
     public function getDiscounts()
     {
         return collect([
-            Discount::generate('example-discount', $this->discount)
+            Discount::generate('example-discount', $this->discount),
         ]);
     }
 
@@ -35,15 +35,5 @@ class DiscountableProduct extends Product implements DiscountableContract
     public function getAdditionalAttributes()
     {
         return $this->attributes;
-    }
-
-    /**
-     * Returns true if the item is discountable.
-     *
-     * @return bool
-     */
-    public function isDiscountable()
-    {
-        return true;
     }
 }
