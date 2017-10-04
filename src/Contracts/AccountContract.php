@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 /**
  * Interface AccountContract.
  */
-interface AccountContract
+interface AccountContract extends AttributableContract
 {
     /**
      * Returns identification one in the database - primary key.
@@ -18,13 +18,6 @@ interface AccountContract
      * @return string
      */
     public function getKeyIdentification();
-
-    /**
-     * Returns an array with extra properties.
-     *
-     * @return array
-     * */
-    public function getCustomProperties();
 
     /**
      * Returns elements that implement 'SalableContract'.

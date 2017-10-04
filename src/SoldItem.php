@@ -21,8 +21,7 @@ class SoldItem extends BaseItem
      */
     public function __construct(SoldItemContract $sold)
     {
-        parent::__construct($sold);
-        $this->setQuantity($sold->getQuantity());
+        parent::__construct($sold, $sold->getQuantity());
         $this->sold = $sold;
     }
 }

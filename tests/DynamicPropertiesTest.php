@@ -14,12 +14,16 @@ class DynamicPropertiesTest extends TestCase
         $manager = $this->getManager();
         $shopping = $this->getShoppingCart($manager);
 
-        $shopping->setProperty('a-property', 10);
-        $this->assertTrue($shopping->hasProperty('a-property'));
-        $this->assertSame($shopping->getProperty('a-property'), 10);
+        $shopping->putAttribute('a-property', 10);
+        $this->assertTrue($shopping->hasAttribute('a-property'));
+        $this->assertSame($shopping->getAdditionalAttribute('a-property'), 10);
 
-        $shopping->setProperty('another_property', new stdClass());
-        $this->assertTrue($shopping->hasProperty('another_property'));
-        $this->assertTrue($shopping->getProperty('another_property') instanceof stdClass);
+        $shopping->putAttribute('another_property', new stdClass());
+        $this->assertTrue($shopping->hasAttribute('another_property'));
+        $this->assertTrue($shopping->getAdditionalAttribute('another_property') instanceof stdClass);
+
+        $shopping->removeAttribute('a-property');
+        $this->assertFalse($shopping->hasAttribute('a-property'));
+        $this->assertNull($shopping->getAdditionalAttribute('a-property'));
     }
 }

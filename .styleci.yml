@@ -1,4 +1,5 @@
 disabled:
+  - phpdoc_no_package
   - align_double_arrow
   - concat_without_spaces
   - trailing_comma_in_multiline_array
@@ -6,7 +7,7 @@ disabled:
   - short_array_syntax
   - phpdoc_separation
   - blank_line_before_return
-  
+
 enabled:
   - concat_with_spaces
   - no_blank_lines_after_return
