@@ -18,11 +18,4 @@ interface DiscountableContract
      * @return Collection<DiscountContract>
      */
     public function getDiscounts();
-
-    /**
-     * Returns true if the item is discountable.
-     *
-     * @return bool
-     */
-    public function isDiscountable();
 }

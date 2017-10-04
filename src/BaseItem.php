@@ -143,11 +143,23 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
      */
     protected function verifyDiscount()
     {
-        if ($this->element instanceof DiscountableContract && $this->element->isDiscountable()) {
-            $this->element->getDiscounts()->each(function (DiscountContract $discount) {
+        if ($this->isDiscountable()) {
+            /** @var DiscountableContract $element */
+            $element = $this->element;
+            $element->getDiscounts()->each(function (DiscountContract $discount) {
                 $this->getCalculator()->addDiscount($discount);
             });
         }
+    }
+
+    /**
+     * Returns true if the salable item is discountable,.
+     *
+     * @return bool
+     */
+    protected function isDiscountable()
+    {
+        return $this->element instanceof DiscountableContract;
     }
 
     /**

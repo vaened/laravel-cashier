@@ -151,17 +151,6 @@ abstract class BaseSalableItem extends BaseItem
     }
 
     /**
-     * Returns true if the salable item is discountable,.
-     *
-     * @return bool
-     */
-    protected function isDiscountable()
-    {
-        $element = $this->getSalable();
-        return $element instanceof DiscountableContract && $element->isDiscountable();
-    }
-
-    /**
      * Attach a discount.
      *
      * @param DiscountContract $discount
