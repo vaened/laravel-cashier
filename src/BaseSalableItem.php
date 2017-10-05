@@ -5,7 +5,6 @@
 
 namespace Enea\Cashier;
 
-use Enea\Cashier\Contracts\DiscountableContract;
 use Enea\Cashier\Contracts\DocumentContract;
 use Enea\Cashier\Contracts\SalableContract;
 use Enea\Cashier\Modifiers\DiscountContract;
