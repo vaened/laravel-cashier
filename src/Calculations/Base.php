@@ -5,6 +5,7 @@
 
 namespace Enea\Cashier\Calculations;
 
+use Enea\Cashier\Contracts\CalculableContract;
 use Enea\Cashier\Helpers;
 use Enea\Cashier\IsJsonable;
 use Enea\Cashier\Modifiers\AmountModifierContract;
@@ -54,13 +55,13 @@ class Base
     /**
      * Calculator constructor.
      *
-     * @param float $basePrice
+     * @param CalculableContract $calculable
      * @param int $quantity
      * @param Collection $taxes
      * @param Collection $discounts
      */
     public function __construct(
-        $basePrice,
+        CalculableContract $calculable,
         $quantity,
         Collection $taxes = null,
         Collection $discounts = null
@@ -69,7 +70,7 @@ class Base
         $discounts = $discounts ?: collect();
 
         $this->setQuantity($quantity);
-        $this->basePrice = $basePrice;
+        $this->basePrice = $calculable->getBasePrice();
         $this->taxes = $taxes;
         $this->prepareDiscounts($discounts);
     }

@@ -9,6 +9,7 @@ use Enea\Cashier\Calculations\Calculator;
 use Enea\Cashier\Calculations\CalculatorContract;
 use Enea\Cashier\Calculations\Modifier;
 use Enea\Cashier\Contracts\AttributableContract;
+use Enea\Cashier\Contracts\CalculableContract;
 use Enea\Cashier\Contracts\CartElementContract;
 use Enea\Cashier\Contracts\DiscountableContract;
 use Enea\Cashier\Modifiers\DiscountContract;
@@ -51,7 +52,7 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
     {
         $this->element = $element;
         $this->initialize();
-        $this->makeCalculator($element->getBasePrice(), $quantity);
+        $this->makeCalculator($element, $quantity);
         $this->verifyDiscount();
     }
 
@@ -165,13 +166,13 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
     /**
      * Build a calculator instance.
      *
-     * @param $basePrice
+     * @param CalculableContract $calculable
      * @param $quantity
      * @return void
      */
-    protected function makeCalculator($basePrice, $quantity)
+    protected function makeCalculator(CalculableContract $calculable, $quantity)
     {
-        $this->calculator = new Calculator($basePrice, $quantity);
+        $this->calculator = new Calculator($calculable, $quantity);
     }
 
     /**
