@@ -8,7 +8,7 @@ namespace Enea\Cashier\Contracts;
 use Illuminate\Support\Collection;
 
 /**
- * When implementing this interface, it is possible to assign a discount on an item.
+ * Implement this interface when it is possible to allocate discounts.
  */
 interface DiscountableContract
 {
