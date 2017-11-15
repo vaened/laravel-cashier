@@ -124,7 +124,7 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
      * */
     public function getAdditionalAttributes()
     {
-        return $this->additionalAttributes->merge($this->getElement()->getAdditionalAttributes());
+        return $this->additionalAttributes;
     }
 
     /**
@@ -182,6 +182,7 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
      */
     protected function initialize()
     {
-        $this->additionalAttributes = collect();
+        $attributes = $this->getElement()->getAdditionalAttributes();
+        $this->additionalAttributes = $attributes instanceof Collection ? $attributes : collect();
     }
 }
