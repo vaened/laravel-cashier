@@ -5,15 +5,17 @@
 
 namespace Enea\Cashier\Contracts;
 
+use Illuminate\Support\Collection;
+
 /**
- * When implementing this interface, it is possible to assign a discount percentage on an item.
+ * Implement this interface when it is possible to allocate discounts.
  */
 interface DiscountableContract
 {
     /**
-     * Get the item discount in percentage.
+     * Get the item discount.
      *
-     * @return int
+     * @return Collection<DiscountContract>
      */
-    public function getDiscountPercentage();
+    public function getDiscounts();
 }

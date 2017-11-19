@@ -18,12 +18,10 @@ class Client extends Model implements BuyerContract
     }
 
     /**
-     * Returns an array with extra properties.
-     *
-     * @return array
+     * {@inheritdoc}
      * */
-    public function getCustomProperties()
+    public function getAdditionalAttributes()
     {
-        return [];
+        return collect();
     }
 }

@@ -5,8 +5,8 @@
 
 namespace Enea\Tests;
 
+use Enea\Cashier\Documents\Invoice;
 use Enea\Cashier\ShoppingManager;
-use Enea\Tests\Documents\Invoice;
 use Enea\Tests\Models\Client;
 use Enea\Tests\Models\DiscountableProduct;
 use Enea\Tests\Models\Preinvoice;
@@ -44,13 +44,13 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return new ShoppingManager($this->app['session']);
     }
 
-    protected function getShoppingCart(ShoppingManager $manager, $client_id = 10000)
+    protected function getShoppingCart($client_id = 10000)
     {
         $client = new Client(['id' => $client_id]);
 
         $document = new Invoice();
 
-        return  $manager->initialize($client, $document);
+        return  $this->getManager()->initialize($client, $document);
     }
 
     protected function getPreinvoice(array $attributes = array())

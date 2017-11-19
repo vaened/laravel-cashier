@@ -40,9 +40,10 @@ class ShoppingManager
      * @param BuyerContract $buyer
      * @param DocumentContract $document
      *
+     * @param Collection|null $discounts
      * @return ShoppingCart
      */
-    public function initialize(BuyerContract $buyer, DocumentContract $document = null)
+    public function initialize(BuyerContract $buyer, DocumentContract $document = null, Collection $discounts = null)
     {
         $shopping = new ShoppingCart($buyer, $document);
 
@@ -112,7 +113,7 @@ class ShoppingManager
      */
     protected function attach(ShoppingCart $shopping)
     {
-        $this->carts()->put($shopping->token(), $shopping);
+        $this->carts()->put($shopping->getGeneratedToken(), $shopping);
     }
 
     /**

@@ -1,5 +1,5 @@
 # Laravel Cashier Package
-[![Build Status](https://travis-ci.org/eneasdh-fs/laravel-cashier.svg?branch=master)](https://travis-ci.org/eneasdh-fs/laravel-cashier)
+[![Build Status](https://travis-ci.org/eneasdh-fs/laravel-cashier.svg?branch=master)](https://travis-ci.org/eneasdh-fs/laravel-cashier) [![StyleCI](https://styleci.io/repos/92887208/shield?branch=master)](https://styleci.io/repos/92887208)
 
 This package provides common functionality for session management for the sale of products in general.
 ## How to install
@@ -29,10 +29,10 @@ class SaleController extends Controller
     {
         $shopping = ShoppingManager::initialize( $client );
         
-        $shopping->setPaymentDocument(new Invoice); // optional
+        $shopping->setDocument(Invoice::make()); // optional
         
         return response()->json([
-            'token_cart' => $shopping->token( ),
+            'token_cart' => $shopping->getGeneratedToken(),
             'shopping' => $shopping->toArray( )
         ]);
     }

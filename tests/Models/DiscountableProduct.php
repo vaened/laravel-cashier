@@ -6,19 +6,34 @@
 namespace Enea\Tests\Models;
 
 use Enea\Cashier\Contracts\DiscountableContract;
+use Enea\Cashier\HasAttributes;
+use Enea\Cashier\Modifiers\Discounts\Discount;
 
 class DiscountableProduct extends Product implements DiscountableContract
 {
+    use HasAttributes;
+
     protected $fillable = ['id', 'price', 'description', 'taxable', 'discount'];
+
     public $incrementing = false;
 
     /**
-     * Get the item discount in percentage.
-     *
-     * @return int
+     * {@inheritdoc}
      */
-    public function getDiscountPercentage()
+    public function getDiscounts()
     {
-        return $this->discount;
+        return collect([
+            Discount::generate('example-discount', $this->discount),
+        ]);
+    }
+
+    /**
+     * Returns an array with extra attributes.
+     *
+     * @return \Illuminate\Support\Collection
+     * */
+    public function getAdditionalAttributes()
+    {
+        return $this->attributes;
     }
 }
