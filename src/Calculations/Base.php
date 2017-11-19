@@ -13,7 +13,7 @@ use Enea\Cashier\Modifiers\DiscountContract;
 use Enea\Cashier\Modifiers\TaxContract;
 use Illuminate\Support\Collection;
 
-class Base
+class Base implements CalculatorContract
 {
     use IsJsonable;
 
