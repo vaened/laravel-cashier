@@ -5,7 +5,6 @@
 
 namespace Enea\Cashier;
 
-use Enea\Cashier\Contracts\DiscountableContract;
 use Enea\Cashier\Contracts\DocumentContract;
 use Enea\Cashier\Contracts\SalableContract;
 use Enea\Cashier\Modifiers\DiscountContract;
@@ -148,17 +147,6 @@ abstract class BaseSalableItem extends BaseItem
             'is_taxable' => $this->getSalable()->isTaxable(),
             'is_discountable' => $this->isDiscountable(),
         ]);
-    }
-
-    /**
-     * Returns true if the salable item is discountable,.
-     *
-     * @return bool
-     */
-    protected function isDiscountable()
-    {
-        $element = $this->getSalable();
-        return $element instanceof DiscountableContract && $element->isDiscountable();
     }
 
     /**

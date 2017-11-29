@@ -9,6 +9,7 @@ use Enea\Cashier\Calculations\Calculator;
 use Enea\Cashier\Calculations\CalculatorContract;
 use Enea\Cashier\Calculations\Modifier;
 use Enea\Cashier\Contracts\AttributableContract;
+use Enea\Cashier\Contracts\CalculableContract;
 use Enea\Cashier\Contracts\CartElementContract;
 use Enea\Cashier\Contracts\DiscountableContract;
 use Enea\Cashier\Modifiers\DiscountContract;
@@ -51,7 +52,7 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
     {
         $this->element = $element;
         $this->initialize();
-        $this->makeCalculator($element->getBasePrice(), $quantity);
+        $this->makeCalculator($element, $quantity);
         $this->verifyDiscount();
     }
 
@@ -123,7 +124,7 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
      * */
     public function getAdditionalAttributes()
     {
-        return $this->additionalAttributes->merge($this->getElement()->getAdditionalAttributes());
+        return $this->additionalAttributes;
     }
 
     /**
@@ -143,23 +144,35 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
      */
     protected function verifyDiscount()
     {
-        if ($this->element instanceof DiscountableContract && $this->element->isDiscountable()) {
-            $this->element->getDiscounts()->each(function (DiscountContract $discount) {
+        if ($this->isDiscountable()) {
+            /** @var DiscountableContract $element */
+            $element = $this->element;
+            $element->getDiscounts()->each(function (DiscountContract $discount) {
                 $this->getCalculator()->addDiscount($discount);
             });
         }
     }
 
     /**
+     * Returns true if the salable item is discountable,.
+     *
+     * @return bool
+     */
+    protected function isDiscountable()
+    {
+        return $this->element instanceof DiscountableContract;
+    }
+
+    /**
      * Build a calculator instance.
      *
-     * @param $basePrice
+     * @param CalculableContract $calculable
      * @param $quantity
      * @return void
      */
-    protected function makeCalculator($basePrice, $quantity)
+    protected function makeCalculator(CalculableContract $calculable, $quantity)
     {
-        $this->calculator = new Calculator($basePrice, $quantity);
+        $this->calculator = new Calculator($calculable, $quantity);
     }
 
     /**
@@ -169,6 +182,7 @@ abstract class BaseItem implements Arrayable, Jsonable, AttributableContract
      */
     protected function initialize()
     {
-        $this->additionalAttributes = collect();
+        $attributes = $this->getElement()->getAdditionalAttributes();
+        $this->additionalAttributes = $attributes instanceof Collection ? $attributes : collect();
     }
 }

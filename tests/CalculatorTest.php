@@ -6,6 +6,7 @@
 namespace Enea\Tests;
 
 use Enea\Cashier\Calculations\Calculator;
+use Enea\Cashier\Contracts\CalculableContract;
 use Enea\Cashier\Modifiers\Discounts\Discount;
 use Enea\Cashier\Modifiers\Taxes\IGV;
 
@@ -20,15 +21,15 @@ class CalculatorTest extends TestCase
     public function test_calculations_are_accurate_with_imposts_and_discounts()
     {
         $params = [
-            'price' => 123.456,
+            'price' => new Price(123.456),
             'quantity' => 4,
             'taxes' => collect([
-                new IGV()
+                new IGV(),
             ]),
             'discounts' => collect([
                 new Discount('PTS', 'parties', 10),
                 new Discount('ANN', 'anniversary', 5),
-            ])
+            ]),
         ];
 
         $calculator = $this->getCalculator($params);
@@ -46,15 +47,15 @@ class CalculatorTest extends TestCase
     public function test_tax_calculations_included_are_correct()
     {
         $params = [
-            'price' => 173.412,
+            'price' => new Price(173.412),
             'quantity' => 4,
             'taxes' => collect([
-                new IGV(18, true)
+                new IGV(18, true),
             ]),
             'discounts' => collect([
                 new Discount('PTS', 'parties', 12),
                 new Discount('TEST', 'test discount', 8),
-            ])
+            ]),
         ];
 
         $calculator = $this->getCalculator($params);
@@ -75,12 +76,12 @@ class CalculatorTest extends TestCase
     public function test_calculations_are_accurate_only_impost()
     {
         $params = [
-            'price' => 987.654,
+            'price' => new Price(987.654),
             'quantity' => 3,
             'taxes' => collect([
-                new IGV(21)
+                new IGV(21),
             ]),
-            'discounts' => null
+            'discounts' => null,
         ];
         $calculator = $this->getCalculator($params);
 
@@ -95,13 +96,13 @@ class CalculatorTest extends TestCase
     public function test_calculations_are_accurate_only_discount()
     {
         $params = [
-            'price' => 108.960,
+            'price' => new Price(108.960),
             'quantity' => 3,
             'taxes' => null,
             'discounts' => collect([
                 new Discount('ANN', 'anniversary', 13, collect(['max' => 18])),
                 new Discount('TEST', 'test discount', 1),
-            ])
+            ]),
         ];
         $calculator = $this->getCalculator($params);
 
@@ -129,5 +130,31 @@ class CalculatorTest extends TestCase
         $this->assertSame($calculator->getTotalDiscounts(), 68.645);
         $this->assertSame($calculator->getTotalTaxes(), 0.0);
         $this->assertSame($calculator->getDefinitiveTotal(), 258.235);
+    }
+}
+
+class Price implements CalculableContract
+{
+    /**
+     * @var
+     */
+    private $price;
+
+    /**
+     * Price constructor.
+     *
+     * @param $price
+     */
+    public function __construct($price)
+    {
+        $this->price = $price;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBasePrice()
+    {
+        return $this->price;
     }
 }

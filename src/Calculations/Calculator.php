@@ -5,6 +5,7 @@
 
 namespace Enea\Cashier\Calculations;
 
+use Enea\Cashier\Contracts\CalculableContract;
 use Enea\Cashier\Modifiers\DiscountContract;
 use Illuminate\Support\Collection;
 
@@ -28,6 +29,18 @@ class Calculator extends Base
     protected $memoryCollectionTaxes;
 
     protected $memoryCollectionDiscounts;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(
+        CalculableContract $calculable,
+        $quantity,
+        Collection $taxes = null,
+        Collection $discounts = null
+    ) {
+        parent::__construct($calculable, $quantity, $taxes, $discounts);
+    }
 
     /**
      * {@inheritdoc}

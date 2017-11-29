@@ -27,10 +27,10 @@ class SaleController extends Controller
     {
         $shopping = ShoppingManager::initialize( $client );
         
-        $shopping->setPaymentDocument(new Invoice); // optional
+        $shopping->setDocument(Invoice::make()); // optional
         
         return response()->json([
-            'token_cart' => $shopping->token( ),
+            'token_cart' => $shopping->getGeneratedToken(),
             'shopping' => $shopping->toArray( )
         ]);
     }

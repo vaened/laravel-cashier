@@ -299,6 +299,7 @@ class ShoppingCart extends BaseManager
                 'key' => $this->buyer()->getBuyerKey(),
                 'properties' => $this->buyer()->getAdditionalAttributes(),
             ],
+            'properties' => $this->getAdditionalAttributes()->toArray(),
             'discounts' => $this->discounts->toArray(),
             'document' => $this->getDocument()->toArray(),
             'account' => $this->isAttachedAccount() ? $this->getAccount()->toArray() : [],
