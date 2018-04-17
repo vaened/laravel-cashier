@@ -1,5 +1,5 @@
 # Laravel Cashier Package
-[![Build Status](https://travis-ci.org/eneasdh-fs/laravel-cashier.svg?branch=master)](https://travis-ci.org/eneasdh-fs/laravel-cashier) [![StyleCI](https://styleci.io/repos/92887208/shield?branch=master)](https://styleci.io/repos/92887208)
+[![Build Status](https://travis-ci.org/eneav/laravel-cashier.svg?branch=master)](https://travis-ci.org/eneasdh-fs/laravel-cashier) [![StyleCI](https://styleci.io/repos/92887208/shield?branch=master)](https://styleci.io/repos/92887208)
 
 This package provides common functionality for session management for the sale of products in general.
 ## How to install
