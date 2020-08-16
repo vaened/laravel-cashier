@@ -3,7 +3,7 @@
  * Created by enea dhack - 30/05/2017 02:54 PM.
  */
 
-namespace Enea\Cashier\Core;
+namespace Enea\Cashier\Calculations;
 
 use Enea\Cashier\Helpers;
 use Enea\Cashier\IsJsonable;
@@ -41,6 +41,16 @@ class Calculator implements RatableContract, Jsonable, Arrayable, JsonSerializab
         return Helpers::decimal($this->calculator->getUnitPrice());
     }
 
+    public function getGrossUnitPrice(): float
+    {
+        return Helpers::decimal($this->calculator->getGrossUnitPrice());
+    }
+
+    public function getNetUnitPrice(): float
+    {
+        return Helpers::decimal($this->calculator->getNetUnitPrice());
+    }
+
     public function getSubtotal(): float
     {
         return Helpers::decimal($this->calculator->getSubtotal());
@@ -65,6 +75,8 @@ class Calculator implements RatableContract, Jsonable, Arrayable, JsonSerializab
     {
         return [
             'unit_price' => $this->getUnitPrice(),
+            'gross_unit_price' => $this->getGrossUnitPrice(),
+            'net_unit_price' => $this->getNetUnitPrice(),
             'quantity' => $this->getQuantity(),
             'subtotal' => $this->getSubtotal(),
             'total_discounts' => $this->getTotalDiscounts(),
