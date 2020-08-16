@@ -3,150 +3,75 @@
  * Created by enea dhack - 30/05/2017 02:54 PM.
  */
 
-namespace Enea\Cashier\Calculations;
+namespace Enea\Cashier\Core;
 
-use Enea\Cashier\Contracts\CalculableContract;
-use Enea\Cashier\Modifiers\DiscountContract;
-use Illuminate\Support\Collection;
+use Enea\Cashier\Helpers;
+use Enea\Cashier\IsJsonable;
+use Illuminate\Contracts\Support\{Arrayable, Jsonable};
+use JsonSerializable;
 
-/**
- * Class Calculator.
- *
- * @author enea dhack <enea.so@live.com>
- */
-class Calculator extends Base
+class Calculator implements RatableContract, Jsonable, Arrayable, JsonSerializable
 {
-    protected $memoryBasePrice;
+    use IsJsonable;
 
-    protected $memorySubtotal;
+    private CashierContract $calculator;
 
-    protected $memoryTaxes;
-
-    protected $memoryDiscounts;
-
-    protected $memoryDefinitiveTotal;
-
-    protected $memoryCollectionTaxes;
-
-    protected $memoryCollectionDiscounts;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(
-        CalculableContract $calculable,
-        $quantity,
-        Collection $taxes = null,
-        Collection $discounts = null
-    ) {
-        parent::__construct($calculable, $quantity, $taxes, $discounts);
+    public function __construct(CashierContract $calculator)
+    {
+        $this->calculator = $calculator;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setQuantity($quantity)
+    public function getTaxes(): array
     {
-        parent::setQuantity($quantity);
-        $this->resetMemory();
+        return $this->calculator->getTaxes();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setTaxes(Collection $taxes)
+    public function getDiscounts(): array
     {
-        $this->taxes = $taxes;
-        $this->resetMemory();
+        return $this->calculator->getDiscounts();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function addDiscount(DiscountContract $discount)
+    public function getQuantity(): int
     {
-        parent::addDiscount($discount);
-        $this->resetMemory();
+        return $this->calculator->getQuantity();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeDiscount($code)
+    public function getUnitPrice(): float
     {
-        parent::removeDiscount($code);
-        $this->resetMemory();
+        return Helpers::decimal($this->calculator->getUnitPrice());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTaxes()
+    public function getSubtotal(): float
     {
-        return $this->memoryCollectionTaxes ?: $this->memoryCollectionTaxes = parent::getTaxes();
+        return Helpers::decimal($this->calculator->getSubtotal());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDiscounts()
+    public function getTotalDiscounts(): float
     {
-        return $this->memoryCollectionDiscounts ?: $this->memoryCollectionDiscounts = parent::getDiscounts();
+        return $this->calculator->getTotalDiscounts();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanBasePrice()
+    public function getTotalTaxes(): float
     {
-        return $this->memoryBasePrice ?: $this->memoryBasePrice = parent::getCleanBasePrice();
+        return $this->calculator->getTotalTaxes();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanSubtotal()
+    public function getTotal(): float
     {
-        return $this->memorySubtotal ?: $this->memorySubtotal = parent::getCleanSubtotal();
+        return Helpers::decimal($this->calculator->getTotal());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanDiscounts()
+    public function toArray()
     {
-        return $this->memoryDiscounts ?: $this->memoryDiscounts = parent::getCleanDiscounts();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanTaxes()
-    {
-        return $this->memoryTaxes ?: $this->memoryTaxes = parent::getCleanTaxes();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanDefinitiveTotal()
-    {
-        return $this->memoryDefinitiveTotal ?: $this->memoryDefinitiveTotal = parent::getCleanDefinitiveTotal();
-    }
-
-    /**
-     * Reset all variables.
-     *
-     * @return void
-     */
-    protected function resetMemory()
-    {
-        $this->memoryBasePrice = null;
-        $this->memorySubtotal = null;
-        $this->memoryTaxes = null;
-        $this->memoryDiscounts = null;
-        $this->memoryDefinitiveTotal = null;
-        $this->memoryCollectionTaxes = null;
-        $this->memoryCollectionDiscounts = null;
+        return [
+            'unit_price' => $this->getUnitPrice(),
+            'quantity' => $this->getQuantity(),
+            'subtotal' => $this->getSubtotal(),
+            'total_discounts' => $this->getTotalDiscounts(),
+            'discounts' => Helpers::convertToArray($this->getDiscounts()),
+            'total_taxes' => $this->getTotalTaxes(),
+            'taxes' => Helpers::convertToArray($this->getTaxes()),
+            'total' => $this->getTotal(),
+        ];
     }
 }

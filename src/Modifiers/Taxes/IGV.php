@@ -21,7 +21,7 @@ class IGV extends Tax
     /**
      * {@inheritdoc}
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return 'general sales tax';
     }

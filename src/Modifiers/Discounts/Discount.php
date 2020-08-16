@@ -5,6 +5,7 @@
 
 namespace Enea\Cashier\Modifiers\Discounts;
 
+use Enea\Cashier\Contracts\CalculableContract;
 use Enea\Cashier\IsJsonable;
 use Enea\Cashier\Modifiers\DiscountContract;
 use Illuminate\Support\Collection;
@@ -152,11 +153,9 @@ class Discount implements DiscountContract
     }
 
     /**
-     * @return \Illuminate\Support\Collection
-     *
      * @return array
-     * */
-    public function getAdditionalAttributes()
+     */
+    public function getAdditionalAttributes(): array
     {
         return $this->additionalAttributes;
     }
@@ -185,5 +184,10 @@ class Discount implements DiscountContract
     protected static function generateKey()
     {
         return hash('adler32', microtime(true), false);
+    }
+
+    public function apply(CalculableContract $calculable): float
+    {
+        // TODO: Implement apply() method.
     }
 }

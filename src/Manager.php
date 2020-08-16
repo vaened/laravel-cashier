@@ -8,6 +8,7 @@ namespace Enea\Cashier;
 use Countable;
 use Enea\Cashier\Contracts\AttributableContract;
 use Enea\Cashier\Contracts\BuyerContract;
+use Enea\Cashier\Items\CartItem;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
@@ -16,39 +17,14 @@ abstract class BaseManager implements Arrayable, Jsonable, AttributableContract,
 {
     use IsJsonable, HasAttributes;
 
-    /**
-     * Customer cart owner.
-     *
-     * @var BuyerContract
-     */
-    protected $buyer;
+    protected BuyerContract $buyer;
 
-    /**
-     * Custom properties.
-     *
-     * @var Collection
-     */
-    protected $attributes;
+    protected array $attributes;
 
-    /**
-     * Selected items.
-     *
-     * @var  Collection
-     * */
-    protected $collection;
+    protected Collection $collection;
 
-    /**
-     * Identification token.
-     *
-     * @var string
-     * */
-    private $token;
+    private string $token;
 
-    /**
-     * BaseManager constructor.
-     *
-     * @param BuyerContract $buyer
-     */
     public function __construct(BuyerContract $buyer)
     {
         $this->initialize();
@@ -62,7 +38,7 @@ abstract class BaseManager implements Arrayable, Jsonable, AttributableContract,
      */
     public function getSubtotal()
     {
-        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (CartItem $item) {
             return $item->getCalculator()->getCleanSubtotal();
         }));
     }
@@ -74,7 +50,7 @@ abstract class BaseManager implements Arrayable, Jsonable, AttributableContract,
      */
     public function getDefinitiveTotal()
     {
-        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (CartItem $item) {
             return $item->getCalculator()->getCleanDefinitiveTotal();
         }));
     }
@@ -86,7 +62,7 @@ abstract class BaseManager implements Arrayable, Jsonable, AttributableContract,
      */
     public function getTotalTaxes()
     {
-        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (CartItem $item) {
             return $item->getCalculator()->getCleanTaxes();
         }));
     }
@@ -98,7 +74,7 @@ abstract class BaseManager implements Arrayable, Jsonable, AttributableContract,
      */
     public function getTotalDiscounts()
     {
-        return Helpers::decimalFormat($this->collection->sum(function (BaseItem $item) {
+        return Helpers::decimalFormat($this->collection->sum(function (CartItem $item) {
             return $item->getCalculator()->getCleanDiscounts();
         }));
     }
@@ -169,7 +145,7 @@ abstract class BaseManager implements Arrayable, Jsonable, AttributableContract,
     /**
      * {@inheritdoc}
      * */
-    public function getAdditionalAttributes()
+    public function getAdditionalAttributes(): array
     {
         return $this->attributes;
     }
@@ -189,10 +165,10 @@ abstract class BaseManager implements Arrayable, Jsonable, AttributableContract,
     /**
      * Add a new item to the collection.
      *
-     * @param BaseItem $item
+     * @param CartItem $item
      * @return void
      */
-    protected function add(BaseItem $item)
+    protected function add(CartItem $item)
     {
         $this->collection()->put($item->getElementKey(), $item);
     }

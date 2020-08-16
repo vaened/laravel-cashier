@@ -65,7 +65,7 @@ class Tax implements TaxContract
     /**
      * {@inheritdoc}
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return 'simple tax';
     }
