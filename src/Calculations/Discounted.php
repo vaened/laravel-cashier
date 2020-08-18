@@ -5,9 +5,8 @@
 
 namespace Enea\Cashier\Calculations;
 
+use Enea\Cashier\{Helpers, IsJsonable};
 use Enea\Cashier\Contracts\TotalizableContract;
-use Enea\Cashier\Helpers;
-use Enea\Cashier\IsJsonable;
 use Enea\Cashier\Modifiers\DiscountContract;
 use Illuminate\Contracts\Support\{Arrayable, Jsonable};
 use JsonSerializable;
@@ -26,9 +25,14 @@ class Discounted implements TotalizableContract, Arrayable, Jsonable, JsonSerial
         $this->subtotal = $subtotal;
     }
 
-    public function getDiscount(): DiscountContract
+    public function getDiscountCode(): string
     {
-        return $this->discount;
+        return $this->discount->getDiscountCode();
+    }
+
+    public function getDescription(): string
+    {
+        return $this->discount->getDescription();
     }
 
     public function getTotal(): float
@@ -41,7 +45,7 @@ class Discounted implements TotalizableContract, Arrayable, Jsonable, JsonSerial
      */
     public function toArray()
     {
-        return array_merge($this->getDiscount()->toArray(), [
+        return array_merge($this->discount->toArray(), [
             'total' => $this->getTotal(),
         ]);
     }

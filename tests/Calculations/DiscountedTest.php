@@ -33,6 +33,15 @@ class DiscountedTest extends TestCase
         $this->assertEquals(150, $discounted->getTotal());
     }
 
+    public function test_help_methods_to_obtain_the_discount(): void
+    {
+        $discount = Discount::percentage(10)->setCode('EXAMPLE')->setDescription('promotional');
+        $discounted = new Discounted($discount, 500);
+
+        $this->assertEquals('promotional', $discounted->getDescription());
+        $this->assertEquals('EXAMPLE', $discounted->getDiscountCode());
+    }
+
     public function test_transform_discount_to_array(): void
     {
         $discount = Discount::percentage(10, ['property' => 'value']);
