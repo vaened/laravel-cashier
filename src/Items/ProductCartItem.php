@@ -25,12 +25,12 @@ final class ProductCartItem extends CartItem
 
     public function setQuantity(int $quantity): void
     {
-        $this->getCashier()->setQuantity($quantity);
+        $this->getCalculator()->setQuantity($quantity);
     }
 
     public function addDiscounts(array $discounts): void
     {
-        $this->getCashier()->setDiscounts($discounts);
+        $this->getCalculator()->setDiscounts($discounts);
     }
 
     public function addDiscount(DiscountContract $discount): void
@@ -40,12 +40,12 @@ final class ProductCartItem extends CartItem
 
     public function removeDiscount(string $code): void
     {
-        $this->getCashier()->removeDiscount($code);
+        $this->getCalculator()->removeDiscount($code);
     }
 
     public function applyTaxes(array $taxNames): void
     {
-        $this->getCashier()->applyTaxes($taxNames);
+        $this->getCalculator()->applyTaxes($taxNames);
     }
 
     private function mergeTaxes(ProductContract $product, array $additionalTaxes): array

@@ -5,23 +5,17 @@
 
 namespace Enea\Cashier\Documents;
 
-use Enea\Cashier\Contracts\BusinessOwner;
-use Enea\Cashier\Modifiers\Taxes\IGV;
+use Enea\Cashier\Taxes;
 
 class Invoice extends Document
 {
+    public static function create(array $taxes = [Taxes::IGV]): self
+    {
+        return new static($taxes);
+    }
+
     public function getUniqueIdentificationKey(): string
     {
         return 'invoice';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTaxes(): array
-    {
-        return [
-            IGV::make(18, $this->includedTax),
-        ];
     }
 }

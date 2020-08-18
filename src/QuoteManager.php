@@ -6,22 +6,21 @@
 namespace Enea\Cashier;
 
 use Enea\Cashier\Contracts\{KeyableContract, QuoteContract, QuotedProductContract};
-use Enea\Cashier\Items\QuotedProduct;
+use Enea\Cashier\Items\QuotedProductCartItem;
 use Illuminate\Contracts\Support\{Arrayable, Jsonable};
 use Illuminate\Support\Collection;
 
-class AccountManager implements Arrayable, Jsonable, KeyableContract
+class QuoteManager extends ProductCollection implements Arrayable, Jsonable, KeyableContract
 {
     use IsJsonable;
 
     protected QuoteContract $account;
 
-    protected Collection $elements;
-
     public function __construct(QuoteContract $account)
     {
-        $this->account = $account;
+        parent::__construct(new Collection());
         $this->loadQuotedProductsFrom($account);
+        $this->account = $account;
     }
 
     public function getUniqueIdentificationKey(): string
@@ -29,19 +28,9 @@ class AccountManager implements Arrayable, Jsonable, KeyableContract
         return $this->getQuote()->getUniqueIdentificationKey();
     }
 
-    public function find($key): ?QuotedProductContract
+    public function find(string $productID): ?QuotedProductCartItem
     {
-        return $this->elements->get($key);
-    }
-
-    public function hasProduct($key): bool
-    {
-        return isset($this->elements[$key]);
-    }
-
-    public function getQuotedProducts(): Collection
-    {
-        return $this->elements;
+        return $this->products()->get($productID);
     }
 
     public function getQuote(): QuoteContract
@@ -54,22 +43,16 @@ class AccountManager implements Arrayable, Jsonable, KeyableContract
      */
     public function toArray()
     {
-        return [
+        return array_merge([
             'id' => $this->getUniqueIdentificationKey(),
             'properties' => $this->getQuote()->getProperties(),
-            'products' => $this->getQuotedProducts()->toArray(),
-        ];
+        ], parent::toArray());
     }
 
     private function loadQuotedProductsFrom(QuoteContract $quote): void
     {
-        $this->elements = $quote->getQuotedProducts()->map(fn(
-            QuotedProductContract $product
-        ) => $this->toQuoted($product));
-    }
-
-    private function toQuoted(QuotedProductContract $element): QuotedProduct
-    {
-        return new QuotedProduct($this->account, $element);
+        $quote->getQuotedProducts()->map(fn(
+            QuotedProductContract $quoted
+        ) => $this->addToCollection(new QuotedProductCartItem($quoted)));
     }
 }

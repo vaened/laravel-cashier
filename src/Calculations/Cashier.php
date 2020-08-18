@@ -1,165 +1,99 @@
 <?php
 /**
- * Created by enea dhack - 31/07/2020 17:47.
+ * Created by enea dhack - 30/05/2017 02:54 PM.
  */
 
 namespace Enea\Cashier\Calculations;
 
-use Enea\Cashier\Contracts\{CalculableContract, TotalizableContract};
-use Enea\Cashier\Modifiers\DiscountContract;
-use Enea\Cashier\Modifiers\TaxContract;
+use Enea\Cashier\Helpers;
+use Enea\Cashier\IsJsonable;
+use Illuminate\Contracts\Support\{Arrayable, Jsonable};
+use JsonSerializable;
 
-class Cashier implements CashierContract
+class Cashier implements RatableContract, Jsonable, Arrayable, JsonSerializable
 {
-    protected PriceEvaluator $evaluator;
+    use IsJsonable;
 
-    private float $unitPrice;
+    private CalculatorContract $calculator;
 
-    private int $quantity;
-
-    private array $taxes = [];
-
-    private array $uses = [];
-
-    private array $discounts = [];
-
-    public function __construct(CalculableContract $calculable, int $quantity, array $taxes, array $discounts)
+    public function __construct(CalculatorContract $calculator)
     {
-        $this->unitPrice = $calculable->getUnitPrice();
-        $this->evaluator = new PriceEvaluator($calculable->getUnitPrice(), $taxes, []);
-        $this->setDiscounts($discounts);
-        $this->setQuantity($quantity);
-        $this->setTaxes($taxes);
-    }
-
-    public function applyTaxes(array $taxNames): void
-    {
-        $taxNames = array_map(fn(string $taxName): string => $taxName, $taxNames);
-        $this->uses = $taxNames;
-        $this->evaluator = new PriceEvaluator($this->unitPrice, $this->taxes, $taxNames);
-    }
-
-    public function setDiscounts(array $discounts): void
-    {
-        foreach ($discounts as $discount) {
-            $this->addDiscount($discount);
-        }
-    }
-
-    public function addDiscount(DiscountContract $discount): void
-    {
-        $this->discounts[$discount->getDiscountCode()] = $discount;
-    }
-
-    public function getDiscount(string $code): ?Discounted
-    {
-        $discount = $this->discounts[$code] ?? null;
-        return $discount instanceof DiscountContract ? $this->toDiscounted($discount) : null;
-    }
-
-    public function removeDiscount(string $code): void
-    {
-        unset($this->discounts[$code]);
-    }
-
-    public function getTax(string $name): ?Taxed
-    {
-        $tax = $this->getUsesTaxes()[$name] ?? null;
-        return $tax instanceof TaxContract ? $this->toTaxed($tax) : null;
-    }
-
-    public function setQuantity(int $quantity): void
-    {
-        $this->quantity = $quantity;
-    }
-
-    public function getQuantity(): int
-    {
-        return $this->quantity;
-    }
-
-    public function getUnitPrice(): float
-    {
-        return $this->evaluator->getUnitPrice();
-    }
-
-    public function getGrossUnitPrice(): float
-    {
-        return $this->evaluator->getGrossUnitPrice();
-    }
-
-    public function getNetUnitPrice(): float
-    {
-        return $this->evaluator->getNetUnitPrice();
-    }
-
-    public function getSubtotal(): float
-    {
-        return $this->getUnitPrice() * $this->getQuantity();
-    }
-
-    public function getTotalDiscounts(): float
-    {
-        return $this->sumTotalFrom($this->getDiscounts());
-    }
-
-    public function getTotalTaxes(): float
-    {
-        return $this->sumTotalFrom($this->getTaxes());
-    }
-
-    public function getTotal(): float
-    {
-        return $this->getSubtotal() - $this->getTotalDiscounts() + $this->getTotalTaxes();
+        $this->calculator = $calculator;
     }
 
     public function getTaxes(): array
     {
-        return array_map(fn(TaxContract $tax) => $this->toTaxed($tax), $this->getUsesTaxes());
+        return $this->calculator->getTaxes();
     }
 
     public function getDiscounts(): array
     {
-        return array_map(fn(DiscountContract $discount) => $this->toDiscounted($discount), $this->discounts);
+        return $this->calculator->getDiscounts();
     }
 
-    protected function setTaxes(array $taxes): void
+    public function getQuantity(): int
     {
-        foreach ($taxes as $tax) {
-            $this->addTax($tax);
-        }
+        return $this->calculator->getQuantity();
     }
 
-    protected function addTax(TaxContract $tax): void
+    public function getUnitPrice(): float
     {
-        $this->taxes[$tax->getName()] = $tax;
+        return Helpers::decimal($this->calculator->getUnitPrice());
     }
 
-    protected function getUsesTaxes(): array
+    public function getGrossUnitPrice(): float
     {
-        return array_intersect_key($this->taxes, array_flip($this->uses));
+        return Helpers::decimal($this->calculator->getGrossUnitPrice());
     }
 
-    protected function toDiscounted(DiscountContract $discount): Discounted
+    public function getNetUnitPrice(): float
     {
-        return new Discounted($discount, $this->getGrossSubTotal());
+        return Helpers::decimal($this->calculator->getNetUnitPrice());
     }
 
-    protected function toTaxed(TaxContract $tax): Taxed
+    public function getSubtotal(): float
     {
-        return new Taxed($tax, $this->getGrossSubTotal());
+        return Helpers::decimal($this->calculator->getSubtotal());
     }
 
-    protected function getGrossSubTotal(): float
+    public function getTotalDiscounts(): float
     {
-        return $this->getGrossUnitPrice() * $this->getQuantity();
+        return $this->calculator->getTotalDiscounts();
     }
 
-    protected function sumTotalFrom(array $totalizables): float
+    public function getTotalTaxes(): float
     {
-        return array_reduce($totalizables, fn(
-            float $acc,
-            TotalizableContract $totalizable
-        ): float => $acc + $totalizable->getTotal(), 0.0);
+        return $this->calculator->getTotalTaxes();
+    }
+
+    public function getTotal(): float
+    {
+        return Helpers::decimal($this->calculator->getTotal());
+    }
+
+    public function getDiscount(string $code): ?Discounted
+    {
+        return $this->calculator->getDiscount($code);
+    }
+
+    public function getTax(string $name): ?Taxed
+    {
+        return $this->calculator->getTax($name);
+    }
+
+    public function toArray()
+    {
+        return [
+            'unit_price' => $this->getUnitPrice(),
+            'gross_unit_price' => $this->getGrossUnitPrice(),
+            'net_unit_price' => $this->getNetUnitPrice(),
+            'quantity' => $this->getQuantity(),
+            'subtotal' => $this->getSubtotal(),
+            'total_discounts' => $this->getTotalDiscounts(),
+            'discounts' => Helpers::convertToArray($this->getDiscounts()),
+            'total_taxes' => $this->getTotalTaxes(),
+            'taxes' => Helpers::convertToArray($this->getTaxes()),
+            'total' => $this->getTotal(),
+        ];
     }
 }

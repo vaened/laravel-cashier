@@ -5,28 +5,37 @@
 
 namespace Enea\Cashier;
 
-trait HasAttributes
+trait HasProperties
 {
-    abstract public function getProperties(): array;
+    protected array $properties = [];
+
+    public function setProperties(array $properties): void
+    {
+        $this->properties = $properties;
+    }
+
+    public function getProperties(): array
+    {
+        return $this->properties;
+    }
 
     public function hasProperty(string $key): bool
     {
-        return array_key_exists($key, $this->getProperties());
+        return array_key_exists($key, $this->properties);
     }
 
     public function putProperty(string $key, $value): void
     {
-
-        $this->additionalAttributes[$key] = $value;
+        $this->properties[$key] = $value;
     }
 
     public function getProperty(string $key)
     {
-        return $this->additionalAttributes[$key] ?? null;
+        return $this->properties[$key] ?? null;
     }
 
     public function removeProperty(string $key): void
     {
-        unset($this->additionalAttributes[$key]);
+        unset($this->properties[$key]);
     }
 }

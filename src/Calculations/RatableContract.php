@@ -26,4 +26,8 @@ interface RatableContract extends TotalizableContract
     public function getTotalDiscounts(): float;
 
     public function getTotalTaxes(): float;
+
+    public function getDiscount(string $code): ?Discounted;
+
+    public function getTax(string $name): ?Taxed;
 }

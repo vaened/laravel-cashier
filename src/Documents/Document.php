@@ -12,14 +12,16 @@ abstract class Document implements DocumentContract
 {
     use IsJsonable;
 
-    public static function create(): self
+    private array $taxes;
+
+    public function __construct(array $taxes)
     {
-        return new static();
+        $this->taxes = $taxes;
     }
 
-    public function getTaxes(): array
+    public static function create(array $taxes = []): self
     {
-        return [];
+        return new static($taxes);
     }
 
     /**
@@ -29,7 +31,12 @@ abstract class Document implements DocumentContract
     {
         return [
             'key' => $this->getUniqueIdentificationKey(),
-            'taxes' => $this->getTaxes(),
+            'taxes' => $this->taxesToUse(),
         ];
+    }
+
+    public function taxesToUse(): array
+    {
+        return $this->taxes;
     }
 }

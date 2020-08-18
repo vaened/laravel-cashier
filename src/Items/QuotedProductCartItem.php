@@ -32,6 +32,6 @@ final class QuotedProductCartItem extends CartItem
     private function applyTaxes(QuotedProductContract $quoted)
     {
         $names = array_map(fn(TaxContract $tax): string => $tax->getName(), $quoted->getTaxes());
-        $this->getCashier()->applyTaxes($names);
+        $this->getCalculator()->applyTaxes($names);
     }
 }

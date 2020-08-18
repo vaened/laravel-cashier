@@ -6,8 +6,7 @@
 namespace Enea\Cashier\Items;
 
 use Enea\Cashier\{HasProperties, IsJsonable};
-use Enea\Cashier\Calculations\{Calculator, CashierContract, Taxed};
-use Enea\Cashier\Calculations\Discounted;
+use Enea\Cashier\Calculations\{CalculatorContract, Cashier, Discounted, Taxed};
 use Enea\Cashier\Contracts\{AttributableContract, CalculableContract, KeyableContract, ProductContract};
 use Illuminate\Contracts\Support\{Arrayable, Jsonable};
 
@@ -15,11 +14,11 @@ abstract class CartItem implements Arrayable, Jsonable, AttributableContract, Ke
 {
     use IsJsonable, HasProperties;
 
-    private CashierContract $cashier;
+    private CalculatorContract $calculator;
 
     public function __construct(ProductContract $product, int $quantity, array $taxes, array $discounts)
     {
-        $this->cashier = $this->createCashier($product, $quantity, $taxes, $discounts);
+        $this->calculator = $this->createCalculator($product, $quantity, $taxes, $discounts);
         $this->setProperties($product->getProperties());
     }
 
@@ -45,14 +44,24 @@ abstract class CartItem implements Arrayable, Jsonable, AttributableContract, Ke
         return $this->getCashier()->getDiscount($code);
     }
 
+    public function getDiscounts(): array
+    {
+        return $this->getCashier()->getDiscounts();
+    }
+
     public function getTax(string $name): ?Taxed
     {
         return $this->getCashier()->getTax($name);
     }
 
-    public function getCalculator(): Calculator
+    public function getTaxes(): array
     {
-        return new Calculator($this->getCashier());
+        return $this->getCashier()->getTaxes();
+    }
+
+    public function getCashier(): Cashier
+    {
+        return new Cashier($this->getCalculator());
     }
 
     /**
@@ -64,16 +73,16 @@ abstract class CartItem implements Arrayable, Jsonable, AttributableContract, Ke
             'id' => $this->getUniqueIdentificationKey(),
             'short_description' => $this->getShortDescription(),
             'properties' => $this->getProperties(),
-        ], $this->getCalculator()->toArray());
+        ], $this->getCashier()->toArray());
     }
 
-    protected final function getCashier(): CashierContract
+    protected final function getCalculator(): CalculatorContract
     {
-        return $this->cashier;
+        return $this->calculator;
     }
 
-    protected function createCashier(CalculableContract $calculable, int $quantity, array $taxes, array $discounts): CashierContract
+    protected function createCalculator(CalculableContract $calculable, int $quantity, array $taxes, array $discounts): CalculatorContract
     {
-        return app(CashierContract::class, compact('calculable', 'quantity', 'taxes', 'discounts'));
+        return app(CalculatorContract::class, compact('calculable', 'quantity', 'taxes', 'discounts'));
     }
 }

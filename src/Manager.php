@@ -5,149 +5,39 @@
 
 namespace Enea\Cashier;
 
-use Countable;
-use Enea\Cashier\Contracts\AttributableContract;
-use Enea\Cashier\Contracts\BuyerContract;
-use Enea\Cashier\Items\CartItem;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Support\Collection;
+use Enea\Cashier\Contracts\{AttributableContract, BuyerContract, DocumentContract};
+use Illuminate\Support\{Collection, Str};
 
-abstract class BaseManager implements Arrayable, Jsonable, AttributableContract, Countable
+abstract class Manager extends ProductCollection implements AttributableContract
 {
-    use IsJsonable, HasAttributes;
+    use IsJsonable, HasProperties;
 
     protected BuyerContract $buyer;
 
-    protected array $attributes;
-
-    protected Collection $collection;
+    protected DocumentContract $document;
 
     private string $token;
 
-    public function __construct(BuyerContract $buyer)
+    public function __construct(BuyerContract $buyer, DocumentContract $document)
     {
-        $this->initialize();
+        parent::__construct(new Collection());
         $this->buyer = $buyer;
+        $this->document = $document;
     }
 
-    /**
-     * Build subtotal items.
-     *
-     * @return float
-     */
-    public function getSubtotal()
-    {
-        return Helpers::decimalFormat($this->collection->sum(function (CartItem $item) {
-            return $item->getCalculator()->getCleanSubtotal();
-        }));
-    }
-
-    /**
-     * Build definite total.
-     *
-     * @return float
-     */
-    public function getDefinitiveTotal()
-    {
-        return Helpers::decimalFormat($this->collection->sum(function (CartItem $item) {
-            return $item->getCalculator()->getCleanDefinitiveTotal();
-        }));
-    }
-
-    /**
-     * Build total tax.
-     *
-     * @return float
-     */
-    public function getTotalTaxes()
-    {
-        return Helpers::decimalFormat($this->collection->sum(function (CartItem $item) {
-            return $item->getCalculator()->getCleanTaxes();
-        }));
-    }
-
-    /**
-     * Returns the discount applied to the item.
-     *
-     * @return float
-     */
-    public function getTotalDiscounts()
-    {
-        return Helpers::decimalFormat($this->collection->sum(function (CartItem $item) {
-            return $item->getCalculator()->getCleanDiscounts();
-        }));
-    }
-
-    /**
-     * Filter items that have not been marked as deleted.
-     *
-     * @return  Collection
-     */
-    public function collection()
-    {
-        return $this->collection;
-    }
-
-    /**
-     * Returns buyer instance.
-     *
-     * @return BuyerContract
-     */
-    public function buyer()
+    public function getBuyer(): BuyerContract
     {
         return $this->buyer;
     }
 
-    /**
-     * Returns only the value of the elements leaving aside the keys.
-     *
-     * @return Collection
-     */
-    public function lists()
+    public function getDocument(): DocumentContract
     {
-        return $this->collection()->values();
+        return $this->document;
     }
 
-    /**
-     * Generate a more truly "random" alpha-numeric string.
-     *
-     * @return string
-     */
-    public function getGeneratedToken()
+    public function getGeneratedToken(): string
     {
-        return $this->token ?: $this->token = str_random(30);
-    }
-
-    /**
-     * Returns the calculated amounts.
-     *
-     * @return array
-     */
-    public function getArrayableCalculator()
-    {
-        return [
-            'subtotal' => $this->getSubtotal(),
-            'definitive_total' => $this->getDefinitiveTotal(),
-            'total_taxes' => $this->getTotalTaxes(),
-            'total_discounts' => $this->getTotalDiscounts(),
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function count()
-    {
-        return $this->collection()->count();
-    }
-
-    /**
-     * {@inheritdoc}
-     * */
-    public function getAdditionalAttributes(): array
-    {
-        return $this->attributes;
+        return $this->token ??= Str::random(30);
     }
 
     /**
@@ -155,32 +45,13 @@ abstract class BaseManager implements Arrayable, Jsonable, AttributableContract,
      */
     public function toArray()
     {
-        return [
-            'calculator' => $this->getArrayableCalculator(),
+        return array_merge([
             'token' => $this->getGeneratedToken(),
-            'elements' => $this->collection()->toArray(),
-        ];
-    }
-
-    /**
-     * Add a new item to the collection.
-     *
-     * @param CartItem $item
-     * @return void
-     */
-    protected function add(CartItem $item)
-    {
-        $this->collection()->put($item->getElementKey(), $item);
-    }
-
-    /**
-     * Initialize variables.
-     *
-     * @return void
-     */
-    private function initialize()
-    {
-        $this->attributes = collect();
-        $this->collection = collect();
+            'properties' => $this->getProperties(),
+            'buyer' => [
+                'id' => $this->getBuyer()->getUniqueIdentificationKey(),
+                'properties' => $this->getBuyer()->getProperties(),
+            ],
+        ], parent::toArray());
     }
 }
