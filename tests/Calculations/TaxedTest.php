@@ -31,6 +31,15 @@ class TaxedTest extends TestCase
         $this->assertEquals(40, $taxed->getTotal());
     }
 
+    public function test_help_methods_to_obtain_the_tax(): void
+    {
+        $taxed = new Taxed(Tax::excluded('EXAMPLE', 10.0), 400.0);
+
+        $this->assertEquals('EXAMPLE', $taxed->getName());
+        $this->assertEquals(10, $taxed->getPercentage());
+        $this->assertEquals(false, $taxed->isIncluded());
+    }
+
     public function test_transform_taxed_to_array(): void
     {
         $taxed = new Taxed(Tax::excluded('EXAMPLE', 10.0), 400.0);
