@@ -11,5 +11,5 @@ return [
     'session_key' => 'LARAVEL-SHOPPING-SESSION-KEY-MANAGER',
 
     // Class that is responsible for calculating all values
-    'cashier' => \Enea\Cashier\Core\Cashier::class,
+    'calculator' => \Enea\Cashier\Calculations\Calculator::class,
 ];
