@@ -3,15 +3,15 @@
  * Created by enea dhack - 12/06/17 10:17 PM.
  */
 
-namespace Enea\Cashier;
+namespace Enea\Cashier\Managers;
 
-use Enea\Cashier\Contracts\BuyerContract;
-use Enea\Cashier\Contracts\DocumentContract;
+use Enea\Cashier\Contracts\{BuyerContract, DocumentContract};
 use Enea\Cashier\Documents\Free;
+use Enea\Cashier\ShoppingCart;
 use Illuminate\Session\Store;
 use Illuminate\Support\Collection;
 
-class ShoppingManager
+class SessionShoppingManager implements ShoppingManagerContract
 {
     protected Store $session;
 
@@ -47,7 +47,7 @@ class ShoppingManager
 
     public function flush(): void
     {
-        $this->session->forget($this->key());
+        $this->session->put($this->key(), new Collection());
     }
 
     protected function isInitiated(): bool
@@ -65,8 +65,8 @@ class ShoppingManager
         return $this->key ??= config('cashier.session_key', 'default_laravel_shopping_session_key');
     }
 
-    protected function carts(): ?Collection
+    protected function carts(): Collection
     {
-        return $this->session->get($this->key());
+        return $this->session->get($this->key(), new Collection());
     }
 }
