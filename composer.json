@@ -37,5 +37,12 @@
     "psr-4": {
       "Enea\\Tests\\": "tests/"
     }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Enea\\Cashier\\CashierServiceProvider"
+      ]
+    }
   }
 }
