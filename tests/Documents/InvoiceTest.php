@@ -13,12 +13,14 @@ class InvoiceTest extends DocumentTestCase
 {
     public function getDocument(): DocumentContract
     {
-        return Invoice::create();
+        return Invoice::create()->using([
+            Taxes::IVA
+        ]);
     }
 
     protected function getExpectedTaxes(): array
     {
-        return [Taxes::IGV];
+        return [Taxes::IVA];
     }
 
     protected function getDocumentName(): string

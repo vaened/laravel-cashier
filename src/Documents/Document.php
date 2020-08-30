@@ -12,7 +12,7 @@ abstract class Document implements DocumentContract
 {
     use IsJsonable;
 
-    private array $taxes;
+    protected array $taxes;
 
     public function __construct(array $taxes)
     {

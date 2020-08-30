@@ -14,6 +14,12 @@ class Invoice extends Document
         return new static($taxes);
     }
 
+    public function using(array $taxes): self
+    {
+        $this->taxes = $taxes;
+        return $this;
+    }
+
     public function getUniqueIdentificationKey(): string
     {
         return 'invoice';
