@@ -17,5 +17,7 @@ interface ShoppingManagerContract
 
     public function drop(string $token): void;
 
+    public function has(string $token): bool;
+
     public function flush(): void;
 }

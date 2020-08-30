@@ -28,6 +28,16 @@ class SessionShoppingManagerTest extends DataBaseTestCase
         $this->assertNull($manager->find($shoppingCart->getGeneratedToken()));
     }
 
+    public function test_has_a_shopping_cart(): void
+    {
+        $manager = $this->getShoppingManager();
+        $shoppingCart = $manager->initialize(Client::find(1));
+
+        $this->assertTrue($manager->has($shoppingCart->getGeneratedToken()));
+        $manager->drop($shoppingCart->getGeneratedToken());
+        $this->assertFalse($manager->has($shoppingCart->getGeneratedToken()));
+    }
+
     public function test_delete_all_shopping_carts(): void
     {
         $manager = $this->getShoppingManager();

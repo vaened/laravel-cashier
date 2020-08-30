@@ -45,6 +45,11 @@ class SessionShoppingManager implements ShoppingManagerContract
         $this->carts()->forget($token);
     }
 
+    public function has(string $token): bool
+    {
+        return $this->carts()->offsetExists($token);
+    }
+
     public function flush(): void
     {
         $this->session->put($this->key(), new Collection());
