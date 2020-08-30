@@ -6,7 +6,7 @@
 namespace Enea\Cashier;
 
 use Enea\Cashier\Contracts\{AttributableContract, BuyerContract, DocumentContract};
-use Illuminate\Support\{Collection, Str};
+use Illuminate\Support\{Collection};
 
 abstract class Manager extends ProductCollection implements AttributableContract
 {
@@ -37,7 +37,7 @@ abstract class Manager extends ProductCollection implements AttributableContract
 
     public function getGeneratedToken(): string
     {
-        return $this->token ??= Str::random(30);
+        return $this->token ??= uniqid('laravel-cashier');
     }
 
     /**
