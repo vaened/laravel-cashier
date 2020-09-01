@@ -285,9 +285,42 @@ Cashier separates the prices into 3, `getGrossUnitPrice()`, `getNetUnitPrice()` 
 | **Applied**        | -                         | IVA and AnotherTax        | IVA                       |
 | **Total**          | 81.30 $USD                | 100 $USD                  | 90.24 $USD                |
 
-## Taxes
+## Configuration
 
-There are a few things you need to know to set up taxes correctly.
+There are a few things you need to know to set up taxes and discounts correctly.
+
+- [**Enea\Cashier\Modifiers\DiscountContract**](/src/Modifiers/DiscountContract.php)
+
+  Represents an applicable discount. There is quite a functional helper implementation in [`Enea\Cashier\Modifiers\Discount`](src/Modifiers/Discount.php) so it is not totally necessary to assign your own model, unless you want full control over the discount codes.
+
+  ```php
+  namespace Enea\Cashier\Modifiers;
+  
+  use Enea\Cashier\Calculations\Percentager;
+  use Enea\Cashier\Modifiers\DiscountContract;
+  
+  class Discount implements DiscountContract
+  {
+      public function getDiscountCode(): string
+      {
+          return $this->code;
+      }
+  
+      public function getDescription(): string
+      {
+          return $this->description;
+      }
+  
+      public function extract(float $total): float
+      {
+          if (! $this->percentage) {
+              return $this->discount;
+          }
+  				// logic to calculate a percentage discount
+          return Percentager::excluded($total, $this->discount)->calculate();
+      }
+  }
+  ```
 
 - [**Enea\Cashier\Contracts\DocumentContract**](/src/Contracts/DocumentContract.php)
 
