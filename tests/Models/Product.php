@@ -1,83 +1,67 @@
 <?php
 /**
- * Created by enea dhack - 17/06/17 01:06 PM.
+ * Created by enea dhack - 06/08/2020 17:44.
  */
 
 namespace Enea\Tests\Models;
 
-use Enea\Cashier\Contracts\SalableContract;
-use Illuminate\Database\Eloquent\Model;
+use Enea\Cashier\Contracts\ProductContract;
+use Enea\Cashier\Modifiers\Tax;
+use Enea\Cashier\Taxes;
 
-class Product extends Model implements SalableContract
+/**
+ * Class Product
+ *
+ * @package Enea\Tests\Models
+ * @author enea dhack <enea.so@live.com>
+ *
+ * @property int id
+ * @property string short_description
+ * @property string full_description
+ * @property float igv_pct
+ * @property float sale_price
+ */
+class Product extends Model implements ProductContract
 {
-    protected $fillable = ['id', 'price', 'description', 'taxable', 'custom_property'];
-
-    public $incrementing = false;
-
-    protected $casts = [
-        'taxable' => 'boolean'
+    protected $fillable = [
+        'id',
+        'sale_price',
+        'short_description',
+        'full_description',
+        'igv_pct',
     ];
 
-    /**
-     * Key that identifies the article as unique.
-     *
-     * @return int|string
-     */
-    public function getItemKey()
+    protected $casts = [
+        'sale_price' => 'float',
+        'ivg_pct' => 'float',
+    ];
+
+    public function getUnitPrice(): float
+    {
+        return $this->sale_price;
+    }
+
+    public function getUniqueIdentificationKey(): string
     {
         return $this->getKey();
     }
 
-    /**
-     * Returns item name.
-     *
-     * @return string
-     * */
-    public function getShortDescription()
+    public function getShortDescription(): string
     {
-        return $this->description;
+        return $this->short_description;
     }
 
-    /**
-     * Returns the unit of measure of the item.
-     *
-     * @return string
-     * */
-    public function getMeasure()
+    public function getTaxes(): array
     {
-        // $this->measure->name;
-        return $this->measure;
+        return [
+            Tax::included(Taxes::IGV, $this->igv_pct),
+        ];
     }
 
-    /**
-     * Get base price for item.
-     *
-     * @return float
-     */
-    public function getBasePrice()
+    public function getProperties(): array
     {
-        return $this->price;
-    }
-
-    /**
-     * Returns true in case of being subject to tax.
-     *
-     * @return bool
-     */
-    public function isTaxable()
-    {
-        return $this->taxable;
-    }
-
-    /**
-     * Returns an array with extra attributes.
-     *
-     * @return \Illuminate\Support\Collection
-     * */
-    public function getAdditionalAttributes()
-    {
-        return collect([
-            'custom_property' => $this->custom_property,
-        ]);
+        return [
+            'full_description' => $this->full_description,
+        ];
     }
 }

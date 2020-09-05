@@ -5,316 +5,143 @@
 
 namespace Enea\Cashier;
 
-use Enea\Cashier\Contracts\AccountContract;
-use Enea\Cashier\Contracts\BuyerContract;
-use Enea\Cashier\Contracts\DocumentContract;
-use Enea\Cashier\Contracts\SalableContract;
-use Enea\Cashier\Documents\Free as FreeDocument;
-use Enea\Cashier\Exceptions\IrreplaceableDetailItemException;
-use Enea\Cashier\Exceptions\OneAccountAtTimeException;
+use Enea\Cashier\Contracts\{BuyerContract, DocumentContract, ProductContract, QuoteContract};
+use Enea\Cashier\Exceptions\{MissingAccountException, NotFoundProductException};
+use Enea\Cashier\Items\{ProductCartItem, QuotedProductCartItem};
 use Enea\Cashier\Modifiers\DiscountContract;
-use Illuminate\Support\Collection;
 
-class ShoppingCart extends BaseManager
+class ShoppingCart extends Manager
 {
-    /**
-     * The account attached to the cart.
-     *
-     * @var AccountManager
-     * */
-    protected $account;
+    protected array $discounts = [];
 
-    /**
-     * The payment document.
-     *
-     * @var DocumentContract
-     * */
-    protected $document;
+    protected ?QuoteManager $quoteManager = null;
 
-    /**
-     * @var Collection
-     */
-    protected $discounts;
+    private array $taxes;
 
-    /**
-     * ShoppingCart constructor.
-     *
-     * @param BuyerContract $buyer
-     * @param DocumentContract $document
-     * @param Collection $discounts
-     */
-    public function __construct(BuyerContract $buyer, DocumentContract $document = null, Collection $discounts = null)
+    public function __construct(BuyerContract $buyer, DocumentContract $document, array $taxes = [])
     {
-        parent::__construct($buyer);
-        $this->discounts = $discounts ?: collect();
-        $this->setDocument($document ?: FreeDocument::make());
+        parent::__construct($buyer, $document);
+        $this->taxes = $taxes;
     }
 
-    /**
-     * Attaches an account to pay and limits the elements to the detail of said account.
-     *
-     * @param AccountContract $account
-     * @throws OneAccountAtTimeException
-     * @return ShoppingCart
-     */
-    public function attach(AccountContract $account)
+    public function push(ProductContract $product, int $quantity = 1): ProductCartItem
     {
-        if ($this->isAttachedAccount()) {
-            throw new OneAccountAtTimeException();
-        }
-        $this->clean();
-        $this->account = new AccountManager($account, $this->document, $this->discounts);
-        return $this;
+        $cartItem = $this->createCartItem($product, $quantity);
+        $this->addProduct($cartItem);
+        return $cartItem;
     }
 
-    /**
-     * Unlink car account and clean all items.
-     *
-     * @throws OneAccountAtTimeException
-     * @return ShoppingCart
-     */
-    public function detach()
+    public function pull(string $productID): ProductCartItem
     {
-        if ($this->isAttachedAccount()) {
-            $this->account = null;
-            $this->clean();
-        }
+        $this->validateQuotePull($productID);
+        $cartItem = $this->getQuoteManager()->find($productID)->toSell();
+        $this->addProduct($cartItem);
+        return $cartItem;
+    }
+
+    public function pullAll(): self
+    {
+        $this->validateQuote();
+
+        $products = $this->products()->keys()->toArray();
+        
+        $this->getQuoteManager()->products()->filter(fn(
+            QuotedProductCartItem $quoted
+        ): bool => ! in_array($quoted->getUniqueIdentificationKey(), $products))->each(fn(
+            QuotedProductCartItem $quoted
+        ) => $this->pull($quoted->getUniqueIdentificationKey()));
 
         return $this;
     }
 
-    /**
-     * Add a new item to the collection and return true if successful, if the buyer
-     * has implemented the 'DetailedStaticContract' interface,
-     * you will not be able to use this method.
-     *
-     * @param SalableContract $salable
-     * @param int $quantity
-     * @return bool
-     */
-    public function push(SalableContract $salable, $quantity = 1)
+    public function find(string $productID): ?ProductCartItem
     {
-        if ($this->isAttachedAccount()) {
-            throw new IrreplaceableDetailItemException();
-        }
-
-        if ($has = ! $this->has($salable->getItemKey())) {
-            $this->add($this->makeSalableItem($salable, $quantity));
-        }
-
-        return $has;
+        return $this->products()->get($productID);
     }
 
-    /**
-     * Passes an item from the store to the collection and returns true on success.
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function pull($key)
+    public function remove(string $productID): void
     {
-        if ($has = $this->getAccount()->has($key)) {
-            $element = $this->getAccount()->find($key);
-            $this->add($this->makeSalableItem($element->getSalable(), $element->getQuantity()));
-        }
-
-        return $has;
+        $this->products()->forget($productID);
     }
 
-    /**
-     * Move all elements from storage to collection for purchase.
-     *
-     * @return ShoppingCart
-     */
-    public function pullAll()
-    {
-        $this->getAccount()->getElements()->each(function (AccountElement $element) {
-            $this->pull($element->getElementKey());
-        });
-    }
-
-    /**
-     * Returns a item by identification.
-     *
-     * @param string|int $key
-     * @return SalableItem|null
-     */
-    public function find($key)
-    {
-        return $this->collection()->get($key);
-    }
-
-    /**
-     * Removes an item from the collection.
-     *
-     * @param string|int $key
-     * @return bool
-     */
-    public function remove($key)
-    {
-        if ($has = $this->has($key)) {
-            $this->collection()->forget($key);
-        }
-
-        return $has;
-    }
-
-    /**
-     * Determine if an item exists in the collection by key.
-     *
-     * @param $key
-     * @return bool
-     */
-    public function has($key)
-    {
-        return isset($this->collection()[$key]);
-    }
-
-    /**
-     * Returns the attached account.
-     *
-     * @return AccountManager
-     */
-    public function getAccount()
-    {
-        return $this->account;
-    }
-
-    /**
-     * Set the payment document and extract tex percentage.
-     *
-     * @param DocumentContract $document
-     * @return void
-     */
-    public function setDocument(DocumentContract $document)
+    public function setDocument(DocumentContract $document): void
     {
         $this->document = $document;
-        $setDocument = function (BaseSalableItem $item) use ($document) {
-            $item->setDocument($document);
-        };
-
-        $this->collection()->each($setDocument);
-
-        if ($this->isAttachedAccount()) {
-            $this->getAccount()->getElements()->each($setDocument);
-        }
+        $this->products()->each(fn(ProductCartItem $product) => $product->applyTaxes($document->taxesToUse()));
     }
 
-    /**
-     * Returns a discount located by its code.
-     *
-     * @param $code
-     * @return DiscountContract|null
-     */
-    public function getDiscount($code)
+    public function addDiscount(DiscountContract $discount): void
     {
-        return $this->discounts->get($code);
+        $this->discounts[$discount->getDiscountCode()] = $discount;
+        $this->products()->each(fn(ProductCartItem $product) => $product->addDiscounts([$discount]));
     }
 
-    /**
-     * Add a discount.
-     *
-     * @param DiscountContract $discount
-     * @return static
-     */
-    public function addDiscount(DiscountContract $discount)
+    public function removeDiscount(string $code): void
     {
-        $this->discounts->put($discount->getDiscountCode(), $discount);
+        unset($this->discounts[$code]);
+        $this->products()->each(fn(ProductCartItem $product) => $product->removeDiscount($code));
+    }
 
-        $addDiscount = function (BaseSalableItem $item) use ($discount) {
-            $item->addDiscount($discount);
-        };
-
-        $this->collection()->each($addDiscount);
-
-        if ($this->isAttachedAccount()) {
-            $this->getAccount()->getElements()->each($addDiscount);
-        }
-
+    public function attach(QuoteContract $quote): self
+    {
+        $this->quoteManager = new QuoteManager($quote);
+        $this->clear();
         return $this;
     }
 
-    /**
-     * Remove a discount.
-     *
-     * @param $code
-     * @return static
-     */
-    public function removeDiscount($code)
+    public function detach(): void
     {
-        $this->discounts->forget($code);
+        $this->quoteManager = null;
+        $this->clear();
+    }
 
-        $removeDiscount = function (BaseSalableItem $item) use ($code) {
-            $item->removeDiscount($code);
-        };
+    public function getQuoteManager(): ?QuoteManager
+    {
+        return $this->quoteManager;
+    }
 
-        $this->collection()->each($removeDiscount);
-
-        if ($this->isAttachedAccount()) {
-            $this->getAccount()->getElements()->each($removeDiscount);
-        }
-
-        return $this;
+    public function hasQuote(): bool
+    {
+        return $this->quoteManager !== null;
     }
 
     /**
-     * Return the document.
-     *
-     * @return DocumentContract
-     */
-    public function getDocument()
-    {
-        return $this->document;
-    }
-
-    /**
-     * Returns true if you have attached an account.
-     *
-     * @return bool
-     */
-    public function isAttachedAccount()
-    {
-        return ! is_null($this->account);
-    }
-
-    /**
-     * Clean the collection.
-     *
-     * @return  void
-     * */
-    public function clean()
-    {
-        $this->collection = collect();
-    }
-
-    /**
-     * Get the instance as an array.
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function toArray()
     {
         return array_merge(parent::toArray(), [
-            'buyer' => [
-                'key' => $this->buyer()->getBuyerKey(),
-                'properties' => $this->buyer()->getAdditionalAttributes(),
-            ],
-            'properties' => $this->getAdditionalAttributes()->toArray(),
-            'discounts' => $this->discounts->toArray(),
+            'discounts' => Helpers::convertToArray($this->discounts),
             'document' => $this->getDocument()->toArray(),
-            'account' => $this->isAttachedAccount() ? $this->getAccount()->toArray() : [],
+            'quote' => $this->hasQuote() ? $this->getQuoteManager()->toArray() : null,
         ]);
     }
 
-    /**
-     * Build a salable item.
-     *
-     * @param SalableContract $salable
-     * @param $quantity
-     * @return SalableItem
-     */
-    protected function makeSalableItem(SalableContract $salable, $quantity)
+    private function validateQuotePull(string $productID): void
     {
-        return (new SalableItem($salable, $quantity))->setDocument($this->document)->addDiscounts($this->discounts);
+        $this->validateQuote();
+
+        if (! $this->getQuoteManager()->hasProduct($productID)) {
+            throw new NotFoundProductException($productID);
+        }
+    }
+
+    private function validateQuote(): void
+    {
+        if (! $this->hasQuote()) {
+            throw new MissingAccountException();
+        }
+    }
+
+    private function addProduct(ProductCartItem $cartItem): void
+    {
+        $cartItem->addDiscounts($this->discounts);
+        $cartItem->applyTaxes($this->document->taxesToUse());
+        $this->addToCollection($cartItem);
+    }
+
+    protected function createCartItem(ProductContract $product, int $quantity): ProductCartItem
+    {
+        return new ProductCartItem($product, $quantity, $this->taxes);
     }
 }

@@ -7,10 +7,5 @@ namespace Enea\Cashier\Contracts;
 
 interface CalculableContract
 {
-    /**
-     * Get base price for item.
-     *
-     * @return float
-     */
-    public function getBasePrice();
+    public function getUnitPrice(): float;
 }

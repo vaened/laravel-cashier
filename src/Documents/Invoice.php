@@ -5,75 +5,23 @@
 
 namespace Enea\Cashier\Documents;
 
-use Enea\Cashier\Contracts\BusinessOwner;
-use Enea\Cashier\Modifiers\Taxes\IGV;
+use Enea\Cashier\Taxes;
 
 class Invoice extends Document
 {
-    /**
-     * @var bool
-     * */
-    protected $includedTax = false;
-
-    /**
-     * Invoice constructor.
-     *
-     * @param BusinessOwner $owner
-     */
-    public function __construct(BusinessOwner $owner = null)
+    public static function create(array $taxes = [Taxes::IGV]): self
     {
-        parent::__construct($owner);
-        $this->withoutTaxIncluded();
+        return new static($taxes);
     }
 
-    /**
-     * Returns a new instance.
-     *
-     * @param BusinessOwner|null $owner
-     * @return static
-     */
-    public static function make(BusinessOwner $owner = null)
+    public function using(array $taxes): self
     {
-        return new static($owner);
-    }
-
-    /**
-     * Includes IGV in price.
-     *
-     * @return static
-     */
-    public function withTaxIncluded()
-    {
-        $this->includedTax = true;
+        $this->taxes = $taxes;
         return $this;
     }
 
-    /**
-     * Does not include IGV in price.
-     *
-     * @return static
-     */
-    public function withoutTaxIncluded()
-    {
-        $this->includedTax = false;
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getKeyDocument()
+    public function getUniqueIdentificationKey(): string
     {
         return 'invoice';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTaxes()
-    {
-        return collect([
-            IGV::make(18, $this->includedTax),
-        ]);
     }
 }

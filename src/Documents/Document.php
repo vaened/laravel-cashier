@@ -5,48 +5,23 @@
 
 namespace Enea\Cashier\Documents;
 
-use Enea\Cashier\Contracts\BusinessOwner;
 use Enea\Cashier\Contracts\DocumentContract;
 use Enea\Cashier\IsJsonable;
-use Illuminate\Support\Collection;
 
 abstract class Document implements DocumentContract
 {
     use IsJsonable;
 
-    /**
-     * @var BusinessOwner
-     */
-    protected $owner;
+    protected array $taxes;
 
-    /**
-     * Document constructor.
-     *
-     * @param BusinessOwner $owner
-     */
-    public function __construct(BusinessOwner $owner = null)
+    public function __construct(array $taxes)
     {
-        $this->owner = $owner;
+        $this->taxes = $taxes;
     }
 
-    /**
-     * Returns the owner of social reason.
-     *
-     * @return null|BusinessOwner
-     * */
-    public function getBusinessOwner()
+    public static function create(array $taxes = []): self
     {
-        return $this->owner;
-    }
-
-    /**
-     * Returns the taxes of the document.
-     *
-     * @return Collection<TaxContract>|null
-     */
-    public function getTaxes()
-    {
-        return collect();
+        return new static($taxes);
     }
 
     /**
@@ -54,19 +29,14 @@ abstract class Document implements DocumentContract
      */
     public function toArray()
     {
-        if ($owner = $this->getBusinessOwner()) {
-            $owner = [
-                'key' => $owner->getBusinessOwnerKey(),
-                'description' => $owner->getDescription(),
-                'identification' => $owner->getTaxpayerIdentification(),
-            ];
-        }
-
         return [
-            'owner' => $owner,
-            'key' => $this->getKeyDocument(),
-            'taxes' => $this->getTaxes() ? $this->getTaxes()->toArray() : [],
-
+            'key' => $this->getUniqueIdentificationKey(),
+            'taxes' => $this->taxesToUse(),
         ];
+    }
+
+    public function taxesToUse(): array
+    {
+        return $this->taxes;
     }
 }

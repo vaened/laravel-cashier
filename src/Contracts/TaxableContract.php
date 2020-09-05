@@ -5,14 +5,7 @@
 
 namespace Enea\Cashier\Contracts;
 
-use Illuminate\Support\Collection;
-
 interface TaxableContract
 {
-    /**
-     * Returns the taxes of the document.
-     *
-     * @return Collection<TaxContract>|null
-     */
-    public function getTaxes();
+    public function getTaxes(): array;
 }

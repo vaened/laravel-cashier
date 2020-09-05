@@ -1,280 +1,393 @@
 # Laravel Cashier Package
-[![Build Status](https://travis-ci.org/eneav/laravel-cashier.svg?branch=master)](https://travis-ci.org/eneasdh-fs/laravel-cashier) [![StyleCI](https://styleci.io/repos/92887208/shield?branch=master)](https://styleci.io/repos/92887208)
+[![Build Status](https://travis-ci.org/vaened/laravel-cashier.svg?branch=master)](https://travis-ci.org/vaened/laravel-cashier) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/vaened/laravel-cashier/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/vaened/laravel-cashier/?branch=master) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
-This package provides common functionality for session management for the sale of products in general.
-## How to install
-1. It is recommended to install this package through composer
+This package provides a functionality to manage the sale of products and abstracts all the calculations you need for a sale.
+```php
+// create a shopping cart
+$document = Invoice::create()->using([Taxes::IVA]);
+$shoppingCart = ShoppingManager::initialize($client, $document);
+
+// add a global discount
+$discount = Discount::percentage(15)->setCode('PROMOTIONAL');
+$shoppingCart->addDiscount($discount);
+
+// add products
+$keyboard = $shoppingCart->push(Product::find(1), 5);
+$keyboard->addDiscount(Discount::percentage(8)->setCode('ONLY-TODAY'));
+
+$backpack = $shoppingCart->push(Product::find(2));
+$backpack->setQuantity(10);
+
+// get totals
+$shoppingCart->getSubtotal();
+$shoppingCart->getTotalDiscounts();
+$shoppingCart->getTotalTaxes();
+$shoppingCart->getTotal();
+```
+
+## Installation
+
+Laravel Cashier requires PHP 7.4. This version supports Laravel 7
+
+To get the latest version, simply require the project using Composer:
 ```sh
 $ composer require enea/laravel-cashier
 ```
 
-2. Optionally, add the provider to the `providers` key in` config / app.php`
-```php
-'providers' => [
-    // ...
-    Enea\Cashier\Provider\CashierServiceProvider::class,
-    // ...
-],
+And publish the configuration file.
+
+```sh
+$ php artisan vendor:publish --provider='Enea\Cashier\CashierServiceProvider'
 ```
-## Basic Usage
-The shopping cart is identified with a ring that is generated at the time of its creation, it is necessary to provide this ring to modify, delete and / or add products.
+
+## Class reference
+
+This table defines the implementation of the models necessary for the operation of the package, there are some models that come to help such as: `$discount` and `$document`, however it is recommended to replace these models with your own.
+
+| **Concrete**     | **Abstract**                                                 | **Description**               |
+| ---------------- | ------------------------------------------------------------ | ----------------------------- |
+| `$client`        | [`Enea\Cashier\Contracts\BuyerContract`](/src/Contracts/BuyerContract.php) | person who makes the purchase |
+| `$document`      | [`Enea\Cashier\Contracts\DocumentContract`](/src/Contracts/DocumentContract.php) | type of sale document         |
+| `$product`       | [`Enea\Cashier\Contracts\ProductContract`](/src/Contracts/ProductContract.php) | product being sold            |
+| `$quote`         | [`Enea\Cashier\Contracts\QuoteContract`](/src/Contracts/QuoteContract.php) | quote available for sale      |
+| `$quotedProduct` | [`Enea\Cashier\Contracts\QuotedProductContract`](/src/Contracts/QuotedProductContract.php) | quoted product to sell        |
+| `$discount`      | [`Enea\Cashier\Modifiers\DiscountContract`](/src/Modifiers/DiscountContract.php) | representation of a discount  |
+| `$tax`           | [`Enea\Cashier\Modifiers\TaxContract`](/src/Modifiers/TaxContract.php) | representation of a tax       |
+
+## Usage
+
+To start a purchase you must use the `ShoppingManager::initialize($client, $document)`.
 
 ```php
-class SaleController extends Controller
+use App\Client;
+use Enea\Cashier\Documents\Invoice;
+use Enea\Cashier\Facades\ShoppingManager;
+
+$document = Invoice::create()->using([Taxes::IVA]); // or use your own model
+$shoppingCart = ShoppingManager::initialize(Client::find(10), $document);
+```
+
+When you initialize a shopping cart, a token is generated so that it can be searched from `ShoppingManager::find($token)`. This function gets the shopping cart from session.
+```php
+$token = $shoppingCart->getGeneratedToken();
+$shoppingCart = ShoppingManager::find($token); // returns the shopping cart that matches the token
+```
+
+It is also possible that you want to invoice a quote, and to do so you must call the `attach` function of the `$shoppingCart`. Doing this creates a [`QuoteManager`](/src/QuoteManager.php) instance inside the Shopping Cart, which can be accessed from the `$shoppingCart->getQuoteManager()` function.
+```php
+$shoppingCart->attach($quote);
+```
+
+Now you just have to add products to the shopping cart using `$shoppingCart->push($product, $quantity)`.
+
+```php
+$keyboard = Product::query()->where('description', 'Keyboard K530-rgb')->firstOrFail();
+$productCartItem = $shoppingCart->push($keyboard, 4);
+```
+
+Or you can also pull products from the quote using `$shoppingCart->pull($productID)`.
+
+```php
+$productCartItem = $shoppingCart->pull($productID);
+```
+
+The `push` and `pull` methods returns an instance of [`ProductCartItem`](/src/Items/ProductCartItem.php), which provides a lot of useful method.
+
+```php
+// set product quantity
+$productCartItem->setQuantity(10);
+
+// configure custom properties
+$productCartItem->setProperty(['key' => 'value']);
+$productCartItem->putProperty('key', 'value');
+$productCartItem->removeProperty('key');
+
+// manage discounts
+$productCartItem->addDiscounts($discounts);
+$productCartItem->addDiscount($discount);
+$productCartItem->getDiscount($discountCode);
+$productCartItem->removeDiscount($discountCode);
+
+// get the totals
+$cashier = $productCartItem->getCashier();
+$cashier->getUnitPrice();
+$cashier->getGrossUnitPrice();
+$cashier->getNetUnitPrice();
+$cashier->getQuantity();
+$cashier->getSubtotal();
+$cashier->getTotalDiscounts();
+$cashier->getTotalTaxes();
+$cashier->getTotal();
+```
+
+### Example
+
+For this example, we are going to simulate a simple purchase. We need a `$client` and we will use a `$invoice` with `IVA` as a sales document.
+
+```php
+class ShoppingCartController extends Controller
 {
-    /**
-     * Start the purchase
-     */
-    public function index(Client $client, Request $request )
-    {
-        $shopping = ShoppingManager::initialize( $client );
-        
-        $shopping->setDocument(Invoice::make()); // optional
-        
-        return response()->json([
-            'token_cart' => $shopping->getGeneratedToken(),
-            'shopping' => $shopping->toArray( )
-        ]);
-    }
+  public function start(Client $client): JsonResponse
+  {
+    $shoppingCart = ShoppingManager::initialize($client);        
+    $shoppingCart->setDocument(Invoice::create()->using([Taxes::IGV])); 
 
-    /**
-     * Add a product to shopping cart
-     */
-    public function add(Product $product, Request $request)
-    {
-        $shopping = ShoppingManager::find($request->header('CART-TOKEN'));
-        
-        return response()->json([
-            'added' => $shopping->push($product, $request->get('quantity')), // true or false
-            'shopping' => $shopping->toArray( )
-        ]);
-    }
-    
-    /**
-     * Remove a product to shopping cart
-     */
-    public function remove(Request $request)
-    {
-        $shopping = ShoppingManager::find($request->header('CART-TOKEN'));
+    return response()->json([
+      'token' => $shoppingCart->getGeneratedToken(),
+      'shoppingCart' => $shoppingCart->toArray()
+    ]);
+  }
 
-        return response()->json([
-            'removed' => $shopping->remove($request->get('product_key')), // true o false
-            'shopping' => $shopping->toArray( )
-        ]);
-    }
-    
-    /**
-     * Change the amount
-     */
-    public function change( Request $request )
-    {
-        $shopping = ShoppingManager::find( $request->header('CART-TOKEN'));
-        $product = $shopping->find($request->get('key_product'));
+  public function addGlobalDiscount(Discount $discount, Request $request): JsonResponse
+  {
+    $shoppingCart = ShoppingManager::find($request->header('CART-TOKEN'));
+    $shoppingCart->addDiscount($discount);
 
-        if (is_null( $product )) {
-            abort(404);
-        }
+    return response()->json(compact('shoppingCart'));
+  }
 
-        $product->setQuantity(2);
+  public function removeGlobalDiscount(Discount $discount, Request $request): JsonResponse
+  {
+    $shoppingCart = ShoppingManager::find($request->header('CART-TOKEN'));
+    $shoppingCart->removeDiscount($discount->getDiscountCode());
 
-        return response()->json([
-            'product' => $product,
-            'shopping' => $shopping->toArray( )
-        ]);
-    }
+    return response()->json(compact('shoppingCart'));
+  }
 }
 ```
- See the class in charge of doing the calculations [`Enea\Cashier\Calculator`](https://github.com/eneasdh-fs/laravel-cashier/blob/master/src/Calculator.php)
+
+Now we add a controller to manage shopping cart products.
+
 ```php
-    class StoreSaleController extends Controller
-    {
-        public function store( Request $request )
-        {
-            $shopping = ShoppingManager::find( $request->header('CART-TOKEN'));
-            $products = $this->build( $shopping );
-    
-            $payment = DB::Transaction(function( ) use( $products, $shopping ){
-    
-                $payment = Payment::create(
-                    //$shopping->toArray()
-                );
-    
-                PaymentItem::insert( $products );
-    
-                return $payment;
-            });
-    
-            return response()->json([
-                'success' => true,
-                'document' => $payment
-            ]);
-        }
-        protected function build( ShoppingCart $cart )
-        {
-            $products = array( );
-    
-            $cart->collection()->each(function( SalableItem $item) use( & $products) {
-                // $products[ ] = $item->getCalculator( )->toArray( );
-            });
-    
-            return $products;
-        }
-    }
-    
+class ProductManagerController extends Controller
+{
+  public function addProduct(Product $product, Request $request): JsonResponse
+  {
+    $shoppingCart = ShoppingManager::find($request->header('CART-TOKEN'));
+    $added = $shoppingCart->push($product, $request->get('quantity'));
+
+    return response()->json(compact('shoppingCart', 'added'));
+  }
+
+  public function removeProduct(string $productID, Request $request): JsonResponse
+  {
+    $shoppingCart = ShoppingManager::find($request->header('CART-TOKEN'));
+    $shoppingCart->remove($productID);
+
+    return response()->json(compact('shoppingCart'));
+  }
+
+  public function updateProductQuantity(string $productID, Request $request): JsonResponse
+  {
+    $shoppingCart = ShoppingManager::find($request->header('CART-TOKEN'));
+    $product = $shoppingCart->find($productID);
+    $product->setQuantity($request->get('quantity'));
+
+    return response()->json(compact('shoppingCart', 'product'));
+  }
+
+  public function addDiscountToProduct(string $productID, Discount $discount, Request $request): JsonResponse
+  {
+    $shoppingCart = ShoppingManager::find($request->header('CART-TOKEN'));
+    $product = $shoppingCart->find($productID);
+    $product->addDiscount($discount);
+
+    return response()->json(compact('shoppingCart'));
+  }  
+
+  public function removeDiscountToProduct(string $productID, Discount $discount, Request $request): JsonResponse
+  {
+    $shoppingCart = ShoppingManager::find($request->header('CART-TOKEN'));
+    $product = $shoppingCart->find($productID);
+    $product->removeDiscount($discount);
+
+    return response()->json(compact('shoppingCart'));
+  }
+}
 ```
 
+And to finish we save the document in the database.
 
-## Interfaces
-The package offers a series of interfaces that convert a model to a particular actor.
-    
-- #### Enea\Cashier\Contracts\BuyerContract:
-    Represents the `buyer`, the model the client must implement is an interface to be able to start the purchase.
-    ``` php
-    public function index(Client $client, Request $request )
-    {
-        $shopping = ShoppingManager::initialize( $client );
-        
-        // ..
-    }
-    ```
-- #### Enea\Cashier\Contracts\SalableContract:
-    Represents the `element to sell`. It provides some properties needed to perform the calculations.
-    ```php
-    public function add( Product $product, Request $request)
-    {
-        $shopping = ShoppingManager::find($request->header('CART-TOKEN'));
-        $shopping->push($product, $request->get('quantity'));
-        
-        // ..
-    }
-    ```
-- #### Enea\Cashier\Contract\AccountContract
-    Represents an account payable, must be attached to the shopping cart.
-    The implementation of this interface allows the elements to choose to include a custom list.
-    Example case:
-    A pre-invoice to be settled, this has items that have been loaded since the pre-invoice was opened. In this case,
-    It is necessary to validate that the articles are paid within the detail of said prefacture.
+```php
+class PurchaseController extends Controller
+{
+  public function store(Request $request): JsonResponse
+  {
+    $shoppingCart = ShoppingManager::find($request->header('CART-TOKEN'));
+    $products = $shoppingCart->collection()->map($this->toOrderProduct());
 
-    ```php
-    public function index(Preinvoice $preinvoice, Request $request )
-    {
-        $client = $preinvoice->client;
-        $shopping = ShoppingManager::initialize( $client )
-            ->attach($preinvoice);
+    $order = DB::Transaction($this->createOrder($shoppingCart, $products));
+    $dropped = $this->destroyShoppingCart($shoppingCart->getGeneratedToken());
 
-        // ..
-    }
-    ```
-- #### Enea\Cashier\Contracts\AccountElementContract:
-    Represents an item within the account.
-    ```php
-    public function add(Request $request)
-    {
-        $shopping = ShoppingManager::find($request->header('CART-TOKEN'));
-        $shopping->pull($request->get('product_key'));
-        
-        // ..
-    }
-    ```
-- #### Enea\Cashier\Contracts\DiscountableContract:
-    When implementing this interface, it is possible to assign a percentage discount on an element, it is used in conjunction with the `SalableContract` or` AccountElementContract` interface to alert the package that it is possible to apply a discount to that element. Represents an element within the count
-    ```php
-    class Product extends Model implements SalableContract, DiscountableContract
-    {
-        /**
-         * Get the item discount in percentage
-         * @return int
-         */
-        public function getDiscountPercentage(): int
-        {
-            return // Percentage discount
-        }
-    }
-    ```
-- #### Enea\Cashier\Contracts\CalculatorContract:
-    In case the class in charge of performing the calculations that is configured in the package does not fit its reality, it is possible to implement this interface or extend of the `Enea\Cashier\Calculator` class to modify its behavior.
-    ```php
-    class CustomCalculator implements CalculatorContract
-    {
-        //
-    }
-    ```
-- #### Enea\Cashier\Contracts\DocumentContract:
-    Represents the document type and specifies the taxes.
-    ```php
-    class Invoice implements DocumentContract
-    {
-        protected const IGV = 18;
-    
-        /**
-         * @var BusinessOwner
-         */
-        protected $owner;
-    
-        /**
-         * Invoice constructor.
-         * @param BusinessOwner $owner
-         */
-        public function __construct( BusinessOwner $owner = null )
-        {
-            $this->owner = $owner;
-        }
-    
-        /**
-         * Get tax percentage
-         * @return int
-         */
-        public function getTaxPercentageAttribute(): int
-        {
-            return self::IGV;
-        }
-    
-        /**
-         * Returns the owner of social reason
-         * @return BusinessOwner
-         * */
-        public function getBusinessOwner(): ?BusinessOwner
-        {
-            return $this->owner;
-        }
-    }
-    ```
-- #### Enea\Cashier\Contracts\BusinessOwner:
-    Represents the Social Reason of an invoice.
-    ```php
-    class Owner implements BusinessOwner
-    {
-        /**
-         * Identification of the owner of the business name
-         *
-         * @return int|string
-         * */
-        public function getBusinessOwnerKey( )
-        {
-            return $this->getKey();
-        }
-    
-        /**
-         * Returns the taxpayer's unique identification
-         *
-         * @return string
-         */
-        public function getTaxpayerIdentification( ): string 
-        {
-            return $this->ruc;
-        }
-        /**
-         * Returns the social reason
-         *
-         * @return string
-         */
-        public function getDescription( ): string
-        {
-            return $this->name;
-        }
-        
-    }
-    ```
+    return response()->json(compact('order', 'dropped'));
+  }
+
+  private function createOrder(ShoppingCart $cart, Collection $products): Closure
+  {
+    return function() use ($cart, $products): Order {
+      $order = Order::create([
+        // complete the structure of your model
+        'subtotal' => $cart->getSubtotal(),
+        'total' => $cart->getTotal(),
+        'document_id'd => $cart->getDocument()->getUniqueIdentificationKey(),
+      ]);                
+      $order->detail()->saveMany($products);    
+      return $order;
+    };            
+  }
+
+  private function toOrderProduct(): Closure
+  {
+    return fn(ProductCartItem $product) => new OrderProduct([
+      'product_id' => $product->getUniqueIdentificationKey(),
+      'quantity' => $product->getQuantity(),
+      'unit_price' => $product->getCashier()->getUnitPrice(),
+      'discount' => $product->getCashier()->getTotalDiscounts(),
+      'iva_pct' =>  $product->getTax('IVA')->getPercentage(),
+    ]);
+  }
+
+  private function destroyShoppingCart(string $token): bool
+  {
+    ShoppingManager::drop($token);
+    return !ShoppingManager::has($token);
+  }
+}
+```
+
+## Cashier
+
+It is responsible for centralizing the calculations to get taxes, discounts and totals for each product. you can find it in [**Enea\Cashier\Calculations\Cashier**](/src/Calculations/Cashier.php).
+
+| **Method** | **Description** | **Return** |
+| ---------- | ---- | ------ |
+| **`getUnitPrice()`** | unit sales price | float |
+| `getGrossUnitPrice()` | gross price (price without tax) | float |
+| `getNetUnitPrice()` | net price (price + taxes) | float |
+| `getSubtotal()` | subtotal | float |
+| `getTotalDiscounts()` | total discounts | float |
+| `getTotalTaxes()` | total taxes | float |
+| `getTotal()` | final total with discounts and taxes | float |
+| `getTaxes()` | all taxes grouped by name | [**Taxed[]**](/src/Calculations/Taxed.php) |
+| ``getTax(string $name)`` | tax by name | [**Taxed**](/src/Calculations/Taxed.php) |
+| ``getDiscounts()`` | all discounts grouped by code | [**Discounted[]**](/src/Calculations/Discounted.php) |
+| ``getDiscount(string $code)`` | discount by code | [**Discounted**](/src/Calculations/Discounted.php) |
+
+### Pricing
+
+Cashier separates the prices into 3, `getGrossUnitPrice()`, `getNetUnitPrice()` and `getUnitPrice()`,  where the latter is the unit price after evaluating taxes, both **included** and **excluded**. `$cashier->getUnitPrice()` is the function used for all calculations. You can see an example in code from [`Enea\Tests\Calculations\PriceTest`](/tests/Calculations/PriceTest.php)
+
+| **Method**         | getGrossUnitPrice()       | getNetUnitPrice()         | getUnitPrice()            |
+| ------------------ | ------------------------- | ------------------------- | ------------------------- |
+| **Base**           | 100.00 $USD               | 100.00 $USD               | 100.00 $USD               |
+| **Included Taxes** | IVA(12%), AnotherTax(11%) | IVA(12%), AnotherTax(11%) | IVA(12%), AnotherTax(11%) |
+| **Tax to use**     | IVA(12%)                  | IVA(12%)                  | IVA(12%)                  |
+| **Applied**        | -                         | IVA and AnotherTax        | IVA                       |
+| **Total**          | 81.30 $USD                | 100 $USD                  | 90.24 $USD                |
+
+## Configuration
+
+There are a few things you need to know to set up taxes and discounts correctly.
+
+- [**Enea\Cashier\Modifiers\DiscountContract**](/src/Modifiers/DiscountContract.php)
+
+  Represents an applicable discount. There is quite a functional helper implementation in [`Enea\Cashier\Modifiers\Discount`](src/Modifiers/Discount.php) so it is not totally necessary to assign your own model, unless you want full control over the discount codes.
+
+  ```php
+  namespace Enea\Cashier\Modifiers;
+  
+  use Enea\Cashier\Calculations\Percentager;
+  use Enea\Cashier\Modifiers\DiscountContract;
+  
+  class Discount implements DiscountContract
+  {
+      public function getDiscountCode(): string
+      {
+          return $this->code;
+      }
+  
+      public function getDescription(): string
+      {
+          return $this->description;
+      }
+  
+      public function extract(float $total): float
+      {
+          if (! $this->percentage) {
+              return $this->discount;
+          }
+  				// logic to calculate a percentage discount
+          return Percentager::excluded($total, $this->discount)->calculate();
+      }
+  }
+  ```
+
+- [**Enea\Cashier\Contracts\DocumentContract**](/src/Contracts/DocumentContract.php)
+
+  Represents the type of document with which the sale will be made and also defines the taxes that will be applied to the products.
+
+  ```php
+  namespace App\Models;
+  
+  use Enea\Cashier\Taxes;
+  use Enea\Cashier\Contracts\DocumentContract;
+  use Illuminate\Database\Eloquent\Model;
+  
+  class Document extends Model implements DocumentContract
+  {
+      public function taxesToUse(): array
+      {
+        	// some logic
+          return [
+            Taxes::IGV, // tax name
+          ];
+      }
+  }
+  ```
+
+- [**Enea\Cashier\Modifiers\TaxContract**](/src/Modifiers/TaxContract.php)
+
+  Represents the tax on the `product`, the package has a help implementation which can be found in [`Enea\Cashier\Modifiers\Tax`](/src/Modifiers/Tax.php)
+  
+  ```php
+  namespace App\Models;
+  
+  use Enea\Cashier\Contracts\ProductContract;
+  use Enea\Cashier\Modifiers\Tax;
+  use Enea\Cashier\Taxes;
+  
+  class Product extends Model implements ProductContract
+  {
+      public function getUnitPrice(): float
+      {
+          return $this->sale_price;
+      }
+  
+      public function getShortDescription(): string
+      {
+          return $this->short_description;
+      }
+  
+      public function getTaxes(): array
+      {
+          return [
+              Tax::included(Taxes::IGV, $this->igv_pct),
+          ];
+      }
+  }
+  ```
+  
+  To use taxes it is necessary to understand that they can be configured in 2 ways, **included** and **excluded**
+  
+  | **Type**       | **INCLUDED** | **EXCLUDED** |
+  | -------------- | ------------ | ------------ |
+  | **Unit Price** | 100.00 $USD  | 100.00 $USD  |
+  | **Tax %**      | 10%          | 10%          |
+  | **Total Tax**  | 9.09 $USD    | 10.00 $USD   |
+  | **Net Price**  | 100.00 $USD  | 110.00 $USD  |
+
+
 ## More documentation
 
 You can find a lot of comments within the source code as well as the tests located in the `tests` directory.
+

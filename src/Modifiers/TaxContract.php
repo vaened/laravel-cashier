@@ -5,19 +5,13 @@
 
 namespace Enea\Cashier\Modifiers;
 
-interface TaxContract extends AmountModifierContract
-{
-    /**
-     * Returns tax description.
-     *
-     * @return string
-     */
-    public function getDescription();
+use Illuminate\Contracts\Support\{Arrayable, Jsonable};
 
-    /**
-     * Returns true in case the tax is already included in the price.
-     *
-     * @return bool
-     */
-    public function isIncluded();
+interface TaxContract extends Arrayable, Jsonable
+{
+    public function isIncluded(): bool;
+
+    public function getPercentage(): float;
+
+    public function getName(): string;
 }

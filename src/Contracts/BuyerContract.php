@@ -5,15 +5,9 @@
 
 namespace Enea\Cashier\Contracts;
 
-/**
- * Interface BuyerContract.
- */
-interface BuyerContract extends AttributableContract
+use Illuminate\Contracts\Support\{Arrayable, Jsonable};
+use JsonSerializable;
+
+interface BuyerContract extends KeyableContract, AttributableContract, Arrayable, Jsonable, JsonSerializable
 {
-    /**
-     * Primary key that uniquely identifies the buyer.
-     *
-     * @return int|string
-     */
-    public function getBuyerKey();
 }
