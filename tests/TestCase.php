@@ -5,60 +5,27 @@
 
 namespace Enea\Tests;
 
-use Enea\Cashier\Documents\Invoice;
-use Enea\Cashier\ShoppingManager;
-use Enea\Tests\Models\Client;
-use Enea\Tests\Models\DiscountableProduct;
-use Enea\Tests\Models\Preinvoice;
-use Enea\Tests\Models\Product;
+use Enea\Cashier\CashierServiceProvider;
+use Enea\Cashier\Calculations\Calculator;
+use Illuminate\Contracts\Config\Repository as ConfigContract;
+use Orchestra\Testbench\TestCase as BaseTestCase;
 
-class TestCase extends \Orchestra\Testbench\TestCase
+class TestCase extends BaseTestCase
 {
-    protected function salable(array $attributes = array())
+    protected function setUp(): void
     {
-        $attributes = array_merge([
-            'price' => 123.45,
-            'description' => 'some description',
-            'id' => 1,
-            'taxable' => true
-        ], $attributes);
-
-        return new Product($attributes);
+        parent::setUp();
+        $this->config($this->app->make('config'));
     }
 
-    protected function discountableProduct(array $attributes = array())
+    protected function config(ConfigContract $config): void
     {
-        $attributes = array_merge([
-            'price' => 123.45,
-            'description' => 'some description',
-            'id' => 1,
-            'taxable' => true,
-            'discount' => 5,
-        ], $attributes);
-
-        return new DiscountableProduct($attributes);
+        $config->set('cashier.decimals', 3);
+        $config->set('cashier.cashier', Calculator::class);
     }
 
-    protected function getManager()
+    protected function getPackageProviders($app)
     {
-        return new ShoppingManager($this->app['session']);
-    }
-
-    protected function getShoppingCart($client_id = 10000)
-    {
-        $client = new Client(['id' => $client_id]);
-
-        $document = new Invoice();
-
-        return  $this->getManager()->initialize($client, $document);
-    }
-
-    protected function getPreinvoice(array $attributes = array())
-    {
-        $attributes = array_merge([
-            'id' => 11234,
-        ], $attributes);
-
-        return new Preinvoice($attributes);
+        return [CashierServiceProvider::class];
     }
 }

@@ -7,10 +7,5 @@ namespace Enea\Cashier\Contracts;
 
 interface AttributableContract
 {
-    /**
-     * Returns an array with extra attributes.
-     *
-     * @return \Illuminate\Support\Collection
-     * */
-    public function getAdditionalAttributes();
+    public function getProperties(): array;
 }

@@ -1,152 +1,165 @@
 <?php
 /**
- * Created by enea dhack - 30/05/2017 02:54 PM.
+ * Created by enea dhack - 31/07/2020 17:47.
  */
 
 namespace Enea\Cashier\Calculations;
 
-use Enea\Cashier\Contracts\CalculableContract;
+use Enea\Cashier\Contracts\{CalculableContract, TotalizableContract};
 use Enea\Cashier\Modifiers\DiscountContract;
-use Illuminate\Support\Collection;
+use Enea\Cashier\Modifiers\TaxContract;
 
-/**
- * Class Calculator.
- *
- * @author enea dhack <enea.so@live.com>
- */
-class Calculator extends Base
+class Calculator implements CalculatorContract
 {
-    protected $memoryBasePrice;
+    protected PriceEvaluator $evaluator;
 
-    protected $memorySubtotal;
+    private float $unitPrice;
 
-    protected $memoryTaxes;
+    private int $quantity;
 
-    protected $memoryDiscounts;
+    private array $taxes = [];
 
-    protected $memoryDefinitiveTotal;
+    private array $uses = [];
 
-    protected $memoryCollectionTaxes;
+    private array $discounts = [];
 
-    protected $memoryCollectionDiscounts;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(
-        CalculableContract $calculable,
-        $quantity,
-        Collection $taxes = null,
-        Collection $discounts = null
-    ) {
-        parent::__construct($calculable, $quantity, $taxes, $discounts);
+    public function __construct(CalculableContract $calculable, int $quantity, array $taxes, array $discounts)
+    {
+        $this->unitPrice = $calculable->getUnitPrice();
+        $this->evaluator = new PriceEvaluator($calculable->getUnitPrice(), $taxes, []);
+        $this->setDiscounts($discounts);
+        $this->setQuantity($quantity);
+        $this->setTaxes($taxes);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setQuantity($quantity)
+    public function applyTaxes(array $taxNames): void
     {
-        parent::setQuantity($quantity);
-        $this->resetMemory();
+        $taxNames = array_map(fn(string $taxName): string => $taxName, $taxNames);
+        $this->uses = $taxNames;
+        $this->evaluator = new PriceEvaluator($this->unitPrice, $this->taxes, $taxNames);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setTaxes(Collection $taxes)
+    public function setDiscounts(array $discounts): void
     {
-        $this->taxes = $taxes;
-        $this->resetMemory();
+        foreach ($discounts as $discount) {
+            $this->addDiscount($discount);
+        }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function addDiscount(DiscountContract $discount)
+    public function addDiscount(DiscountContract $discount): void
     {
-        parent::addDiscount($discount);
-        $this->resetMemory();
+        $this->discounts[$discount->getDiscountCode()] = $discount;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeDiscount($code)
+    public function getDiscount(string $code): ?Discounted
     {
-        parent::removeDiscount($code);
-        $this->resetMemory();
+        $discount = $this->discounts[$code] ?? null;
+        return $discount instanceof DiscountContract ? $this->toDiscounted($discount) : null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTaxes()
+    public function removeDiscount(string $code): void
     {
-        return $this->memoryCollectionTaxes ?: $this->memoryCollectionTaxes = parent::getTaxes();
+        unset($this->discounts[$code]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDiscounts()
+    public function getTax(string $name): ?Taxed
     {
-        return $this->memoryCollectionDiscounts ?: $this->memoryCollectionDiscounts = parent::getDiscounts();
+        $tax = $this->getUsesTaxes()[$name] ?? null;
+        return $tax instanceof TaxContract ? $this->toTaxed($tax) : null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanBasePrice()
+    public function setQuantity(int $quantity): void
     {
-        return $this->memoryBasePrice ?: $this->memoryBasePrice = parent::getCleanBasePrice();
+        $this->quantity = $quantity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanSubtotal()
+    public function getQuantity(): int
     {
-        return $this->memorySubtotal ?: $this->memorySubtotal = parent::getCleanSubtotal();
+        return $this->quantity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanDiscounts()
+    public function getUnitPrice(): float
     {
-        return $this->memoryDiscounts ?: $this->memoryDiscounts = parent::getCleanDiscounts();
+        return $this->evaluator->getUnitPrice();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanTaxes()
+    public function getGrossUnitPrice(): float
     {
-        return $this->memoryTaxes ?: $this->memoryTaxes = parent::getCleanTaxes();
+        return $this->evaluator->getGrossUnitPrice();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCleanDefinitiveTotal()
+    public function getNetUnitPrice(): float
     {
-        return $this->memoryDefinitiveTotal ?: $this->memoryDefinitiveTotal = parent::getCleanDefinitiveTotal();
+        return $this->evaluator->getNetUnitPrice();
     }
 
-    /**
-     * Reset all variables.
-     *
-     * @return void
-     */
-    protected function resetMemory()
+    public function getSubtotal(): float
     {
-        $this->memoryBasePrice = null;
-        $this->memorySubtotal = null;
-        $this->memoryTaxes = null;
-        $this->memoryDiscounts = null;
-        $this->memoryDefinitiveTotal = null;
-        $this->memoryCollectionTaxes = null;
-        $this->memoryCollectionDiscounts = null;
+        return $this->getUnitPrice() * $this->getQuantity();
+    }
+
+    public function getTotalDiscounts(): float
+    {
+        return $this->sumTotalFrom($this->getDiscounts());
+    }
+
+    public function getTotalTaxes(): float
+    {
+        return $this->sumTotalFrom($this->getTaxes());
+    }
+
+    public function getTotal(): float
+    {
+        return $this->getSubtotal() - $this->getTotalDiscounts() + $this->getTotalTaxes();
+    }
+
+    public function getTaxes(): array
+    {
+        return array_map(fn(TaxContract $tax) => $this->toTaxed($tax), $this->getUsesTaxes());
+    }
+
+    public function getDiscounts(): array
+    {
+        return array_map(fn(DiscountContract $discount) => $this->toDiscounted($discount), $this->discounts);
+    }
+
+    protected function setTaxes(array $taxes): void
+    {
+        foreach ($taxes as $tax) {
+            $this->addTax($tax);
+        }
+    }
+
+    protected function addTax(TaxContract $tax): void
+    {
+        $this->taxes[$tax->getName()] = $tax;
+    }
+
+    protected function getUsesTaxes(): array
+    {
+        return array_intersect_key($this->taxes, array_flip($this->uses));
+    }
+
+    protected function toDiscounted(DiscountContract $discount): Discounted
+    {
+        return new Discounted($discount, $this->getGrossSubTotal());
+    }
+
+    protected function toTaxed(TaxContract $tax): Taxed
+    {
+        return new Taxed($tax, $this->getGrossSubTotal());
+    }
+
+    protected function getGrossSubTotal(): float
+    {
+        return $this->getGrossUnitPrice() * $this->getQuantity();
+    }
+
+    protected function sumTotalFrom(array $totalizables): float
+    {
+        return array_reduce($totalizables, fn(
+            float $acc,
+            TotalizableContract $totalizable
+        ): float => $acc + $totalizable->getTotal(), 0.0);
     }
 }

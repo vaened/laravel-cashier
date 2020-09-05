@@ -1,27 +1,32 @@
 <?php
 /**
- * Created by enea dhack - 17/06/17 01:04 PM.
+ * Created by enea dhack - 06/08/2020 18:18.
  */
 
 namespace Enea\Tests\Models;
 
 use Enea\Cashier\Contracts\BuyerContract;
-use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Client
+ *
+ * @package Enea\Tests\Models
+ * @author enea dhack <enea.so@live.com>
+ *
+ * @property int id
+ * @property string full_name
+ */
 class Client extends Model implements BuyerContract
 {
-    protected $fillable = ['id', 'name', 'address'];
-
-    public function getBuyerKey()
+    public function getUniqueIdentificationKey(): string
     {
         return $this->getKey();
     }
 
-    /**
-     * {@inheritdoc}
-     * */
-    public function getAdditionalAttributes()
+    public function getProperties(): array
     {
-        return collect();
+        return [
+            'full_name' => $this->full_name,
+        ];
     }
 }

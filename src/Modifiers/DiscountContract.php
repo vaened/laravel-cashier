@@ -5,28 +5,14 @@
 
 namespace Enea\Cashier\Modifiers;
 
-use Enea\Cashier\Contracts\AttributableContract;
+use Enea\Cashier\Contracts\{AttributableContract};
+use Illuminate\Contracts\Support\{Arrayable, Jsonable};
 
-/**
- * Interface DiscountContract.
- *
- * Defined a discount.
- *
- * @package Enea\Cashier\Contracts
- */
-interface DiscountContract extends AttributableContract, AmountModifierContract
+interface DiscountContract extends AttributableContract, Arrayable, Jsonable
 {
-    /**
-     * Returns the discount key.
-     *
-     * @return int|string
-     */
-    public function getDiscountCode();
+    public function getDiscountCode(): string;
 
-    /**
-     * Returns discount description.
-     *
-     * @return string
-     */
-    public function getDescription();
+    public function getDescription(): string;
+
+    public function extract(float $total): float;
 }

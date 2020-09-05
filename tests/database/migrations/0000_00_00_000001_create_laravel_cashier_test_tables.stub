@@ -1,0 +1,55 @@
+<?php
+/**
+ * Created by enea dhack - 06/08/2020 18:49.
+ */
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateLaravelCashierTestTables extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('products', function (Blueprint $table): void {
+            $table->unsignedInteger('id')->primary();
+            $table->string('short_description', 50);
+            $table->char('full_description', 120);
+            $table->decimal('igv_pct', 2, 1);
+            $table->decimal('sale_price', 8, 3);
+        });
+
+        Schema::create('clients', function (Blueprint $table): void {
+            $table->unsignedInteger('id')->primary();
+            $table->string('full_name');
+        });
+
+        Schema::create('quotes', function (Blueprint $table): void {
+            $table->unsignedInteger('id')->primary();
+            $table->unsignedInteger('client_id');
+            $table->foreign('client_id')->on('clients')->references('id');
+        });
+
+        Schema::create('quoted_products', function (Blueprint $table): void {
+            $table->unsignedInteger('quote_id');
+            $table->unsignedInteger('product_id');
+            $table->unsignedInteger('number');
+            $table->unsignedInteger('quantity');
+            $table->float('sale_price', 8, 3);
+            $table->decimal('discount_pct', 2, 1);
+            $table->decimal('taxes_pct', 2, 1);
+
+            $table->primary(['quote_id', 'product_id']);
+            $table->foreign('quote_id')->on('quotes')->references('id');
+            $table->foreign('product_id')->on('products')->references('id');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('quoted_products');
+        Schema::dropIfExists('quotes');
+        Schema::dropIfExists('clients');
+        Schema::dropIfExists('products');
+    }
+}

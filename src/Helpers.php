@@ -5,32 +5,17 @@
 
 namespace Enea\Cashier;
 
+use Illuminate\Contracts\Support\Arrayable;
+
 class Helpers
 {
-    /**
-     * format decimal.
-     *
-     * @param float $value
-     *
-     * @return float
-     */
-    public static function decimalFormat($value)
+    public static function decimal(float $decimal): float
     {
-        return round($value, config('cashier.decimals', 3));
+        return round($decimal, config('cashier.decimals', 3));
     }
 
-    /**
-     * Returns the percentage value.
-     *
-     * @param int $percentage
-     * @return float
-     */
-    public static function toPercentage($percentage)
+    public static function convertToArray(array $values): array
     {
-        if (! is_float($percentage)) {
-            return $percentage / 100;
-        }
-
-        return $percentage;
+        return array_map(fn(Arrayable $arrayable) => $arrayable->toArray(), $values);
     }
 }

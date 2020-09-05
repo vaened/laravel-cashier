@@ -5,25 +5,10 @@
 
 namespace Enea\Cashier\Contracts;
 
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Contracts\Support\{Arrayable, Jsonable};
+use JsonSerializable;
 
-/**
- * Interface DocumentContract.
- */
-interface DocumentContract extends Arrayable, Jsonable, TaxableContract
+interface DocumentContract extends Arrayable, Jsonable, KeyableContract, JsonSerializable
 {
-    /**
-     * Returns the key document.
-     *
-     * @return string|int
-     */
-    public function getKeyDocument();
-
-    /**
-     * Returns the owner of social reason.
-     *
-     * @return null|BusinessOwner
-     * */
-    public function getBusinessOwner();
+    public function taxesToUse(): array;
 }

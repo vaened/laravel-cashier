@@ -1,0 +1,116 @@
+<?php
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Created by enea dhack - 06/08/2020 19:04.
+ */
+class LaravelCashierTestSeeder extends Seeder
+{
+    public function run(): void
+    {
+        DB::table('products')->insert($this->getProducts());
+        DB::table('clients')->insert($this->getClients());
+        DB::table('quotes')->insert($this->getQuotes());
+        DB::table('quoted_products')->insert($this->getQuotedProducts());
+    }
+
+    private function getQuotedProducts(): array
+    {
+        return [
+            [
+                'quote_id' => 1,
+                'product_id' => 1,
+                'number' => 1,
+                'quantity' => 2,
+                'sale_price' => 160,
+                'discount_pct' => 5,
+                'taxes_pct' => 18,
+            ],
+            [
+                'quote_id' => 1,
+                'product_id' => 2,
+                'number' => 2,
+                'quantity' => 10,
+                'sale_price' => 50,
+                'discount_pct' => 5,
+                'taxes_pct' => 18,
+            ],
+            [
+                'quote_id' => 2,
+                'product_id' => 1,
+                'number' => 1,
+                'quantity' => 2,
+                'sale_price' => 160,
+                'discount_pct' => 10,
+                'taxes_pct' => 18,
+            ],
+            [
+                'quote_id' => 2,
+                'product_id' => 3,
+                'number' => 2,
+                'quantity' => 10,
+                'sale_price' => 120,
+                'discount_pct' => 0,
+                'taxes_pct' => 18,
+            ],
+
+        ];
+    }
+
+    private function getQuotes(): array
+    {
+        return [
+            [
+                'id' => 1,
+                'client_id' => 1,
+            ],
+            [
+                'id' => 2,
+                'client_id' => 1,
+            ],
+        ];
+    }
+
+    private function getProducts(): array
+    {
+        return [
+            [
+                'id' => 1,
+                'short_description' => 'Keyboard K530-rgb',
+                'full_description' => 'Redragon Wireless Draconic K530-rgb',
+                'igv_pct' => 18,
+                'sale_price' => 160,
+            ],
+            [
+                'id' => 2,
+                'shot_description' => 'Chest Backpack',
+                'full_description' => 'Original Multipurpose Chest Backpack - Line Osoce',
+                'igv_pct' => 18,
+                'sale_price' => 50,
+            ],
+            [
+                'id' => 3,
+                'shot_description' => 'LED Monitor 24"',
+                'full_description' => 'Sceptre E248W-19203R 24" Ultra Thin 75Hz 1080p',
+                'igv_pct' => 18,
+                'sale_price' => 120,
+            ],
+        ];
+    }
+
+    private function getClients(): array
+    {
+        return [
+            [
+                'id' => 1,
+                'full_name' => 'Shuuzou Oshimi',
+            ],
+            [
+                'id' => 2,
+                'full_name' => 'Daichi Daiki',
+            ]
+        ];
+    }
+}
