@@ -5,25 +5,9 @@
 
 namespace Enea\Cashier;
 
-use Vaened\Enum\Enum;
-
-/**
- * Class Taxes
- *
- * @package Enea\Core
- * @author enea dhack <enea.so@live.com>
- *
- * @method static Taxes IGV()
- * @method static Taxes IVA()
- */
-class Taxes extends Enum
+class Taxes
 {
-    const IGV = 'IGV';
+    public const IGV = 'IGV';
 
-    const IVA = 'IVA';
-
-    public function __toString(): string
-    {
-        return $this->value();
-    }
+    public const  IVA = 'IVA';
 }
