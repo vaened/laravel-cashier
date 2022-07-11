@@ -11,12 +11,12 @@ jobs:
 
     strategy:
       matrix:
-        php: [ '7.4', '8.0' ]
-        laravel: [ '7', '8' ]
+        php: [ '8.0', '8.1' ]
+        laravel: [ '8', '9' ]
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -28,37 +28,41 @@ jobs:
       - name: Setup Problem Matchers
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
-      - name: Select Laravel 7
-        uses: nick-invision/retry@v1
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          command: composer require "laravel/framework:7.*" --no-update --no-interaction
-        if: "matrix.laravel == '7'"
-
       - name: Select Laravel 8
-        uses: nick-invision/retry@v1
+        uses: nick-invision/retry@v2
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer require "laravel/framework:8.*" --no-update --no-interaction
         if: "matrix.laravel == '8'"
 
-      - name: Install PHP 7 Dependencies
-        uses: nick-invision/retry@v1
+      - name: Select Laravel 9
+        uses: nick-invision/retry@v2
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: composer update --no-interaction --no-progress
-        if: "matrix.php < 8"
+          command: composer require "laravel/framework:9.*" --no-update --no-interaction
+        if: "matrix.laravel == '9'"
 
       - name: Install PHP 8 Dependencies
-        uses: nick-invision/retry@v1
+        uses: nick-invision/retry@v2
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: composer update --no-interaction --no-progress --ignore-platform-req=php
-        if: "matrix.php >= 8"
+          command: |
+            composer require "orchestra/testbench:6.*" --no-update --no-interaction
+            composer update --no-interaction --no-progress --ignore-platform-req=php
+        if: "matrix.php == 8"
+
+      - name: Install PHP 8.1 Dependencies
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          command: |
+            composer require "orchestra/testbench:7.*" --no-update --no-interaction
+            composer update --no-interaction --no-progress --ignore-platform-req=php
+        if: "matrix.php >= 8.1"
 
       - name: Execute PHPUnit
         run: vendor/bin/phpunit
