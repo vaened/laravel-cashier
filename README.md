@@ -1,5 +1,11 @@
-# Laravel Cashier Package
-[![Build Status](https://travis-ci.org/vaened/laravel-cashier.svg?branch=master)](https://travis-ci.org/vaened/laravel-cashier) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/vaened/laravel-cashier/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/vaened/laravel-cashier/?branch=master) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+# Deprecated - Laravel Cashier Package
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+
+**This repository is marked as deprecated and has been replaced by a better and more comprehensive version.**
+
+**Reason**: We have released [Swift Cart](https://github.com/vaened/swift-cart), which offers enhanced functionalities, a more user-friendly experience, and improved performance. As a result, this repository will no longer receive updates.
+
+**Deprecation Date**: August 4st, 2023.
 
 This package provides a functionality to manage the sale of products and abstracts all the calculations you need for a sale.
 ```php
